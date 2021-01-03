@@ -1,0 +1,16 @@
+{
+    ".url": {
+        "SYNO.SDS.TorrServer": {
+            "type": "url",
+            "allUsers": true,
+            "grantPrivilege": "all",
+            "advanceGrantPrivilege": true,
+            "title": "TorrServer",
+            "desc": "TorrServer",
+            "icon": "images/torrserver-{0}.png",
+            "protocol": "http",
+            "url": "/",
+            "port": "@TorrServer_port@"            
+        }
+    }
+}

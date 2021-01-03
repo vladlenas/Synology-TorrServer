@@ -1,0 +1,28 @@
+[{
+    "step_title": "TorrServer конфигурация",
+    "items": [{
+        "type": "textfield",
+        "desc": "Изменить TCP порт. По умолчанию: 8090 ",
+        "subitems": [{
+            "key": "wizard_TorrServer_port",
+            "desc": "TCP порт"
+           }]
+        },
+         {
+            "desc": "<a target=\"_blank\" href=\"https://github.com/SynoCommunity/spksrc/wiki/Synology-Used-Ports\">Используемые порты Synology</a>" 
+    }]
+},
+   {
+    "step_title": "TorrServer Обновление",
+    "items": [{
+        "type": "multiselect",
+        "desc": "Обновить базу данных TorrServer?",
+        "subitems": [{
+            "key": "wizard_update_data",
+            "desc": "Да"
+           }]
+        },
+         {
+            "desc": "<strong style='color:red'>После обновления базы данных, все настройки и плейлисты будут удалены.</strong>" 
+    }]
+}]

@@ -1,0 +1,14 @@
+[{
+    "step_title": "TorrServer configuration",
+    "items": [{
+        "type": "textfield",
+        "desc": "Change TCP port. Defaults: 8090 ",
+        "subitems": [{
+            "key": "wizard_TorrServer_port",
+            "desc": "TCP port"
+           }]
+        },
+         {
+            "desc": "<a target=\"_blank\" href=\"https://github.com/SynoCommunity/spksrc/wiki/Synology-Used-Ports\">Synology Used Ports</a>" 
+    }]
+}]
