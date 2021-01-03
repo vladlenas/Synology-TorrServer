@@ -27,5 +27,5 @@ make clean
 # Credits and References
 * YouRock https://github.com/YouROK
 * Huge thanks for https://github.com/nirev his scripts made it easier to build packages.
-* Package structure https://help.synology.com/developer-guide/index.html
+* Synology DSM6.0 Developer Guide https://help.synology.com/developer-guide/index.html
 * Architecture per Synology model https://github.com/SynoCommunity/spksrc/wiki/Architecture-per-Synology-model
