@@ -1,4 +1,4 @@
-TORRSERVER_VERSION="1.1.82"
+TORRSERVER_VERSION="1.1.83"
 DSM="6.0"
 
 .PHONY: torrserver-% clean
