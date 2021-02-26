@@ -1,7 +1,5 @@
 # TorrServer package for Synology NAS
-Synology NAS package based on precompiled TorrServer binaries.
-https://github.com/trinity-aml/TorrServer/releases v1.1.84 supported DSM 6.0 and above, not supported DSM 7.0.
-Android client for TorrServer https://github.com/trinity-aml/TorrServe/releases/download/1.1.88/TorrServe_1.1.88.apk
+Synology NAS package for DSM 6.0-6.2.3 based on precompiled TorrServer binaries https://github.com/trinity-aml/TorrServer/releases
 
 # Sopported Architecture
 * arm5 - armv5 88f6281 88f628x
