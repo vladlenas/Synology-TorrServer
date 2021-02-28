@@ -7,7 +7,7 @@ ARCH=$2
 DSM=$3
 
 download_torrserver() {
-  local base_url="https://github.com/trinity-aml/TorrServer/releases/download/${TORRSERVER_VERSION}"
+  local base_url="https://github.com/YouROK/TorrServer/releases/download/${TORRSERVER_VERSION}"
   local bin_name="TorrServer-linux-${ARCH}"
   local src_bin="${base_url}/${bin_name}"
   local dest_bin="torrserver"
