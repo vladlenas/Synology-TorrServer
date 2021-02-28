@@ -2,7 +2,7 @@
     "step_title": "TorrServer configuration",
     "items": [{
         "type": "textfield",
-        "desc": "Change TCP port. Defaults: 8090",
+        "desc": "Change TCP port. Defaults: 8091",
         "subitems": [{
             "key": "wizard_TorrServer_port",
             "desc": "TCP port"
