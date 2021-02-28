@@ -29,10 +29,10 @@ postinst ()
 {
 
 	# Edit the configuration according to the wizard
-	sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8091}|g" ${CFG_FILE}
-        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8091}|g" ${INF_FILE}
-        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8091}|g" ${CNG_FILE}
-        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8091}|g" ${FWPORTS_FILE}
+	sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8090}|g" ${CFG_FILE}
+        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8090}|g" ${INF_FILE}
+        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8090}|g" ${CNG_FILE}
+        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8090}|g" ${FWPORTS_FILE}
         # Add firewall config
      if [ -r "${FWPORTS_FILE}" ]; then
         servicetool --install-configure-file --package "${FWPORTS_FILE}"
