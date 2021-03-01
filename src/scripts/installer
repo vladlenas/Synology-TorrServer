@@ -1,18 +1,6 @@
 #!/bin/sh
 
-# Package
-PACKAGE="TorrServer"
-DNAME="TorrServer"
-
-# Others
-[ ${SYNOPKG_PKGDEST} ] || SYNOPKG_PKGDEST=`ls -l /var/packages/TorrServer/target | cut -d\> -f2 | cut -d\  -f2`
-SSS="/var/packages/${PACKAGE}/scripts/start-stop-status"
-CFG_FILE="/var/packages/${PACKAGE}/scripts/start-stop-status"
-INF_FILE="/var/packages/${PACKAGE}/INFO"
-CNG_FILE="/var/packages/${PACKAGE}/target/ui/config"
-TMP_DIR="${SYNOPKG_PKGDEST}/../../@tmp"
-
-# Optional FWPORTS file
+# FWPORTS file
 FWPORTS_FILE="/var/packages/${SYNOPKG_PKGNAME}/conf/${SYNOPKG_PKGNAME}.sc"
 
 # Tools shortcuts
@@ -27,12 +15,6 @@ exit 0
 
 postinst ()
 {
-
-	# Edit the configuration according to the wizard
-	sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8091}|g" ${CFG_FILE}
-        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8091}|g" ${INF_FILE}
-        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8091}|g" ${CNG_FILE}
-        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8091}|g" ${FWPORTS_FILE}
         # Add firewall config
      if [ -r "${FWPORTS_FILE}" ]; then
         servicetool --install-configure-file --package "${FWPORTS_FILE}"
@@ -44,7 +26,7 @@ preuninst ()
 {
 
         # Stop the package
-        ${SSS} stop > /dev/nul
+        ${SYNOPKG_PKGNAME} stop > /dev/nul
 
         # Remove firewall config
         if [ "${SYNOPKG_PKG_STATUS}" == "UNINSTALL" ]; then
@@ -68,9 +50,9 @@ preupgrade ()
         # Stop the package
         ${SSS} stop > /dev/null
         # Save some stuff
-        $RM ${TMP_DIR}/${PACKAGE}
-	$MKDIR ${TMP_DIR}/${PACKAGE}
-	$MV ${SYNOPKG_PKGDEST}/db ${TMP_DIR}/${PACKAGE}/
+        $RM ${TMP_DIR}/${SYNOPKG_PKGNAME}
+	$MKDIR ${TMP_DIR}/${SYNOPKG_PKGNAME}
+	$MV ${SYNOPKG_PKGDEST}/db ${TMP_DIR}/${SYNOPKG_PKGNAME}/
  fi
 
 exit 0
@@ -82,8 +64,8 @@ postupgrade ()
     if [ "${wizard_update_data}" == "false" ]; then
 	# Restore some stuff
         $RM ${SYNOPKG_PKGDEST}/db
-        $MV ${TMP_DIR}/${PACKAGE}/db ${SYNOPKG_PKGDEST}/db/
-        $RM ${TMP_DIR}/${PACKAGE}
+        $MV ${TMP_DIR}/${SYNOPKG_PKGNAME}/db ${SYNOPKG_PKGDEST}/db/
+        $RM ${TMP_DIR}/${SYNOPKG_PKGNAME}
  fi
 
 exit 0
