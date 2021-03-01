@@ -3,6 +3,9 @@
 # FWPORTS file
 FWPORTS_FILE="/var/packages/${SYNOPKG_PKGNAME}/conf/${SYNOPKG_PKGNAME}.sc"
 
+# start-stop script
+SSS="/var/packages/${PACKAGE}/scripts/start-stop-status"
+
 # Tools shortcuts
 MV="/bin/mv -f"
 RM="/bin/rm -rf"
@@ -26,7 +29,7 @@ preuninst ()
 {
 
         # Stop the package
-        ${SYNOPKG_PKGNAME} stop > /dev/nul
+        ${SSS} stop > /dev/nul
 
         # Remove firewall config
         if [ "${SYNOPKG_PKG_STATUS}" == "UNINSTALL" ]; then
