@@ -1,12 +1,13 @@
 #!/bin/sh
-
+LOGFILE="/tmp/${SYNOPKG_PKGNAME}.log"
 SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
 PORT="8090"
 DB="${SYNOPKG_PKGDEST}/db"
 
 start_daemon ()
 {
-        ${SERVICE_COMMAND} -p ${PORT} -d ${DB} &
+        export GODEBUG=madvdontneed=1 >> ${LOGFILE} 2>&1
+        ${SERVICE_COMMAND} -p ${PORT} -d ${DB} ${LOGFILE} 2>&1 &
 }
 
 stop_daemon ()
