@@ -1,0 +1,26 @@
+[{
+    "step_title": "TorrServer Authorization",
+    "items": [{
+        "type": "multiselect",
+        "desc": "Enable TorrServer Authorization?",
+        "subitems": [{
+            "key": "wizard_enable_aut",
+            "desc": "Yes"
+           }]
+	},	
+        {
+        "type": "textfield",
+        "desc": "Username. Defaults to admin",
+        "subitems": [{
+            "key": "wizard_username",
+            "desc": "Username"
+        }]
+    }, {
+        "type": "password",
+        "desc": "Password. Defaults to admin",
+        "subitems": [{
+            "key": "wizard_password",
+            "desc": "Password"
+        }]
+    }]
+}]

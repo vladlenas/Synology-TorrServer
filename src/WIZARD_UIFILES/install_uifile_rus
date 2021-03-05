@@ -1,0 +1,26 @@
+[{
+    "step_title": "TorrServer Авторизация",
+    "items": [{
+        "type": "multiselect",
+        "desc": "Вклюить TorrServer Авторизацию?",
+        "subitems": [{
+            "key": "wizard_enable_aut",
+            "desc": "Да"
+           }]
+	},	
+        {
+        "type": "textfield",
+        "desc": "Username. По умолчанию admin",
+        "subitems": [{
+            "key": "wizard_username",
+            "desc": "Username"
+        }]
+    }, {
+        "type": "password",
+        "desc": "Password. По умолчанию admin",
+        "subitems": [{
+            "key": "wizard_password",
+            "desc": "Password"
+        }]
+    }]
+}]

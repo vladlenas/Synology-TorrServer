@@ -1,13 +1,18 @@
 #!/bin/sh
-LOGFILE="/tmp/${SYNOPKG_PKGNAME}.log"
+
 SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
-PORT="8090"
+ACCS="${SYNOPKG_PKGDEST}/db/accs.db"
 DB="${SYNOPKG_PKGDEST}/db"
 
 start_daemon ()
 {
-        export GODEBUG=madvdontneed=1 >> ${LOGFILE} 2>&1
-        ${SERVICE_COMMAND} -p ${PORT} -d ${DB} ${LOGFILE} 2>&1 &
+    if [ -r "${ACCS}" ]; then
+        export GODEBUG=madvdontneed=1
+        ${SERVICE_COMMAND} -d ${DB} -a &
+    else
+        export GODEBUG=madvdontneed=1
+        ${SERVICE_COMMAND} -d ${DB} &
+    fi
 }
 
 stop_daemon ()

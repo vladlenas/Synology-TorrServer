@@ -1,15 +1,8 @@
 #!/bin/sh
 
-# FWPORTS file
+ACCS="${SYNOPKG_PKGDEST}/db/accs.db"
+SSS="/var/packages/${SYNOPKG_PKGNAME}/scripts/start-stop-status"
 FWPORTS_FILE="/var/packages/${SYNOPKG_PKGNAME}/conf/${SYNOPKG_PKGNAME}.sc"
-
-# start-stop script
-SSS="/var/packages/${PACKAGE}/scripts/start-stop-status"
-
-# Tools shortcuts
-MV="/bin/mv -f"
-RM="/bin/rm -rf"
-MKDIR="/bin/mkdir -p"
 
 preinst ()
 {
@@ -18,8 +11,14 @@ exit 0
 
 postinst ()
 {
-        # Add firewall config
-     if [ -r "${FWPORTS_FILE}" ]; then
+    if [ "${wizard_enable_aut}" == "false" ]; then
+       rm ${ACCS}
+    else
+       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${ACCS}
+       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${ACCS}
+    fi
+
+    if [ -r "${FWPORTS_FILE}" ]; then
         servicetool --install-configure-file --package "${FWPORTS_FILE}"
      fi
 exit 0
@@ -27,11 +26,8 @@ exit 0
 
 preuninst ()
 {
-
-        # Stop the package
         ${SSS} stop > /dev/nul
 
-        # Remove firewall config
         if [ "${SYNOPKG_PKG_STATUS}" == "UNINSTALL" ]; then
            if [ -r "${FWPORTS_FILE}" ]; then
                servicetool --remove-configure-file --package "${SYNOPKG_PKGNAME}.sc"
@@ -50,12 +46,9 @@ preupgrade ()
 {
 
     if [ "${wizard_update_data}" == "false" ]; then
-        # Stop the package
-        ${SSS} stop > /dev/null
-        # Save some stuff
-        $RM ${TMP_DIR}/${SYNOPKG_PKGNAME}
-	$MKDIR ${TMP_DIR}/${SYNOPKG_PKGNAME}
-	$MV ${SYNOPKG_PKGDEST}/db ${TMP_DIR}/${SYNOPKG_PKGNAME}/
+        rm -r ${TMP_DIR}/${SYNOPKG_PKGNAME}
+	mkdir -p ${TMP_DIR}/${SYNOPKG_PKGNAME}
+	mv -f ${SYNOPKG_PKGDEST}/db ${TMP_DIR}/${SYNOPKG_PKGNAME}/
  fi
 
 exit 0
@@ -65,10 +58,9 @@ postupgrade ()
 {
 
     if [ "${wizard_update_data}" == "false" ]; then
-	# Restore some stuff
-        $RM ${SYNOPKG_PKGDEST}/db
-        $MV ${TMP_DIR}/${SYNOPKG_PKGNAME}/db ${SYNOPKG_PKGDEST}/db/
-        $RM ${TMP_DIR}/${SYNOPKG_PKGNAME}
+        rm -r ${SYNOPKG_PKGDEST}/db
+        mv -f ${TMP_DIR}/${SYNOPKG_PKGNAME}/db ${SYNOPKG_PKGDEST}/db/
+        rm -r ${TMP_DIR}/${SYNOPKG_PKGNAME}
  fi
 
 exit 0

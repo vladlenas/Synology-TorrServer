@@ -24,13 +24,12 @@ make_inner_pkg() {
   local torrserver_bin="torrserver/TorrServer-linux-${ARCH}"
 
   echo ">>> Making inner package.tgz"
-  mkdir -p ${tmp_dir}/db
 
   mkdir -p ${tmp_dir}/bin
   cp -a ${torrserver_bin} ${tmp_dir}/bin/TorrServer
   chmod +x ${tmp_dir}/bin/TorrServer
-
-  cp -ra src/ui ${tmp_dir}
+  cp -r src/db ${tmp_dir}
+  cp -r src/ui ${tmp_dir}
 
   pkg_size=$(du -sk "${tmp_dir}" | awk '{print $1}')
   echo "${pkg_size}" >>"$dest_dir/extractsize_tmp"
@@ -49,10 +48,10 @@ make_spk() {
   rm "${spk_tmp_dir}/extractsize_tmp"
 
   # copy scripts and icon
-  cp -ra src/scripts $spk_tmp_dir
+  cp -r src/scripts $spk_tmp_dir
   cp -a src/PACKAGE_ICON*.PNG $spk_tmp_dir
-  cp -ra src/conf $spk_tmp_dir
-  cp -ra src/WIZARD_UIFILES $spk_tmp_dir
+  cp -r src/conf $spk_tmp_dir
+  cp -r src/WIZARD_UIFILES $spk_tmp_dir
 
   # Generate INFO file
   ./src/INFO.sh ${TORRSERVER_VERSION} ${ARCH} ${OS_MIN} ${pkg_size} >"${spk_tmp_dir}"/INFO
