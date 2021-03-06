@@ -3,6 +3,7 @@
 ACCS="${SYNOPKG_PKGDEST}/db/accs.db"
 SSS="/var/packages/${SYNOPKG_PKGNAME}/scripts/start-stop-status"
 FWPORTS_FILE="/var/packages/${SYNOPKG_PKGNAME}/conf/${SYNOPKG_PKGNAME}.sc"
+TEMP_DIR="${SYNOPKG_PKGDEST}/../../@tmp"
 
 preinst ()
 {
