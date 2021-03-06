@@ -61,6 +61,8 @@ postupgrade ()
         rm -r ${SYNOPKG_PKGDEST}/db
         mv -f ${TMP_DIR}/${SYNOPKG_PKGNAME}/db ${SYNOPKG_PKGDEST}/db/
         rm -r ${TMP_DIR}/${SYNOPKG_PKGNAME}
+	else
+	rm ${ACCS}
  fi
 
 exit 0
