@@ -2,7 +2,7 @@
     "step_title": "TorrServer Авторизация",
     "items": [{
         "type": "multiselect",
-        "desc": "Вклюить TorrServer Авторизацию?",
+        "desc": "Включить TorrServer Авторизацию?",
         "subitems": [{
             "key": "wizard_enable_aut",
             "desc": "Да"
