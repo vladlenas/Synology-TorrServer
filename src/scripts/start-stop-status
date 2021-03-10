@@ -1,6 +1,7 @@
 #!/bin/sh
 
 SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
+PORT="@TorrServer_port@"
 ACCS="${SYNOPKG_PKGDEST}/db/accs.db"
 DB="${SYNOPKG_PKGDEST}/db"
 
@@ -8,10 +9,10 @@ start_daemon ()
 {
     if [ -r "${ACCS}" ]; then
         export GODEBUG=madvdontneed=1
-        ${SERVICE_COMMAND} -d ${DB} -a &
+        ${SERVICE_COMMAND} -p ${PORT} -d ${DB} -a &
     else
         export GODEBUG=madvdontneed=1
-        ${SERVICE_COMMAND} -d ${DB} &
+        ${SERVICE_COMMAND} -p ${PORT} -d ${DB} &
     fi
 }
 
