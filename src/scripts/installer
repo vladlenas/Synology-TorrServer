@@ -2,8 +2,8 @@
 
 ACCS_FILE="${SYNOPKG_PKGDEST}/db/accs.db"
 SSS_FILE="/var/packages/${SYNOPKG_PKGNAME}/scripts/start-stop-status"
-FWPORTS_FILE="/var/packages/${SYNOPKG_PKGNAME}/conf/${SYNOPKG_PKGNAME}.sc"
 CNG_FILE="${SYNOPKG_PKGDEST}/ui/config"
+FWPORTS_FILE="/var/packages/${SYNOPKG_PKGNAME}/conf/${SYNOPKG_PKGNAME}.sc"
 TEMP_DIR="${SYNOPKG_PKGDEST}/../../@tmp"
 
 preinst ()
