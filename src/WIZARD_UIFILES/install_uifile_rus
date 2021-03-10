@@ -1,5 +1,26 @@
 [{
-    "step_title": "TorrServer Авторизация",
+   "step_title": "TorrServer Конфигурация",
+   "items": [
+      {
+       "type": "textfield",
+       "desc": "TCP порт.",
+       "subitems": [ 
+                     {
+                      "key": "wizard_TorrServer_port",
+                      "defaultValue": "8090",
+                           "validator": {
+                           "allowBlank": false
+                     }
+                  }
+             ]
+        },
+      {
+            "desc": "<a target=\"_blank\" href=\"https://github.com/SynoCommunity/spksrc/wiki/Synology-Used-Ports\">Используемые порты Synology</a>" 
+    }
+  ]
+},
+{
+    "step_title": "TorrServer Конфигурация",
     "items": [{
         "type": "multiselect",
         "desc": "Включить TorrServer Авторизацию?",
