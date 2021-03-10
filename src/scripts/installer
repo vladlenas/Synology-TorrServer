@@ -1,9 +1,9 @@
 #!/bin/sh
 
-ACCS="${SYNOPKG_PKGDEST}/db/accs.db"
+ACCS_FILE="${SYNOPKG_PKGDEST}/db/accs.db"
 SSS_FILE="/var/packages/${SYNOPKG_PKGNAME}/scripts/start-stop-status"
 FWPORTS_FILE="/var/packages/${SYNOPKG_PKGNAME}/conf/${SYNOPKG_PKGNAME}.sc"
-CNG_FILE="/var/packages/${PACKAGE}/target/ui/config"
+CNG_FILE="${SYNOPKG_PKGDEST}/ui/config"
 TEMP_DIR="${SYNOPKG_PKGDEST}/../../@tmp"
 
 preinst ()
@@ -18,10 +18,10 @@ postinst ()
         sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8090}|g" ${FWPORTS_FILE}
 	
     if [ "${wizard_enable_aut}" == "false" ]; then
-       rm ${ACCS}
+       rm -r ${ACCS_FILE}
     else
-       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${ACCS}
-       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${ACCS}
+       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${ACCS_FILE}
+       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${ACCS_FILE}
     fi
 
     if [ -r "${FWPORTS_FILE}" ]; then
