@@ -10,7 +10,7 @@
             "icon": "images/torrserver-{0}.png",
             "protocol": "http",
             "url": "/",
-            "port": "8090"            
+            "port": "@TorrServer_port@"            
         }
     }
 }
