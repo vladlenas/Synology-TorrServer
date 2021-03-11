@@ -1,12 +1,12 @@
 #!/bin/sh
 
 SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
-ACCS="${SYNOPKG_PKGDEST}/db/accs.db"
+ACCS_FILE="${SYNOPKG_PKGDEST}/db/accs.db"
 DB="${SYNOPKG_PKGDEST}/db"
 
 start_daemon ()
 {
-    if [ -r "${ACCS}" ]; then
+    if [ -r "${ACCS_FILE}" ]; then
         export GODEBUG=madvdontneed=1
         ${SERVICE_COMMAND} -d ${DB} -a &
     else
