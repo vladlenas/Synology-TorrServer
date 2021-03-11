@@ -1,8 +1,7 @@
 #!/bin/sh
 
-ACCS_FILE="${SYNOPKG_PKGDEST}/db/accs.db"
-SSS_FILE="/var/packages/${SYNOPKG_PKGNAME}/scripts/start-stop-status"
-CNG_FILE="${SYNOPKG_PKGDEST}/ui/config"
+ACCS="${SYNOPKG_PKGDEST}/db/accs.db"
+SSS="/var/packages/${SYNOPKG_PKGNAME}/scripts/start-stop-status"
 FWPORTS_FILE="/var/packages/${SYNOPKG_PKGNAME}/conf/${SYNOPKG_PKGNAME}.sc"
 TEMP_DIR="${SYNOPKG_PKGDEST}/../../@tmp"
 
@@ -13,15 +12,11 @@ exit 0
 
 postinst ()
 {
-        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8090}|g" ${SSS_FILE}
-        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8090}|g" ${CNG_FILE}
-        sed -i -e "s|@TorrServer_port@|${wizard_TorrServer_port:=8090}|g" ${FWPORTS_FILE}
-	
     if [ "${wizard_enable_aut}" == "false" ]; then
-       rm -r ${ACCS_FILE}
+       rm ${ACCS}
     else
-       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${ACCS_FILE}
-       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${ACCS_FILE}
+       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${ACCS}
+       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${ACCS}
     fi
 
     if [ -r "${FWPORTS_FILE}" ]; then
@@ -32,13 +27,14 @@ exit 0
 
 preuninst ()
 {
-        ${SSS_FILE} stop > /dev/nul
+        ${SSS} stop > /dev/nul
 
         if [ "${SYNOPKG_PKG_STATUS}" == "UNINSTALL" ]; then
            if [ -r "${FWPORTS_FILE}" ]; then
                servicetool --remove-configure-file --package "${SYNOPKG_PKGNAME}.sc"
         fi
     fi
+
 exit 0
 }
 
@@ -49,18 +45,26 @@ exit 0
 
 preupgrade ()
 {
+
     if [ "${wizard_update_data}" == "false" ]; then
+        rm -r ${TMP_DIR}/${SYNOPKG_PKGNAME}
 	mkdir -p ${TMP_DIR}/${SYNOPKG_PKGNAME}
-	mv -f ${SYNOPKG_PKGDEST}/db/config.db ${TMP_DIR}/${SYNOPKG_PKGNAME}/
-    fi
+	mv -f ${SYNOPKG_PKGDEST}/db ${TMP_DIR}/${SYNOPKG_PKGNAME}/
+ fi
+
 exit 0
 }
 
 postupgrade ()
 {
-        rm -r ${SYNOPKG_PKGDEST}/db/config.db
-        mv -f ${TMP_DIR}/${SYNOPKG_PKGNAME}/config.db ${SYNOPKG_PKGDEST}/db/
+
+    if [ "${wizard_update_data}" == "false" ]; then
+        rm -r ${SYNOPKG_PKGDEST}/db
+        mv -f ${TMP_DIR}/${SYNOPKG_PKGNAME}/db ${SYNOPKG_PKGDEST}/db/
         rm -r ${TMP_DIR}/${SYNOPKG_PKGNAME}
-    fi
+	else
+	rm ${ACCS}
+ fi
+
 exit 0
 }

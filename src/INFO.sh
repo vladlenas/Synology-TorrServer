@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=$1
+PKG_VERSION=$1
 ARCH=$2
 PKG_SIZE=$3
 
@@ -30,7 +30,7 @@ esac
 
 cat <<EOF
 package="TorrServer"
-version="${VERSION}"
+version="${PKG_VERSION}"
 displayname="TorrServer"
 smappname="SYNO.SDS.TorrServer"
 arch="${PLATFORMS}"

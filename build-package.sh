@@ -5,6 +5,7 @@ set -e
 TORRSERVER_VERSION=$1
 ARCH=$2
 DSM=$3
+PKG_VERSION=$4
 
 download_torrserver() {
   local base_url="https://github.com/YouROK/TorrServer/releases/download/${TORRSERVER_VERSION}"
@@ -54,7 +55,7 @@ make_spk() {
   cp -r src/WIZARD_UIFILES $spk_tmp_dir
 
   # Generate INFO file
-  ./src/INFO.sh ${TORRSERVER_VERSION} ${ARCH} ${OS_MIN} ${pkg_size} >"${spk_tmp_dir}"/INFO
+  ./src/INFO.sh ${PKG_VERSION} ${ARCH} ${pkg_size} >"${spk_tmp_dir}"/INFO
 
   tar -cf "${spk_dest_dir}/${spk_filename}" -C "${spk_tmp_dir}" $(ls ${spk_tmp_dir})
 }
