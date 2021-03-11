@@ -5,6 +5,11 @@ SSS_FILE="/var/packages/${SYNOPKG_PKGNAME}/scripts/start-stop-status"
 FWPORTS_FILE="/var/packages/${SYNOPKG_PKGNAME}/conf/${SYNOPKG_PKGNAME}.sc"
 TEMP_DIR="${SYNOPKG_PKGDEST}/../../@tmp"
 
+MV="/bin/mv -f"
+RM="/bin/rm -r"
+MKDIR="/bin/mkdir -p"
+SED="/bin/sed -i -e"
+
 preinst ()
 {
 exit 0
@@ -13,10 +18,10 @@ exit 0
 postinst ()
 {
     if [ "${wizard_enable_aut}" == "false" ]; then
-       rm -r ${ACCS_FILE}
+       ${RM} ${ACCS_FILE}
     else
-       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${ACCS_FILE}
-       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${ACCS_FILE}
+       ${SED} "s|@user@|${wizard_username:=admin}|g" ${ACCS_FILE}
+       ${SED} "s|@password@|${wizard_password:=admin}|g" ${ACCS_FILE}
     fi
 
     if [ -r "${FWPORTS_FILE}" ]; then
@@ -32,9 +37,8 @@ preuninst ()
         if [ "${SYNOPKG_PKG_STATUS}" == "UNINSTALL" ]; then
            if [ -r "${FWPORTS_FILE}" ]; then
                servicetool --remove-configure-file --package "${SYNOPKG_PKGNAME}.sc"
+           fi
         fi
-    fi
-
 exit 0
 }
 
@@ -45,26 +49,24 @@ exit 0
 
 preupgrade ()
 {
-
     if [ "${wizard_update_data}" == "false" ]; then
-        rm -r ${TMP_DIR}/${SYNOPKG_PKGNAME}
-	mkdir -p ${TMP_DIR}/${SYNOPKG_PKGNAME}
-	mv -f ${SYNOPKG_PKGDEST}/db ${TMP_DIR}/${SYNOPKG_PKGNAME}/
- fi
-
+        $RM ${TEMP_DIR}/${SYNOPKG_PKGNAME}
+	$MKDIR ${TEMP_DIR}/${SYNOPKG_PKGNAME}
+	$MV ${SYNOPKG_PKGDEST}/db ${TEMP_DIR}/${SYNOPKG_PKGNAME}/
+    else
+        exit 0
+    fi
 exit 0
 }
 
 postupgrade ()
 {
-
     if [ "${wizard_update_data}" == "false" ]; then
-        rm -r ${SYNOPKG_PKGDEST}/db
-        mv -f ${TMP_DIR}/${SYNOPKG_PKGNAME}/db ${SYNOPKG_PKGDEST}/db/
-        rm -r ${TMP_DIR}/${SYNOPKG_PKGNAME}
-	else
-	rm ${ACCS_FILE}
- fi
-
+        $RM ${SYNOPKG_PKGDEST}/db
+        $MV ${TEMP_DIR}/${SYNOPKG_PKGNAME}/db ${SYNOPKG_PKGDEST}/db/
+        $RM ${TEMP_DIR}/${SYNOPKG_PKGNAME}
+        else
+        $RM ${ACCS_FILE}
+    fi
 exit 0
 }
