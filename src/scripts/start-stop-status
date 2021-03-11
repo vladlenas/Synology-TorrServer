@@ -7,10 +7,10 @@ DB="${SYNOPKG_PKGDEST}/db"
 start_daemon ()
 {
     if [ -r "${ACCS_FILE}" ]; then
-        export GODEBUG=madvdontneed=1
+        #export GODEBUG=madvdontneed=1
         ${SERVICE_COMMAND} -d ${DB} -a &
     else
-        export GODEBUG=madvdontneed=1
+        #export GODEBUG=madvdontneed=1
         ${SERVICE_COMMAND} -d ${DB} &
     fi
 }
