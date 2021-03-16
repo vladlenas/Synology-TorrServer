@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ACCS_FILE="${SYNOPKG_PKGDEST}/db/accs.db"
-TEMP_DIR="${SYNOPKG_PKGDEST}/../../@tmp"
+TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/db"
 
 MV="/bin/mv -f"
 RM="/bin/rm -r"
@@ -37,9 +37,9 @@ exit 0
 preupgrade ()
 {
     if [ "${wizard_update_data}" == "false" ]; then
-        $RM ${TEMP_DIR}/${SYNOPKG_PKGNAME}
-	$MKDIR ${TEMP_DIR}/${SYNOPKG_PKGNAME}
-	$MV ${SYNOPKG_PKGDEST}/db ${TEMP_DIR}/${SYNOPKG_PKGNAME}/
+        $RM ${TEMP_DIR}
+        $MKDIR ${TEMP_DIR}
+        $MV ${SYNOPKG_PKGDEST}/db/* ${TEMP_DIR}
     else
         exit 0
     fi
@@ -50,10 +50,11 @@ postupgrade ()
 {
     if [ "${wizard_update_data}" == "false" ]; then
         $RM ${SYNOPKG_PKGDEST}/db
-        $MV ${TEMP_DIR}/${SYNOPKG_PKGNAME}/db ${SYNOPKG_PKGDEST}/db/
-        $RM ${TEMP_DIR}/${SYNOPKG_PKGNAME}
+        $MV ${TEMP_DIR} ${SYNOPKG_PKGDEST}
+        $RM ${TEMP_DIR}
         else
         $RM ${ACCS_FILE}
     fi
 exit 0
 }
+
