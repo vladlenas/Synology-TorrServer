@@ -2,14 +2,14 @@
 
 SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
 ACCS_FILE="${SYNOPKG_PKGDEST}/db/accs.db"
-DB="${SYNOPKG_PKGDEST}/db"
+DB_FOLDER="${SYNOPKG_PKGDEST}/db"
 
 start_daemon ()
 {
     if [ -r "${ACCS_FILE}" ]; then
-        ${SERVICE_COMMAND} -d ${DB} -a &
+        ${SERVICE_COMMAND} -d ${DB_FOLDER} -a &
     else
-        ${SERVICE_COMMAND} -d ${DB} &
+        ${SERVICE_COMMAND} -d ${DB_FOLDER} &
     fi
 }
 
