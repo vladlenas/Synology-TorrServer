@@ -1,12 +1,12 @@
 #!/bin/sh
 
 SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
-ACCS_FILE="${SYNOPKG_PKGDEST}/db/accs.db"
+#ACCS_FILE="${SYNOPKG_PKGDEST}/db/accs.db"
 DB_FOLDER="${SYNOPKG_PKGDEST}/db"
 
 start_daemon ()
 {
-    if [ -r "${ACCS_FILE}" ]; then
+    if [ -r "${DB_FOLDER}/accs.db" ]; then
         ${SERVICE_COMMAND} -d ${DB_FOLDER} -a &
     else
         ${SERVICE_COMMAND} -d ${DB_FOLDER} &
