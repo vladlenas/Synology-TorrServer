@@ -1,3 +1,14 @@
 #!/bin/sh
-. `dirname $0`/installer
-`basename $0` > $SYNOPKG_TEMP_LOGFILE
+
+TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/db"
+
+{
+    if [ "${wizard_update_data}" == "false" ]; then
+        rm -r ${SYNOPKG_PKGDEST}/db
+        cp -r ${TEMP_DIR} ${SYNOPKG_PKGDEST}
+        rm -r ${TEMP_DIR}
+        else
+        rm -r ${SYNOPKG_PKGDEST}/db/accs.db
+    fi
+exit 0
+}
