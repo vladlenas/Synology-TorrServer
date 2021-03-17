@@ -52,7 +52,7 @@ postupgrade ()
         $MV ${TEMP_DIR} ${SYNOPKG_PKGDEST}
         $RM ${TEMP_DIR}
         else
-        $RM ${ACCS_FILE}
+        $RM ${SYNOPKG_PKGDEST}/db/accs.db
     fi
 exit 0
 }
