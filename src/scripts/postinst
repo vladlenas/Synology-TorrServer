@@ -2,7 +2,7 @@
 
 {
     if [ "${wizard_enable_aut}" == "false" ]; then
-       rm -r ${SYNOPKG_PKGDEST}/db/accs.db
+       rm -rf ${SYNOPKG_PKGDEST}/db/accs.db
     else
        sed -i -e "s|@user@|${wizard_username:=admin}|g" ${SYNOPKG_PKGDEST}/db/accs.db
        sed -i -e "s|@password@|${wizard_password:=admin}|g" ${SYNOPKG_PKGDEST}/db/accs.db
