@@ -15,7 +15,9 @@ make
 ```
 TorrServer version change
 ```
-nano Makefile ### TORRSERVER_VERSION="1.1.77"
+nano Makefile
+TORRSERVER_VERSION="MatriX.84"
+PKG_VERSION="1.2.84"
 ```
 clear working directory
 ```
