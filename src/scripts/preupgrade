@@ -1,18 +1,18 @@
 #!/bin/sh
 
     if [ "${SYNOPKG_DSM_VERSION_MAJOR}" -eq "6" ]; then
-        TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/db"
+       TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/db"
     else
-        TEMP_DIR="${SYNOPKG_PKGVAR}/db"
+       TEMP_DIR="${SYNOPKG_PKGVAR}/db"
     fi
 
 {
     if [ "${wizard_update_data}" == "false" ]; then
-        rm -rf ${SYNOPKG_PKGDEST}/db
-        cp -rfp ${TEMP_DIR} ${SYNOPKG_PKGDEST}
         rm -rf ${TEMP_DIR}
+        mkdir -p ${TEMP_DIR}
+        cp -rfp ${SYNOPKG_PKGDEST}/db/* ${TEMP_DIR}
     else
-        rm -rf ${SYNOPKG_PKGDEST}/db/accs.db
+        exit 0
     fi
 exit 0
 }
