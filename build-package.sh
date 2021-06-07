@@ -29,7 +29,7 @@ make_inner_pkg() {
   mkdir -p ${tmp_dir}/bin
   cp -a ${torrserver_bin} ${tmp_dir}/bin/TorrServer
   chmod +x ${tmp_dir}/bin/TorrServer
-  cp -r src/db ${tmp_dir}
+  cp -r src/config ${tmp_dir}
   cp -r src/ui ${tmp_dir}
 
   pkg_size=$(du -sk "${tmp_dir}" | awk '{print $1}')

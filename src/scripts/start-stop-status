@@ -7,16 +7,16 @@
     fi
 
     SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
-    DB_FOLDER="${SYNOPKG_PKGDEST}/db"
+    CONFIG_FOLDER="${SYNOPKG_PKGDEST}/config"
 
 start_daemon ()
 {
-    if [ -r "${DB_FOLDER}/accs.db" ]; then
+    if [ -r "${CONFIG_FOLDER}/accs.db" ]; then
         echo "Start ${SYNOPKG_PKGNAME} ${SYNOPKG_PKGVER} with authorization" >> ${LOG_FILE}
-        ${SERVICE_COMMAND} -d ${DB_FOLDER} -a >> ${LOG_FILE} 2>&1 &
+        ${SERVICE_COMMAND} -d ${CONFIG_FOLDER} -a >> ${LOG_FILE} 2>&1 &
     else
         echo "Start ${SYNOPKG_PKGNAME} ${SYNOPKG_PKGVER} without authorization" >> ${LOG_FILE}
-        ${SERVICE_COMMAND} -d ${DB_FOLDER} >> ${LOG_FILE} 2>&1 &
+        ${SERVICE_COMMAND} -d ${CONFIG_FOLDER} >> ${LOG_FILE} 2>&1 &
     fi
 }
 
