@@ -1,4 +1,4 @@
-#!/bin/
+#!/bin/sh
 
     if [ "${SYNOPKG_DSM_VERSION_MAJOR}" -eq "6" ]; then
         LOG_FILE="/tmp/${SYNOPKG_PKGNAME}.log"
