@@ -3,10 +3,11 @@
 PKG_VERSION=$1
 ARCH=$2
 PKG_SIZE=$3
+DSM=$4
 
 TIMESTAMP=$(date -u +%Y%m%d-%H:%M:%S)
 
-if [ "$DSM_VERSION" = "6" ]; then
+if [ "$DSM" = "6.0" ]; then
   os_min_ver="6.0.0-0000"
 else
   os_min_ver="7.0-40000"
