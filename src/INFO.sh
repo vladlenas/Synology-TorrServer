@@ -6,6 +6,12 @@ PKG_SIZE=$3
 
 TIMESTAMP=$(date -u +%Y%m%d-%H:%M:%S)
 
+if [ "$DSM_VERSION" = "6" ]; then
+  os_min_ver="6.0.0-0000"
+else
+  os_min_ver="7.0-40000"
+fi
+
 case $ARCH in
 amd64)
   PLATFORMS="apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64"
@@ -34,7 +40,7 @@ version="${PKG_VERSION}"
 displayname="TorrServer"
 smappname="SYNO.SDS.TorrServer"
 arch="${PLATFORMS}"
-firmware="6.0-0000"
+os_min_ver="${os_min_ver}"
 dsmuidir="ui"
 startable="yes"
 maintainer="YouROK"
