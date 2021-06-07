@@ -4,8 +4,8 @@ set -e
 
 TORRSERVER_VERSION=$1
 ARCH=$2
-DSM=$3
-PKG_VERSION=$4
+PKG_VERSION=$3
+DSM=$4
 
 download_torrserver() {
   local base_url="https://github.com/YouROK/TorrServer/releases/download/${TORRSERVER_VERSION}"
@@ -69,7 +69,7 @@ make_pkg() {
   make_spk ${spk_temp_dir}
   echo ">> Done"
   echo ""
-  rm -rf ./build
+  rm -rf ./build torrserver spk/TorrServer-7.0-${TORRSERVER_VERSION}-arm5.spk
 }
 
 main() {
