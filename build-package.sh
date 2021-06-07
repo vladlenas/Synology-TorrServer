@@ -49,9 +49,11 @@ make_spk() {
   rm "${spk_tmp_dir}/extractsize_tmp"
 
   # copy scripts and icon
+  mkdir -p $spk_tmp_dir/conf
   cp -r src/scripts $spk_tmp_dir
   cp -a src/PACKAGE_ICON*.PNG $spk_tmp_dir
-  cp -r src/conf $spk_tmp_dir
+  cp -r src/conf/resource $spk_tmp_dir/conf/
+  cp -r src/conf/privilege-${DSM} $spk_tmp_dir/conf/privilege
   cp -r src/WIZARD_UIFILES $spk_tmp_dir
 
   # Generate INFO file
