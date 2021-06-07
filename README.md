@@ -1,8 +1,8 @@
 # TorrServer package for Synology NAS
-Synology NAS package for DSM 6.0-6.2.3 based on precompiled TorrServer binaries https://github.com/YouROK/TorrServer/releases
+Synology NAS package for DSM 6.0 and DSM 7.0 based on precompiled TorrServer binaries https://github.com/YouROK/TorrServer/releases
 
 # Sopported Architecture
-* arm5 - armv5 88f6281 88f628x
+* arm5 - armv5 88f6281 88f628x only DSM 6.0
 * arm7 - armv7 alpine alpine4k armada370 armada375 armada38x armadaxp comcerto2k monaco
 * arm64 - aarch64 armv8 rtd1296 armada37xx
 * amd64 - apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
