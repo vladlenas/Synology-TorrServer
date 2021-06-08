@@ -1,5 +1,5 @@
 [torrserver]
 title="TorrServer"
 desc="TorrServer"
-port_forward="yes"
+port_forward="no"
 dst.ports="8090/tcp"

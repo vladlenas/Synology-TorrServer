@@ -3,6 +3,6 @@
         "bin": ["bin/TorrServer"]
     },
     "port-config": {
-        "protocol-file": "config/TorrServer.sc"
+        "protocol-file": "db/TorrServer.sc"
     }
 }

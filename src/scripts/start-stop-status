@@ -7,7 +7,7 @@
     fi
 
     SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
-    CONFIG_FOLDER="${SYNOPKG_PKGDEST}/config"
+    CONFIG_FOLDER="${SYNOPKG_PKGDEST}/db"
 
 start_daemon ()
 {
