@@ -13,6 +13,11 @@ download_torrserver() {
   local src_bin="${base_url}/${bin_name}"
   local dest_bin="torrserver"
   mkdir -p torrserver
+  
+  if [[ -f ${dest_bin}/TorrServer-linux-${ARCH} ]]; then
+    echo ">>> Binaries already exist: ${pkg_name}"
+    return
+  fi
 
   echo ">>> Downloading package:"
   wget --no-verbose -P ${dest_bin} ${src_bin}
@@ -69,13 +74,13 @@ make_pkg() {
 
   make_inner_pkg ${pkg_temp_dir} ${spk_temp_dir}
   make_spk ${spk_temp_dir}
-  echo ">> Done"
+  echo ">>> Done"
   echo ""
-  rm -rf ./build torrserver spk/TorrServer-7.0-${TORRSERVER_VERSION}-arm5.spk
+  rm -rf ./build spk/TorrServer-7.0-${TORRSERVER_VERSION}-arm5.spk
 }
 
 main() {
-  echo "> Building package for TORRSERVER_VERSION=${TORRSERVER_VERSION} ARCH=${ARCH}"
+  echo ">>> Building package for DSM-${DSM} ${TORRSERVER_VERSION} ${ARCH}"
   download_torrserver
   make_pkg
 }
