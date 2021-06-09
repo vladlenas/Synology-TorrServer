@@ -9,4 +9,4 @@ torrserver-%:
 	@./build-package.sh ${TORRSERVER_VERSION} $* ${PKG_VERSION} "6.0"
 	@./build-package.sh ${TORRSERVER_VERSION} $* ${PKG_VERSION} "7.0"
 clean:
-	rm -rf spk
+	rm -rf spk torrserver
