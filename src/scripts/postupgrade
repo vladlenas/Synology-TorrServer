@@ -7,12 +7,8 @@
     fi
 
 {
-    if [ "${wizard_update_data}" == "false" ]; then
         rm -rf ${SYNOPKG_PKGDEST}/db
         cp -rfp ${TEMP_DIR} ${SYNOPKG_PKGDEST}
         rm -rf ${TEMP_DIR}
-    else
-        rm -rf ${SYNOPKG_PKGDEST}/db/accs.db
-    fi
-exit 0
+    exit 0
 }
