@@ -7,12 +7,8 @@
     fi
 
 {
-    if [ "${wizard_update_data}" == "false" ]; then
         rm -rf ${TEMP_DIR}
         mkdir -p ${TEMP_DIR}
         cp -rfp ${SYNOPKG_PKGDEST}/db/* ${TEMP_DIR}
-    else
-        exit 0
-    fi
-exit 0
+    exit 0
 }
