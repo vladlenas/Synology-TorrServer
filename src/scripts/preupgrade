@@ -1,10 +1,6 @@
 #!/bin/sh
 
-    if [ "${SYNOPKG_DSM_VERSION_MAJOR}" -eq "6" ]; then
        TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/db"
-    else
-       TEMP_DIR="${SYNOPKG_PKGVAR}/db"
-    fi
 
 {
         rm -rf ${TEMP_DIR}
