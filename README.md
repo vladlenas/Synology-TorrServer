@@ -31,5 +31,6 @@ make clean
 # Credits and References
 * YouRock https://github.com/YouROK
 * Huge thanks for https://github.com/tailscale/tailscale-synology his scripts made it easier to build packages.
-* Synology DSM6.0 Developer Guide https://help.synology.com/developer-guide/index.html
+* Synology DSM 6.0 Developer Guide https://help.synology.com/developer-guide/index.html
+* Synology DSM 7.0 Developer Guide https://help.synology.com/developer-guide/
 * Architecture per Synology model https://github.com/SynoCommunity/spksrc/wiki/Architecture-per-Synology-model
