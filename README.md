@@ -29,7 +29,7 @@ clear working directory
 make clean
 ```
 # Permission DSM 7.0 for write cache to hard drive.
-* 'Control Panel > Shared Folder > Edit > Permissions > System internal user'
+* `Control Panel > Shared Folder > Edit > Permissions > System internal user`
 
 # Credits and References
 * YouRock https://github.com/YouROK
