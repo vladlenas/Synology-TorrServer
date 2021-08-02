@@ -3,7 +3,7 @@
     if [ "${SYNOPKG_DSM_VERSION_MAJOR}" -eq "6" ]; then
         LOG_FILE="/tmp/${SYNOPKG_PKGNAME}.log"
     else
-        LOG_FILE="/var/packages/${SYNOPKG_PKGNAME}/tmp/${SYNOPKG_PKGNAME}.log"
+        LOG_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.log"
     fi
 
     SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
