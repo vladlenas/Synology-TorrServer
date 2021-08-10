@@ -24,14 +24,15 @@ clear working directory
 ```
 make clean
 ```
-#Building from TorrServer source binaries and making packages
+# Building from TorrServer source binaries and making packages
+preparing the environment for compilation
+https://github.com/YouROK/TorrServer#build
+
 ```
 git clone https://github.com/vladlenas/Synology-TorrServer.git
 cd Synology-TorrServer/
 ./bin-build.sh
 ```
-preparing the environment for compilation
-https://github.com/YouROK/TorrServer#build
 
 # Permission DSM 7.0 for write cache to hard drive.
 * `Control Panel > Select Shared Folder > Edit > Permissions > System internal user > TorrServer user add read/write`
