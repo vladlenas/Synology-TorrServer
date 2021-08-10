@@ -11,8 +11,7 @@ download_torrserver() {
   local base_url="https://github.com/YouROK/TorrServer/releases/download/${TORRSERVER_VERSION}"
   local bin_name="TorrServer-linux-${ARCH}"
   local src_bin="${base_url}/${bin_name}"
-  local dest_bin="torrserver"
-  mkdir -p torrserver
+  local dest_bin="dest_bin"
   
   if [[ -f ${dest_bin}/TorrServer-linux-${ARCH} ]]; then
     echo ">>> Binaries already exist: ${pkg_name}"
@@ -20,6 +19,7 @@ download_torrserver() {
   fi
 
   echo ">>> Downloading package:"
+  mkdir -p ${dest_bin}
   wget --no-verbose -P ${dest_bin} ${src_bin}
 }
 
@@ -27,7 +27,7 @@ make_inner_pkg() {
   local tmp_dir=$1
   local dest_dir=$2
   local dest_pkg="$dest_dir/package.tgz"
-  local torrserver_bin="torrserver/TorrServer-linux-${ARCH}"
+  local torrserver_bin="dest_bin/TorrServer-linux-${ARCH}"
 
   echo ">>> Making inner package.tgz"
 
