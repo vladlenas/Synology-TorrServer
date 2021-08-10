@@ -23,7 +23,7 @@ $GOBIN run gen_web.go
 echo "Build server"
 rm -fr "${ROOT}/dest_bin"
 cd "${ROOT}/TorrServer/server" || exit 1
-#$GOBIN clean -i -r -cache #--modcache
+$GOBIN clean -i -r -cache #--modcache
 $GOBIN mod tidy
 $GOBIN mod download
 
