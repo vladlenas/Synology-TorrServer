@@ -8,7 +8,7 @@ Synology NAS package for DSM 6.0 and DSM 7.0 based on precompiled TorrServer bin
 * amd64 - apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
 * 386 - evansport apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
 
-# Making packages
+# Making packages from precompiled TorrServer binaries
 ```
 git clone https://github.com/vladlenas/Synology-TorrServer.git
 cd Synology-TorrServer/
@@ -24,6 +24,15 @@ clear working directory
 ```
 make clean
 ```
+#Building from TorrServer source binaries and making packages
+```
+git clone https://github.com/vladlenas/Synology-TorrServer.git
+cd Synology-TorrServer/
+./bin-build.sh
+```
+preparing the environment for compilation
+https://github.com/YouROK/TorrServer#build
+
 # Permission DSM 7.0 for write cache to hard drive.
 * `Control Panel > Select Shared Folder > Edit > Permissions > System internal user > TorrServer user add read/write`
 
