@@ -1,5 +1,7 @@
 #!/bin/bash
 
+git clone https://github.com/YouROK/TorrServer.git
+
 type setopt >/dev/null 2>&1
 export CGO_ENABLED=0
 
