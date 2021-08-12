@@ -2,8 +2,27 @@
 
 git clone https://github.com/YouROK/TorrServer.git
 
+PLATFORMS=(
+  'linux/amd64'
+  'linux/386'
+  'linux/arm64'
+  'linux/arm7'
+  'linux/arm5'
+)
+
 type setopt >/dev/null 2>&1
 export CGO_ENABLED=0
+
+set_goarm() {
+  if [[ "$1" =~ arm([5,7]) ]]; then
+    GOARCH="arm"
+    GOARM="${BASH_REMATCH[1]}"
+    GO_ARM="GOARM=${GOARM}"
+  else
+    GOARM=""
+    GO_ARM=""
+  fi
+}
 
 GOBIN="go"
 $GOBIN version
@@ -28,58 +47,18 @@ $GOBIN mod download
 
 BUILD_FLAGS="-ldflags=${LDFLAGS}"
 
-#### linux-am64
-GOOS="linux"
-GOARCH="amd64"
-BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}"
-CMD="GOOS=linux GOARCH=${GOARCH} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
-echo "${CMD}"
-eval $CMD || FAILURES="${FAILURES} ${PLATFORM}"
-CMD="upx ${BIN_FILENAME}";
-echo "compress with ${CMD}"
-eval "$CMD"
-
-#### linux-386
-GOARCH="386"
-BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}"
-CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
-echo "${CMD}"
-eval $CMD || FAILURES="${FAILURES} ${PLATFORM}"
-CMD="upx ${BIN_FILENAME}";
-echo "compress with ${CMD}"
-eval "$CMD"
-
-#### linux-arm64
-GOARCH="arm64"
-BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}"
-CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
-echo "${CMD}"
-eval $CMD || FAILURES="${FAILURES} ${PLATFORM}"
-CMD="upx ${BIN_FILENAME}";
-echo "compress with ${CMD}"
-eval "$CMD"
-
-#### linux-arm7
-GOARCH="arm"
-GOARM="7"
-BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
-CMD="GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
-echo "${CMD}"
-eval "${CMD}" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
-CMD="upx ${BIN_FILENAME}";
-echo "compress with ${CMD}"
-eval "$CMD"
-
-#### linux-arm5
-GOARCH="arm"
-GOARM="5"
-BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
-CMD="GOOS=${GOOS} GOARCH=${GOARCH} GOARM=${GOARM} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
-echo "${CMD}"
-eval "${CMD}" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
-CMD="upx ${BIN_FILENAME}";
-echo "compress with ${CMD}"
-eval "$CMD"
+for PLATFORM in "${PLATFORMS[@]}"; do
+  GOOS=${PLATFORM%/*}
+  GOARCH=${PLATFORM#*/}
+  set_goarm "$GOARCH"
+  BIN_FILENAME="${OUTPUT}-${GOOS}-${GOARCH}${GOARM}"
+  CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
+  echo "${CMD}"
+  eval "$CMD" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
+  CMD="upx ${BIN_FILENAME}";
+  echo "compress with ${CMD}"
+  eval "$CMD"
+done
 
 # eval errors
 if [[ "${FAILURES}" != "" ]]; then
