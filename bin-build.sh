@@ -66,8 +66,3 @@ if [[ "${FAILURES}" != "" ]]; then
   echo "failed on: ${FAILURES}"
   exit 1
 fi
-
-#### build .spk
-cd ${ROOT}
-make
-exit 0
