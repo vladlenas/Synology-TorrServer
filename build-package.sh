@@ -12,9 +12,9 @@ download_torrserver() {
   local bin_name="TorrServer-linux-${ARCH}"
   local src_bin="${base_url}/${bin_name}"
   local dest_bin="dest_bin"
-  
+
   if [[ -f ${dest_bin}/TorrServer-linux-${ARCH} ]]; then
-    echo ">>> Binaries already exist: ${pkg_name}"
+    echo ">>> Binaries already exist: ${bin_name}"
     return
   fi
 

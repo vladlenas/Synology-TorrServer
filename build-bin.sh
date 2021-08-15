@@ -1,7 +1,5 @@
 #!/bin/bash
 
-git clone https://github.com/YouROK/TorrServer.git
-
 PLATFORMS=(
   'linux/amd64'
   'linux/386'
