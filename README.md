@@ -20,20 +20,17 @@ nano Makefile
 TORRSERVER_VERSION="MatriX.84"
 PKG_VERSION="1.2.84"
 ```
-clear working directory
-```
-make clean
-```
 # Building from TorrServer source binaries and making packages
 preparing the environment for compilation
 https://github.com/YouROK/TorrServer#build
 
 ```
-git clone https://github.com/vladlenas/Synology-TorrServer.git
-cd Synology-TorrServer/
-./bin-build.sh
+make bin
 ```
-
+# Clear working directory
+```
+make clean
+```
 # Permission DSM 7.0 for write cache to hard drive.
 * `Control Panel > Select Shared Folder > Edit > Permissions > System internal user > TorrServer user add read/write`
 
