@@ -20,7 +20,7 @@ nano Makefile
 TORRSERVER_VERSION="MatriX.84"
 PKG_VERSION="1.2.84"
 ```
-# Building from TorrServer source binaries and making packages
+# Building from TorrServer source binaries
 preparing the environment for compilation
 https://github.com/YouROK/TorrServer#build
 
