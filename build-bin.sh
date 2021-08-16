@@ -1,5 +1,14 @@
 #!/bin/bash
 
+ROOT=${PWD}
+SRC_DIR="TorrServer"
+DEST_BIN="${ROOT}/dest_bin"
+SRC_URL="https://github.com/YouROK/TorrServer.git"
+GOBIN="go"
+LDFLAGS="'-s -w'"
+FAILURES=""
+OUTPUT="${DEST_BIN}/TorrServer"
+BUILD_FLAGS="-ldflags=${LDFLAGS}"
 PLATFORMS=(
   'linux/amd64'
   'linux/386'
@@ -7,6 +16,14 @@ PLATFORMS=(
   'linux/arm7'
   'linux/arm5'
 )
+
+{
+    if [ -d "${SRC_DIR}" ]; then
+        exit=0
+    else
+        git clone ${SRC_URL}
+    fi
+}
 
 type setopt >/dev/null 2>&1
 export CGO_ENABLED=0
@@ -22,28 +39,20 @@ set_goarm() {
   fi
 }
 
-GOBIN="go"
 $GOBIN version
-
-LDFLAGS="'-s -w'"
-FAILURES=""
-ROOT=${PWD}
-OUTPUT="${ROOT}/dest_bin/TorrServer"
 
 #### Build web
 echo "Build web"
-cd ${ROOT}/TorrServer
+cd ${ROOT}/${SRC_DIR}
 $GOBIN run gen_web.go
 
 #### Build server
 echo "Build server"
-rm -fr "${ROOT}/dest_bin"
-cd "${ROOT}/TorrServer/server" || exit 1
+rm -fr "${DEST_BIN}"
+cd "${ROOT}/${SRC_DIR}/server" || exit 1
 $GOBIN clean -i -r -cache #--modcache
 $GOBIN mod tidy
 $GOBIN mod download
-
-BUILD_FLAGS="-ldflags=${LDFLAGS}"
 
 for PLATFORM in "${PLATFORMS[@]}"; do
   GOOS=${PLATFORM%/*}
@@ -53,7 +62,8 @@ for PLATFORM in "${PLATFORMS[@]}"; do
   CMD="GOOS=${GOOS} GOARCH=${GOARCH} ${GO_ARM} ${GO_MIPS} ${GOBIN} build ${BUILD_FLAGS} -o ${BIN_FILENAME} ./cmd"
   echo "${CMD}"
   eval "$CMD" || FAILURES="${FAILURES} ${GOOS}/${GOARCH}${GOARM}"
-  CMD="upx ${BIN_FILENAME}";
+  #CMD="upx ${BIN_FILENAME}";
+  CMD="../upx ${BIN_FILENAME}";
   echo "compress with ${CMD}"
   eval "$CMD"
 done

@@ -10,7 +10,6 @@ torrserver-%:
 	@./build-package.sh ${TORRSERVER_VERSION} $* ${PKG_VERSION} "7.0"
 
 bin:
-	git clone https://github.com/YouROK/TorrServer.git
 	./build-bin.sh
 
 clean:
