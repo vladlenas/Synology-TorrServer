@@ -32,13 +32,8 @@ make bin
 make clean
 ```
 # Log file
-DSM 6.0
 ```
-/var/packages/TorrServer/etc/TorrServer.log
-```
-DSM 7.0
-```
-/var/packages/TorrServer/var/TorrServer.log
+/var/packages/TorrServer/target/config/TorrServer.log
 ```
 
 # Permission DSM 7.0 for write cache to hard drive.
