@@ -12,6 +12,8 @@ Synology NAS package for DSM 6.0 and DSM 7.0 based on TorrServer binaries https:
 ```
 git clone https://github.com/vladlenas/Synology-TorrServer.git
 cd Synology-TorrServer/
+```
+```
 make
 ```
 TorrServer version change
