@@ -31,6 +31,16 @@ make bin
 ```
 make clean
 ```
+# Log file
+DSM 6.0
+```
+/var/packages/TorrServer/etc/TorrServer.log
+```
+DSM 7.0
+```
+/var/packages/TorrServer/var/TorrServer.log
+```
+
 # Permission DSM 7.0 for write cache to hard drive.
 * `Control Panel > Select Shared Folder > Edit > Permissions > System internal user > TorrServer user add read/write`
 
