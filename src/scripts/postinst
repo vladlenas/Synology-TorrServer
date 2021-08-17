@@ -4,12 +4,12 @@
     if [ "${wizard_enable_aut}" == "false" ]; then
        exit 0
     else
-       echo "{" >> ${SYNOPKG_PKGDEST}/db/accs.db
-       echo '"@user@":"@password@"' >> ${SYNOPKG_PKGDEST}/db/accs.db
-       echo "}" >> ${SYNOPKG_PKGDEST}/db/accs.db
+       echo "{" >> ${SYNOPKG_PKGDEST}/config/accs.db
+       echo '"@user@":"@password@"' >> ${SYNOPKG_PKGDEST}/config/accs.db
+       echo "}" >> ${SYNOPKG_PKGDEST}/config/accs.db
 
-       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${SYNOPKG_PKGDEST}/db/accs.db
-       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${SYNOPKG_PKGDEST}/db/accs.db
+       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${SYNOPKG_PKGDEST}/config/accs.db
+       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${SYNOPKG_PKGDEST}/config/accs.db
     fi
 exit 0
 }

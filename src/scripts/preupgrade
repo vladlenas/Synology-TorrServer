@@ -1,10 +1,20 @@
 #!/bin/sh
 
-       TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/db"
+{
+    if [ -d "${SYNOPKG_PKGDEST}/db" ]; then
+        CONFIG_DIR="${SYNOPKG_PKGDEST}/db"
+    else
+        CONFIG_DIR="${SYNOPKG_PKGDEST}/config"
+    fi
+}
+
+       LOG_FILE="${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.log"
+       TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/config"
 
 {
         rm -rf ${TEMP_DIR}
         mkdir -p ${TEMP_DIR}
-        cp -rfp ${SYNOPKG_PKGDEST}/db/* ${TEMP_DIR}
+        rm -rf ${LOG_FILE}
+        cp -rfp ${CONFIG_DIR}/* ${TEMP_DIR}
     exit 0
 }

@@ -32,10 +32,10 @@ make_inner_pkg() {
   echo ">>> Making inner package.tgz"
 
   mkdir -p ${tmp_dir}/bin
-  mkdir -p ${tmp_dir}/db
+  mkdir -p ${tmp_dir}/config
   cp -a ${torrserver_bin} ${tmp_dir}/bin/TorrServer
   chmod +x ${tmp_dir}/bin/TorrServer
-  cp -a src/TorrServer.sc ${tmp_dir}/db/
+  cp -a src/TorrServer.sc ${tmp_dir}/config/
   cp -r src/ui ${tmp_dir}
 
   pkg_size=$(du -sk "${tmp_dir}" | awk '{print $1}')

@@ -1,13 +1,8 @@
 #!/bin/sh
 
-    if [ "${SYNOPKG_DSM_VERSION_MAJOR}" -eq "6" ]; then
-        LOG_FILE="/var/packages/${SYNOPKG_PKGNAME}/etc/${SYNOPKG_PKGNAME}.log"
-    else
-        LOG_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.log"
-    fi
-
+    LOG_FILE="${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.log"
     SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
-    CONFIG_FOLDER="${SYNOPKG_PKGDEST}/db"
+    CONFIG_FOLDER="${SYNOPKG_PKGDEST}/config"
 
 start_daemon ()
 {

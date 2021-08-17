@@ -1,9 +1,9 @@
 #!/bin/sh
 
-        TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/db"
+        TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/config"
 
 {
-        rm -rf ${SYNOPKG_PKGDEST}/db
+        rm -rf ${SYNOPKG_PKGDEST}/config
         cp -rfp ${TEMP_DIR} ${SYNOPKG_PKGDEST}
         rm -rf ${TEMP_DIR}
     exit 0

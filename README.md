@@ -23,13 +23,16 @@ PKG_VERSION="1.2.84"
 # Building binaries from TorrServer source
 preparing the environment for compilation
 https://github.com/YouROK/TorrServer#build
-
 ```
 make bin
 ```
 # Clear working directory
 ```
 make clean
+```
+# Log file
+```
+/var/packages/TorrServer/target/config/TorrServer.log
 ```
 # Permission DSM 7.0 for write cache to hard drive.
 * `Control Panel > Select Shared Folder > Edit > Permissions > System internal user > TorrServer user add read/write`
