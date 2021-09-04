@@ -1,10 +1,10 @@
 {
     ".url": {
-        "SYNO.SDS.TorrServerNE": {
+        "SYNO.SDS.TorrServerMatriX": {
             "type": "url",
             "allUsers": true,
-            "title": "TorrServer NE",
-            "desc": "TorrServer",
+            "title": "TorrServer Matrix",
+            "desc": "TorrServerMatriX",
             "icon": "images/torrserver-{0}.png",
             "protocol": "http",
             "url": "/",
