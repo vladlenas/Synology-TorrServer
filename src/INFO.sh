@@ -36,10 +36,10 @@ arm5)
 esac
 
 cat <<EOF
-package="TorrServerNE"
+package="TorrServerMatriX"
 version="${PKG_VERSION}"
-displayname="TorrServer NE"
-dsmappname="SYNO.SDS.TorrServerNE"
+displayname="TorrServer MatriX"
+dsmappname="SYNO.SDS.TorrServerMatriX"
 arch="${PLATFORMS}"
 os_min_ver="${os_min_ver}"
 dsmuidir="ui"
