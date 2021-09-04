@@ -1,5 +1,5 @@
 [torrserver]
-title="TorrServer NE"
-desc="TorrServerNE"
+title="TorrServer MatriX"
+desc="TorrServerMatriX"
 port_forward="yes"
-dst.ports="8091/tcp"
+dst.ports="8091/tcp,32000/tcp"
