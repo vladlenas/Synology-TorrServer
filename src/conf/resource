@@ -1,8 +1,8 @@
 {
     "usr-local-linker": {
-        "bin": ["bin/TorrServerNE"]
+        "bin": ["bin/TorrServerMatriX"]
     },
     "port-config": {
-        "protocol-file": "config/TorrServerNE.sc"
+        "protocol-file": "config/TorrServerMatriX.sc"
     }
 }
