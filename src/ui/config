@@ -1,14 +1,14 @@
 {
     ".url": {
-        "SYNO.SDS.TorrServer": {
+        "SYNO.SDS.TorrServerNE": {
             "type": "url",
             "allUsers": true,
-            "title": "TorrServer",
+            "title": "TorrServer NE",
             "desc": "TorrServer",
             "icon": "images/torrserver-{0}.png",
             "protocol": "http",
             "url": "/",
-            "port": "8090"            
+            "port": "8091"            
         }
     }
 }

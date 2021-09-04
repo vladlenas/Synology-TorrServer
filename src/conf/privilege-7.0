@@ -2,6 +2,6 @@
     "defaults": {
         "run-as": "package"
     },
-    "username": "TorrServer",
-    "groupname": "TorrServer"
+    "username": "TorrServerNE",
+    "groupname": "TorrServerNE"
 }

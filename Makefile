@@ -1,9 +1,9 @@
-TORRSERVER_VERSION="MatriX.105"
+TORRSERVER_VERSION="MatriX.105.NE"
 PKG_VERSION="1.2.105"
 
 .PHONY: torrserver-% bin clean
 
-all: torrserver-amd64 torrserver-386 torrserver-arm64 torrserver-arm7 torrserver-arm5
+all: torrserver-amd64 #torrserver-386 torrserver-arm64 torrserver-arm7 torrserver-arm5
 
 torrserver-%:
 	@./build-package.sh ${TORRSERVER_VERSION} $* ${PKG_VERSION} "6.0"

@@ -33,9 +33,9 @@ make_inner_pkg() {
 
   mkdir -p ${tmp_dir}/bin
   mkdir -p ${tmp_dir}/config
-  cp -a ${torrserver_bin} ${tmp_dir}/bin/TorrServer
-  chmod +x ${tmp_dir}/bin/TorrServer
-  cp -a src/TorrServer.sc ${tmp_dir}/config/
+  cp -a ${torrserver_bin} ${tmp_dir}/bin/TorrServerNE
+  chmod +x ${tmp_dir}/bin/TorrServerNE
+  cp -a src/TorrServerNE.sc ${tmp_dir}/config/
   cp -r src/ui ${tmp_dir}
 
   pkg_size=$(du -sk "${tmp_dir}" | awk '{print $1}')
@@ -48,7 +48,7 @@ make_spk() {
   local spk_tmp_dir=$1
   local spk_dest_dir="./spk"
   local pkg_size=$(cat ${spk_tmp_dir}/extractsize_tmp)
-  local spk_filename="TorrServer-${DSM}-${TORRSERVER_VERSION}-${ARCH}.spk"
+  local spk_filename="TorrServer_NE-${DSM}-${TORRSERVER_VERSION}-${ARCH}.spk"
 
   echo ">>> Making spk: ${spk_filename}"
   mkdir -p ${spk_dest_dir}
@@ -78,7 +78,7 @@ make_pkg() {
   make_spk ${spk_temp_dir}
   echo ">>> Done"
   echo ""
-  rm -rf ./build spk/TorrServer-7.0-${TORRSERVER_VERSION}-arm5.spk
+  rm -rf ./build spk/TorrServer_NE-7.0-${TORRSERVER_VERSION}-arm5.spk
 }
 
 main() {
