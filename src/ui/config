@@ -4,7 +4,7 @@
             "type": "url",
             "allUsers": true,
             "title": "TorrServer MatriX",
-            "desc": "TorrServer",
+            "desc": "TorrServer MatriX",
             "icon": "images/torrserver-{0}.png",
             "protocol": "http",
             "url": "/",
