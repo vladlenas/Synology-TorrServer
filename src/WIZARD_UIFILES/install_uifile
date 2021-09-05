@@ -2,7 +2,7 @@
     "step_title": "TorrServer MatriX Authorization",
     "items": [{
         "type": "multiselect",
-        "desc": "Enable TorrServer MatriX Authorization?",
+        "desc": "Enable TorrServer Matrix Authorization?",
         "subitems": [{
             "key": "wizard_enable_aut",
             "desc": "Yes"

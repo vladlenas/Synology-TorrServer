@@ -50,6 +50,8 @@ distributor="vladlenas"
 distributor_url="https://github.com/vladlenas/Synology-TorrServer/releases"
 description="TorrServer, torrent to http."
 description_rus="TorrServer,торрент ссылки в http."
+package_icon="PACKAGE_ICON.PNG"
+package_icon_256="PACKAGE_ICON_256.PNG"
 create_time="${TIMESTAMP}"
 extractsize=${PKG_SIZE}
 EOF
