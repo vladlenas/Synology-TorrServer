@@ -1,8 +1,8 @@
 [{
-    "step_title": "TorrServer Authorization",
+    "step_title": "TorrServer MatriX Authorization",
     "items": [{
         "type": "multiselect",
-        "desc": "Enable TorrServer Authorization?",
+        "desc": "Enable TorrServer MatriX Authorization?",
         "subitems": [{
             "key": "wizard_enable_aut",
             "desc": "Yes"
