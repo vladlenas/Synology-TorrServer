@@ -21,7 +21,7 @@ PLATFORMS=(
     if [ -d "${SRC_DIR}" ]; then
         exit=0
     else
-        git clone ${SRC_URL}
+        git clone -b new-torrent ${SRC_URL}
     fi
 }
 
