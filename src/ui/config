@@ -3,7 +3,7 @@
         "SYNO.SDS.TorrServer": {
             "type": "url",
             "allUsers": true,
-            "title": "TorrServer",
+            "title": "TorrServer MatriX",
             "desc": "TorrServer",
             "icon": "images/torrserver-{0}.png",
             "protocol": "http",
