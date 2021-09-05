@@ -1,4 +1,4 @@
-TORRSERVER_VERSION="MatriX.105"
+TORRSERVER_VERSION="MatriX.105.NE"
 PKG_VERSION="1.2.105"
 
 .PHONY: torrserver-% bin clean
