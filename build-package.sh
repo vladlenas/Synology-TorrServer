@@ -63,7 +63,7 @@ make_spk() {
   cp -r src/conf/resource-${DSM} $spk_tmp_dir/conf/resource
   cp -r src/conf/privilege-${DSM} $spk_tmp_dir/conf/privilege
   cp -r src/WIZARD_UIFILES/install_uifile-${DSM} $spk_tmp_dir/WIZARD_UIFILES/install_uifile
-  cp -r src/WIZARD_UIFILES/install_uifile_ru-${DSM} $spk_tmp_dir/WIZARD_UIFILES/install_uifile_ru
+  cp -r src/WIZARD_UIFILES/install_uifile_rus-${DSM} $spk_tmp_dir/WIZARD_UIFILES/install_uifile_rus
 
   # Generate INFO file
   ./src/INFO.sh ${PKG_VERSION} ${ARCH} ${pkg_size} ${DSM} >"${spk_tmp_dir}"/INFO
