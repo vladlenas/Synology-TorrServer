@@ -59,7 +59,7 @@ make_spk() {
   cp -r src/scripts $spk_tmp_dir
   cp -r src/PACKAGE_ICON_256.PNG $spk_tmp_dir
   cp -r src/PACKAGE_ICON-${DSM}.PNG $spk_tmp_dir/PACKAGE_ICON.PNG
-  cp -r src/conf/resource $spk_tmp_dir/conf/
+  cp -r src/conf/resource-${DSM} $spk_tmp_dir/conf/resource
   cp -r src/conf/privilege-${DSM} $spk_tmp_dir/conf/privilege
   cp -r src/WIZARD_UIFILES $spk_tmp_dir
 
