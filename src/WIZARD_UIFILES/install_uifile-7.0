@@ -30,7 +30,7 @@
         "desc": "Permission for cache to shared folder.",
         "subitems": [{
                 "key": "wizard_cache_dir",
-                "desc": "Cache shared folder",
+                "desc": "Cache to shared folder",
                 "defaultValue": "downloads",
                 "validator": {
                     "allowBlank": false,
