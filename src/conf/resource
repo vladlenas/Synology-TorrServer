@@ -4,5 +4,17 @@
     },
     "port-config": {
         "protocol-file": "config/TorrServer.sc"
-    }
+    },
+"data-share": {
+    "shares": [
+      {
+        "name": "{{wizard_cache_dir}}",
+        "permission": {
+          "rw": [
+            "TorrServer"
+          ]
+        }
+      }
+    ]
+  }
 }
