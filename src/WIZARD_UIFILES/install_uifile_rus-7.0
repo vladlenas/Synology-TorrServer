@@ -1,0 +1,49 @@
+[
+    {
+    "step_title": "TorrServer Авторизация и Разрешения",
+    "items": [{
+        "type": "multiselect",
+        "desc": "Включить TorrServer Авторизацию?",
+        "subitems": [{
+            "key": "wizard_enable_aut",
+            "desc": "Да"
+           }]
+	},	
+    {
+        "type": "textfield",
+        "desc": "Username. По умолчанию admin",
+        "subitems": [{
+            "key": "wizard_username",
+            "desc": "Username"
+        }]
+    }, 
+	{
+        "type": "password",
+        "desc": "Password. По умолчанию admin",
+        "subitems": [{
+            "key": "wizard_password",
+            "desc": "Password"
+        }]
+    },
+    {    
+	"type": "textfield",
+        "desc": "Разрешение на кеширование в общую папку.",
+        "subitems": [{
+                "key": "wizard_cache_dir",
+                "desc": "Кеширование в общую папку",
+                "defaultValue": "downloads",
+                "validator": {
+                    "allowBlank": false,
+                    "regex": {
+                        "expr": "/^[\\w _-]+$/",
+                        "errorText": "Субдиректории не поддерживаются."
+                    }
+                }
+            }]
+	    },
+               {
+                 "desc": "Пожалуйсто прочитайте <a target=\"_blank\" href=\"https://github.com/SynoCommunity/spksrc/wiki/Permission-Management\">Permission Management</a>." 
+               }
+        ]
+    }
+]
