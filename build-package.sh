@@ -56,12 +56,14 @@ make_spk() {
 
   # copy scripts and icon
   mkdir -p $spk_tmp_dir/conf
+  mkdir -p $spk_tmp_dir/WIZARD_UIFILES
   cp -r src/scripts $spk_tmp_dir
   cp -r src/PACKAGE_ICON_256.PNG $spk_tmp_dir
   cp -r src/PACKAGE_ICON-${DSM}.PNG $spk_tmp_dir/PACKAGE_ICON.PNG
   cp -r src/conf/resource-${DSM} $spk_tmp_dir/conf/resource
   cp -r src/conf/privilege-${DSM} $spk_tmp_dir/conf/privilege
-  cp -r src/WIZARD_UIFILES $spk_tmp_dir
+  cp -r src/WIZARD_UIFILES/install_uifile-${DSM} $spk_tmp_dir/WIZARD_UIFILES/install_uifile
+  cp -r src/WIZARD_UIFILES/install_uifile_ru-${DSM} $spk_tmp_dir/WIZARD_UIFILES/install_uifile_ru
 
   # Generate INFO file
   ./src/INFO.sh ${PKG_VERSION} ${ARCH} ${pkg_size} ${DSM} >"${spk_tmp_dir}"/INFO
