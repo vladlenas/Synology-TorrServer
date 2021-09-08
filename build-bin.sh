@@ -21,11 +21,12 @@ PLATFORMS=(
     if [ -d "${SRC_DIR}" ]; then
         exit=0
     else
-        git clone ${SRC_URL}
+        git clone -b new-engine ${SRC_URL}
     fi
 }
 
 type setopt >/dev/null 2>&1
+
 set_goarm() {
   if [[ "$1" =~ arm([5,7]) ]]; then
     GOARCH="arm"
