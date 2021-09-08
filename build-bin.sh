@@ -26,6 +26,8 @@ PLATFORMS=(
 }
 
 type setopt >/dev/null 2>&1
+#export CGO_ENABLED=0
+
 set_goarm() {
   if [[ "$1" =~ arm([5,7]) ]]; then
     GOARCH="arm"
