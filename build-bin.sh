@@ -22,6 +22,7 @@ PLATFORMS=(
         exit=0
     else
         git clone -b new-engine ${SRC_URL}
+        #git clone ${SRC_URL}
     fi
 }
 
