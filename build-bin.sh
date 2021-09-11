@@ -21,8 +21,7 @@ PLATFORMS=(
     if [ -d "${SRC_DIR}" ]; then
         exit=0
     else
-        git clone -b new-engine ${SRC_URL}
-        #git clone ${SRC_URL}
+        git clone ${SRC_URL}
     fi
 }
 
