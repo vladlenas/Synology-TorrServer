@@ -2,7 +2,7 @@
     "step_title": "TorrServer Authorization",
     "items": [{
         "type": "multiselect",
-        "desc": "Enable TorrServer Authorization?",
+        "desc": "<strong>Enable TorrServer Authorization?<strong>",
         "subitems": [{
             "key": "wizard_enable_aut",
             "desc": "Yes"

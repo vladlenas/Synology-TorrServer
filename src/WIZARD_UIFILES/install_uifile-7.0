@@ -3,7 +3,7 @@
     "step_title": "TorrServer MatriX Authorization and Permission",
     "items": [{
         "type": "multiselect",
-        "desc": "Enable TorrServer Matrix Authorization?",
+        "desc": "<strong>Enable TorrServer Matrix Authorization?<strong>",
         "subitems": [{
             "key": "wizard_enable_aut",
             "desc": "Yes"
@@ -27,7 +27,7 @@
     },
     {    
 	"type": "textfield",
-        "desc": "Permission for cache to shared folder.",
+        "desc": "<strong>Permission for cache to shared folder.<strong>",
         "subitems": [{
                 "key": "wizard_cache_dir",
                 "desc": "Cache to shared folder",
