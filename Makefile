@@ -5,7 +5,7 @@ GIT_URL=https://github.com/YouROK/TorrServer.git
 
 .PHONY: torrserver-% bin clone clean
 
-all: torrserver-amd64 #torrserver-386 torrserver-arm64 torrserver-arm7 torrserver-arm5
+all: torrserver-amd64 torrserver-386 torrserver-arm64 torrserver-arm7 torrserver-arm5
 
 torrserver-%:
 	@./build-package.sh ${TORRSERVER_VERSION} $* ${PKG_VERSION} "6.0"
