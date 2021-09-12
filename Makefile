@@ -16,6 +16,6 @@ bin:
 
 clone:
 	git clone ${GIT_URL}
-	
+
 clean:
 	rm -rf spk dest_bin TorrServer
