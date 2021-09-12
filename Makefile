@@ -1,7 +1,9 @@
 TORRSERVER_VERSION="MatriX.106"
 PKG_VERSION="1.2.106"
+GIT_URL=https://github.com/YouROK/TorrServer.git
+#GIT_URL=-b new-torrent https://github.com/YouROK/TorrServer.git
 
-.PHONY: torrserver-% bin clean
+.PHONY: torrserver-% bin clone clean
 
 all: torrserver-amd64 torrserver-386 torrserver-arm64 torrserver-arm7 torrserver-arm5
 
@@ -12,5 +14,8 @@ torrserver-%:
 bin:
 	./build-bin.sh
 
+clone:
+	git clone ${GIT_URL}
+	
 clean:
 	rm -rf spk dest_bin TorrServer
