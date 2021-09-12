@@ -3,7 +3,7 @@
     "step_title": "TorrServer Авторизация и Разрешения",
     "items": [{
         "type": "multiselect",
-        "desc": "Включить TorrServer Авторизацию?",
+        "desc": "<strong>Включить TorrServer Авторизацию?<strong>",
         "subitems": [{
             "key": "wizard_enable_aut",
             "desc": "Да"
@@ -27,7 +27,7 @@
     },
     {    
 	"type": "textfield",
-        "desc": "Разрешение на кеширование в общую папку.",
+        "desc": "<strong>Разрешение на кеширование в общую папку.<strong>",
         "subitems": [{
                 "key": "wizard_cache_dir",
                 "desc": "Кеширование в общую папку",
