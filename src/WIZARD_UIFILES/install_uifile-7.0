@@ -3,7 +3,7 @@
     "step_title": "TorrServer MatriX Authorization and Permission",
     "items": [{
         "type": "multiselect",
-        "desc": "<strong>Enable TorrServer Matrix Authorization?<strong>",
+        "desc": "<strong>TorrServer Matrix Authorization<strong>",
         "subitems": [{
             "key": "wizard_enable_aut",
             "desc": "Yes"
@@ -27,10 +27,10 @@
     },
     {    
 	"type": "textfield",
-        "desc": "<strong>Permission for cache to shared folder.<strong>",
+        "desc": "<strong>Permission for cache to shared folder<strong>",
         "subitems": [{
                 "key": "wizard_cache_dir",
-                "desc": "Cache to shared folder",
+                "desc": "Shared folder",
                 "defaultValue": "downloads",
                 "validator": {
                     "allowBlank": false,

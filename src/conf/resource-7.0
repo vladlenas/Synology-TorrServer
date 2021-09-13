@@ -14,7 +14,7 @@
             "TorrServer"
           ]
         }
-      }
-    ]
+      }],
+        "once": "true"
   }
 }

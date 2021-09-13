@@ -3,7 +3,7 @@
     "step_title": "TorrServer Авторизация и Разрешения",
     "items": [{
         "type": "multiselect",
-        "desc": "<strong>Включить TorrServer Авторизацию?<strong>",
+        "desc": "<strong>TorrServer Авторизация<strong>",
         "subitems": [{
             "key": "wizard_enable_aut",
             "desc": "Да"
@@ -27,10 +27,10 @@
     },
     {    
 	"type": "textfield",
-        "desc": "<strong>Разрешение на кеширование в общую папку.<strong>",
+        "desc": "<strong>Разрешение на кеширование в общую папку<strong>",
         "subitems": [{
                 "key": "wizard_cache_dir",
-                "desc": "Кеширование в общую папку",
+                "desc": "Общая папка",
                 "defaultValue": "downloads",
                 "validator": {
                     "allowBlank": false,
@@ -42,7 +42,7 @@
             }]
 	    },
                {
-                 "desc": "Пожалуйсто прочитайте <a target=\"_blank\" href=\"https://github.com/SynoCommunity/spksrc/wiki/Permission-Management\">Permission Management</a>." 
+                 "desc": "Пожалуйста прочтите <a target=\"_blank\" href=\"https://github.com/SynoCommunity/spksrc/wiki/Permission-Management\">Permission Management</a>." 
                }
         ]
     }
