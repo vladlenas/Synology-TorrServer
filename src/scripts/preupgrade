@@ -14,7 +14,6 @@
 {
         rm -rf ${TEMP_DIR}
         mkdir -p ${TEMP_DIR}
-        rm -rf ${LOG_FILE}
         cp -rfp ${CONFIG_DIR}/* ${TEMP_DIR}
     exit 0
 }
