@@ -7,19 +7,18 @@
 start_daemon ()
 {
     if [ -r "${CONFIG_DIR}/accs.db" ]; then
-        echo "Start ${SYNOPKG_PKGNAME} ${SYNOPKG_PKGVER} with authorization" >> ${LOG_FILE}
-        ${SERVICE_COMMAND} -d ${CONFIG_DIR} -a >> ${LOG_FILE} 2>&1 &
+        echo "Start with authorization" >> ${LOG_FILE}
+        ${SERVICE_COMMAND} -d ${CONFIG_DIR} -a -l ${LOG_FILE}
     else
-        echo "Start ${SYNOPKG_PKGNAME} ${SYNOPKG_PKGVER} without authorization" >> ${LOG_FILE}
-        ${SERVICE_COMMAND} -d ${CONFIG_DIR} >> ${LOG_FILE} 2>&1 &
+        echo "Start without authorization" >> ${LOG_FILE}
+        ${SERVICE_COMMAND} -d ${CONFIG_DIR} -l ${LOG_FILE}
     fi
 }
 
 stop_daemon ()
 {
-        echo "Stop ${SYNOPKG_PKGNAME} ${SYNOPKG_PKGVER}" >> ${LOG_FILE}
-	kill `pidof ${SYNOPKG_PKGNAME}` >> ${LOG_FILE} 2>&1
-	wait_for_status 1 20 || kill -9 `pidof ${SYNOPKG_PKGNAME}` >> ${LOG_FILE} 2>&1
+	kill `pidof ${SYNOPKG_PKGNAME}`
+	wait_for_status 1 20 || kill -9 `pidof ${SYNOPKG_PKGNAME}`
 }
 
 daemon_status ()
