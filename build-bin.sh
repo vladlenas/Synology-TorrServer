@@ -3,7 +3,7 @@
 ROOT=${PWD}
 SRC_DIR="TorrServer"
 DEST_BIN="${ROOT}/dest_bin"
-SRC_URL="https://github.com/YouROK/TorrServer.git"
+SRC_URL="https://github.com/vladlenas/TorrServer.git"
 GOBIN="go"
 LDFLAGS="'-s -w'"
 FAILURES=""
