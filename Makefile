@@ -1,5 +1,5 @@
-TORRSERVER_VERSION="MatriX.115"
-PKG_VERSION="1.2.115"
+TORRSERVER_VERSION="MatriX.116"
+PKG_VERSION="1.2.116"
 GIT_URL=https://github.com/vladlenas/TorrServer.git
 #GIT_URL=https://github.com/YouROK/TorrServer.git
 #GIT_URL=-b new-torrent https://github.com/YouROK/TorrServer.git
