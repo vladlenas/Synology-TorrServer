@@ -80,7 +80,7 @@ make_pkg() {
   make_spk ${spk_temp_dir}
   echo ">>> Done"
   echo ""
-  rm -rf ./build spk/TorrServer-7.0-${TORRSERVER_VERSION}-arm5.spk
+  #rm -rf ./build spk/TorrServer-7.0-${TORRSERVER_VERSION}-arm5.spk
 }
 
 main() {
