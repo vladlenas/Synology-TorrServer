@@ -5,7 +5,7 @@ You can thank the TorrServer developer here https://github.com/YouROK/TorrServer
 
 # Sopported Architecture
 * arm5 - armv5 88f6281 88f628x - no longer supported
-* arm7 - armv7 alpine alpine4k armada370 armada375 armada38x armadaxp comcerto2k monaco - no longer supported
+* arm7 - armv7 alpine alpine4k armada370 armada375 armada38x armadaxp comcerto2k monaco
 * arm64 - aarch64 armv8 rtd1296 armada37xx
 * amd64 - apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
 * 386 - evansport apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
