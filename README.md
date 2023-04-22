@@ -10,6 +10,9 @@ You can thank the TorrServer developer here https://github.com/YouROK/TorrServer
 * amd64 - apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
 * 386 - evansport apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
 
+# Automatic update
+add https://grigi.lt/ Package Center > Settings > Package Sources
+
 # Making packages from precompiled TorrServer binaries
 ```
 git clone https://github.com/vladlenas/Synology-TorrServer.git
