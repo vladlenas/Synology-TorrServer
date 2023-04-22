@@ -11,7 +11,7 @@ You can thank the TorrServer developer here https://github.com/YouROK/TorrServer
 * 386 - evansport apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
 
 # Automatic update
-Add  https://packages.voxel-firmware.com/  to your Synology NAS Package Center sources!
+Add  https://grigi.lt/  to your Synology NAS Package Center sources!
 
 # Making packages from precompiled TorrServer binaries
 ```
