@@ -1,14 +1,16 @@
 {
     ".url": {
         "SYNO.SDS.TorrServer": {
-            "type": "url",
-            "allUsers": true,
             "title": "TorrServer MatriX",
             "desc": "TorrServer MatriX",
             "icon": "images/torrserver-{0}.png",
+            "type": "url",
             "protocol": "http",
+            "port": "8090",
             "url": "/",
-            "port": "8090"            
+            "allUsers": true,
+            "grantPrivilege": "all",
+            "advanceGrantPrivilege": true
         }
     }
 }
