@@ -10,15 +10,15 @@ TIMESTAMP=$(date -u +%Y%m%d-%H:%M:%S)
 if [ "$DSM" = "6.0" ]; then
   os_min_ver="6.0.0-0000"
 else
-  os_min_ver="7.0-40000"
+  os_min_ver="7.1-42661"
 fi
 
 case $ARCH in
 amd64)
-  PLATFORMS="apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64"
+  PLATFORMS="apollolake avoton braswell broadwell broadwellnk broadwellnkv2 broadwellntbap bromolow cedarview denverton epyc7002 geminilake grantley kvmx64 purley r1000 v1000 x86_64"
   ;;
 386)
-  PLATFORMS="evansport apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64"
+  PLATFORMS="evansport x86"
   ;;
 arm64)
   PLATFORMS="aarch64 armv8 rtd1296 armada37xx"
