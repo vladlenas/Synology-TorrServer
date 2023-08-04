@@ -4,11 +4,10 @@ Synology NAS package for DSM 6.0 and DSM 7.0 based on TorrServer binaries https:
 You can thank the TorrServer developer here https://github.com/YouROK/TorrServer#donate
 
 # Sopported Architecture
-* arm5 - armv5 88f6281 88f628x - no longer supported
 * arm7 - armv7 alpine alpine4k armada370 armada375 armada38x armadaxp comcerto2k monaco
 * arm64 - aarch64 armv8 rtd1296 armada37xx
-* amd64 - apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
-* 386 - evansport apollolake avoton braswell broadwell broadwellnk bromolow cedarview denverton dockerx64 geminilake grantley purley kvmx64 v1000 x86 x86_64
+* amd64 - apollolake avoton braswell broadwell broadwellnk broadwellnkv2 broadwellntbap bromolow cedarview denverton epyc7002 geminilake grantley kvmx64 purley r1000 v1000 x86_64
+* 386 - evansport x86
 
 # Automatic update
 Add  https://grigi.lt/  to your Synology NAS Package Center sources!
