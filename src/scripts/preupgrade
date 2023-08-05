@@ -1,15 +1,7 @@
 #!/bin/sh
 
-{
-    if [ -d "${SYNOPKG_PKGDEST}/db" ]; then
-        CONFIG_DIR="${SYNOPKG_PKGDEST}/db"
-    else
-        CONFIG_DIR="${SYNOPKG_PKGDEST}/config"
-    fi
-}
-
-       LOG_FILE="${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.log"
-       TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/config"
+CONFIG_DIR="${SYNOPKG_PKGDEST}/config"
+TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/config"
 
 {
         rm -rf ${TEMP_DIR}
