@@ -1,6 +1,6 @@
 #!/bin/sh
 
-        TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/config"
+TEMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}/config"
 
 {
         rm -rf ${SYNOPKG_PKGDEST}/config
