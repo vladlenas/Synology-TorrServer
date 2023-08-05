@@ -1,5 +1,10 @@
 #!/bin/sh
 
+    SYNOMODEL=$(cat /proc/sys/kernel/syno_hw_version)
+    ARCH=$(uname --machine)
+    DSM=$(grep -i "productversion=" "/etc.defaults/VERSION" | cut -d"\"" -f 2)
+    DSMVERSION=$(echo "$DSM"-"$(grep -i "buildnumber="    "/etc.defaults/VERSION" | cut -d"\"" -f 2)")
+
     LOG_FILE="${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.log"
     SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/${SYNOPKG_PKGNAME}"
     CONFIG_DIR="${SYNOPKG_PKGDEST}/config"
@@ -8,11 +13,13 @@ start_daemon ()
 {
     if [ -r "${CONFIG_DIR}/accs.db" ]; then
         echo "" >> ${LOG_FILE}
+        echo "Synology $SYNOMODEL ($ARCH) DSM $DSMVERSION" >> ${LOG_FILE}
         echo "Start with authorization" >> ${LOG_FILE}
         ${SERVICE_COMMAND} -d ${CONFIG_DIR} -a -l ${LOG_FILE} &
     else
         echo "" >> ${LOG_FILE}
         echo "Start without authorization" >> ${LOG_FILE}
+        echo "Synology $SYNOMODEL ($ARCH) DSM $DSMVERSION" >> ${LOG_FILE}
         ${SERVICE_COMMAND} -d ${CONFIG_DIR} -l ${LOG_FILE} &
     fi
 }
