@@ -1,6 +1,6 @@
 {
     ".url": {
-        "SYNO.SDS.TorrServer.Application": {
+        "SYNO.SDS.TorrServer": {
             "title": "TorrServer MatriX",
             "desc": "TorrServer MatriX",
             "icon": "images/torrserver-{0}.png",
