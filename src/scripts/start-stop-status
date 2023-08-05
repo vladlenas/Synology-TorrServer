@@ -18,8 +18,8 @@ start_daemon ()
         ${SERVICE_COMMAND} -d ${CONFIG_DIR} -a -l ${LOG_FILE} &
     else
         echo "" >> ${LOG_FILE}
-        echo "Start without authorization" >> ${LOG_FILE}
         echo "Synology $SYNOMODEL ($ARCH) DSM $DSMVERSION" >> ${LOG_FILE}
+        echo "Start without authorization" >> ${LOG_FILE}
         ${SERVICE_COMMAND} -d ${CONFIG_DIR} -l ${LOG_FILE} &
     fi
 }
