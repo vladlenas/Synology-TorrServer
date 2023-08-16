@@ -10,7 +10,6 @@ all: torrserver-amd64 torrserver-386 torrserver-arm64 torrserver-arm7
 
 torrserver-%:
 	@./build-package.sh ${TORRSERVER_VERSION} $* ${PKG_VERSION} "6.0"
-	@./build-package.sh ${TORRSERVER_VERSION} $* ${PKG_VERSION} "7.0"
 
 bin:
 	./build-bin.sh
