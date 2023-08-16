@@ -1,5 +1,5 @@
 # TorrServer package for Synology NAS
-Synology NAS package for DSM 6.0 and DSM 7.0 based on TorrServer binaries https://github.com/YouROK/TorrServer/releases
+Synology NAS package for DSM 6.0 based on TorrServer binaries https://github.com/YouROK/TorrServer/releases
 
 You can thank the TorrServer developer here https://github.com/YouROK/TorrServer#donate
 
@@ -40,11 +40,7 @@ make clean
 ```
 /var/packages/TorrServer/target/config/TorrServer.log
 ```
-# Permission DSM 7.0 for write cache to hard drive.
-* `Control Panel > Shared Folder > Select Shared Folder > Edit > Permissions > System internal user > TorrServer user add read/write`
-
 # Credits and References
 * YouROK https://github.com/YouROK
-* Huge thanks for https://github.com/tailscale/tailscale-synology his scripts made it easier to build packages.
 * Synology DSM 7.0 Developer Guide https://help.synology.com/developer-guide/
 * Architecture per Synology model https://github.com/SynoCommunity/spksrc/wiki/Architecture-per-Synology-model
