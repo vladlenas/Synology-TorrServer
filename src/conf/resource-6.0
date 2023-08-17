@@ -1,8 +1,0 @@
-{
-    "usr-local-linker": {
-        "bin": ["bin/TorrServer"]
-    },
-    "port-config": {
-        "protocol-file": "config/TorrServer.sc"
-    }
-}

@@ -1,0 +1,79 @@
+
+### common installer functions and variables for synocommunity generic service installer
+# 
+# functions are common for all DSM versions
+#
+# The script must be sh/ash compatible and not use bash syntax.
+# SRM and DSM < 6.0 have only the busybox built-in shell an not bash
+# 
+
+# Tools shortcuts
+MV="/bin/mv -f"
+RM="/bin/rm -rf"
+CP="/bin/cp -rfp"
+MKDIR="/bin/mkdir -p"
+LN="/bin/ln -nsf"
+TEE="/usr/bin/tee -a"
+RSYNC="/bin/rsync -avh"
+TAR="/bin/tar"
+
+INST_ETC="/var/packages/${SYNOPKG_PKGNAME}/etc"
+INST_VARIABLES="${INST_ETC}/installer-variables"
+
+
+### Functions library
+
+log_step ()
+{
+    install_log "===> Step $1. STATUS=${SYNOPKG_PKG_STATUS} USER=$USER GROUP=$GROUP"
+}
+
+
+initialize_variables ()
+{
+    # Expect user to be set from package specific variables
+    if [ -n "${USER}" -a -z "${USER_DESC}" ]; then
+        USER_DESC="User running $SYNOPKG_PKGNAME"
+    fi
+
+    # Default description if group name provided by UI
+    if [ -n "${GROUP}" -a -z "${GROUP_DESC}" ]; then
+        GROUP_DESC="Group running $SYNOPKG_PKGNAME"
+    fi
+}
+
+# function to read and export variables from a text file
+# empty lines and lines starting with # are ignored
+# we cannot 'source' the file to load the variables, when values have special characters like <, >, ...
+load_variables_from_file ()
+{
+   if [ -n "$1" -a -r "$1" ]; then
+      while read -r _line; do
+        if [ "$(echo ${_line} | grep -v ^[/s]*#)" != "" ]; then
+           _key="$(echo ${_line} | cut --fields=1 --delimiter==)"
+           _value="$(echo ${_line} | cut --fields=2- --delimiter==)"
+           export "${_key}=${_value}"
+        fi
+      done < "$1"
+   fi
+}
+
+
+save_wizard_variables ()
+{
+    if [ -e "${INST_VARIABLES}" ]; then
+        $RM "${INST_VARIABLES}"
+    fi
+    if [ -n "${GROUP}" ]; then
+        echo "GROUP=${GROUP}" >> ${INST_VARIABLES}
+    fi
+
+    # Extract share volume and share name from download location if provided
+    if [ -n "${SHARE_PATH}" ]; then
+        if [ -n "${wizard_volume}" ]; then
+            SHARE_PATH="${wizard_volume}/${SHARE_PATH}"
+        fi
+        SHARE_VOLUME=$(echo "${SHARE_PATH}" | awk -F/ '{print "/"$2}')
+        SHARE_NAME=$(echo "${SHARE_PATH}" | awk -F/ '{print $3}')
+    fi
+}

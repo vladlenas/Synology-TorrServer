@@ -7,12 +7,6 @@ DSM=$4
 
 TIMESTAMP=$(date -u +%Y%m%d-%H:%M:%S)
 
-if [ "$DSM" = "6.0" ]; then
-  os_min_ver="6.0.0-0000"
-else
-  os_min_ver="7.1-42661"
-fi
-
 case $ARCH in
 amd64)
   PLATFORMS="apollolake avoton braswell broadwell broadwellnk broadwellnkv2 broadwellntbap bromolow cedarview denverton epyc7002 geminilake grantley kvmx64 purley r1000 v1000 x86_64"
@@ -41,7 +35,7 @@ version="${PKG_VERSION}"
 displayname="TorrServer MatriX"
 dsmappname="SYNO.SDS.TorrServer"
 arch="${PLATFORMS}"
-os_min_ver="${os_min_ver}"
+os_min_ver="7.1-42661"
 dsmuidir="ui"
 startable="yes"
 maintainer="TorrServer"

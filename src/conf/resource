@@ -3,12 +3,12 @@
         "bin": ["bin/TorrServer"]
     },
     "port-config": {
-        "protocol-file": "config/TorrServer.sc"
+        "protocol-file": "ui/TorrServer.sc"
     },
 "data-share": {
     "shares": [
       {
-        "name": "{{wizard_cache_dir}}",
+        "name": "{{wizard_volume}}",
         "permission": {
           "rw": [
             "TorrServer"

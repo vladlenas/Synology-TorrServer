@@ -1,0 +1,40 @@
+### Generic variables and functions
+### -------------------------------
+
+if [ -z "${SYNOPKG_PKGNAME}" ] || [ -z "${SYNOPKG_DSM_VERSION_MAJOR}" ]; then
+  echo "Error: Environment variables are not set." 1>&2;
+  echo "Please run me using synopkg instead. Example: \"synopkg start [packagename]\"" 1>&2;
+  exit 1
+fi
+
+USER="TorrServer"
+EFF_USER="TorrServer"
+
+#Extract to log file Synology model, processor architecture and DSM version
+SYNOMODEL=$(cat /proc/sys/kernel/syno_hw_version)
+ARCH=$(uname --machine)
+DSM=$(grep -i "productversion=" "/etc.defaults/VERSION" | cut -d"\"" -f 2)
+DSMVERSION=$(echo "$DSM"-"$(grep -i "buildnumber="    "/etc.defaults/VERSION" | cut -d"\"" -f 2)")
+MODEL_ARCH_DSM=$"Synology $SYNOMODEL ($ARCH) DSM $DSMVERSION"
+
+# start-stop-status script redirect stdout/stderr to LOG_FILE
+LOG_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.log"
+
+# Service command has to deliver its pid into PID_FILE
+PID_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.pid"
+
+# Package config files
+CONFIG_DIR="${SYNOPKG_PKGDEST}/config"
+
+### Package specific variables and functions
+### ----------------------------------------
+
+if [ -r "${CONFIG_DIR}/accs.db" ]; then
+    SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/TorrServer -d ${CONFIG_DIR} -a -l ${LOG_FILE}"
+else
+    SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/TorrServer -d ${CONFIG_DIR} -l ${LOG_FILE}"
+fi
+
+SVC_BACKGROUND=y
+SVC_WRITE_PID=y
+

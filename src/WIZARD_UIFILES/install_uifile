@@ -29,7 +29,7 @@
 	"type": "textfield",
         "desc": "<strong>Permission for cache to shared folder<strong>",
         "subitems": [{
-                "key": "wizard_cache_dir",
+                "key": "wizard_volume",
                 "desc": "Shared folder",
                 "defaultValue": "downloads",
                 "validator": {

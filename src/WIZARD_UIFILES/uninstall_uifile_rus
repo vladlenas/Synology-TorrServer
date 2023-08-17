@@ -1,0 +1,16 @@
+[{
+  "step_title": "Uninstall package",
+  "items": [{
+    "type": "singleselect",
+    "desc": "Сохранить или удалить настройки пакета.",
+    "subitems": [{
+      "key": "wizard_keep_data",
+      "desc": "<b>Удалить только.</b> Сохраните существующие файлы для будущей переустановки.",
+      "defaultValue": true
+    }, {
+      "key": "wizard_delete_data",
+      "desc": "<b style=\"color: red\">Удалить все файлы данных пакета. (Не подлежит восстановлению)</b>",
+      "defaultValue": false
+    }]
+  }]
+}]

@@ -29,7 +29,7 @@
 	"type": "textfield",
         "desc": "<strong>Разрешение на кеширование в общую папку<strong>",
         "subitems": [{
-                "key": "wizard_cache_dir",
+                "key": "wizard_volume",
                 "desc": "Общая папка",
                 "defaultValue": "downloads",
                 "validator": {

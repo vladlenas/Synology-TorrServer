@@ -35,7 +35,6 @@ make_inner_pkg() {
   mkdir -p ${tmp_dir}/config
   cp -a ${torrserver_bin} ${tmp_dir}/bin/TorrServer
   chmod +x ${tmp_dir}/bin/TorrServer
-  cp -a src/TorrServer.sc ${tmp_dir}/config/
   cp -r src/ui ${tmp_dir}
 
   pkg_size=$(du -sk "${tmp_dir}" | awk '{print $1}')
@@ -54,19 +53,13 @@ make_spk() {
   mkdir -p ${spk_dest_dir}
   rm "${spk_tmp_dir}/extractsize_tmp"
 
-  # copy scripts and icon
-  mkdir -p $spk_tmp_dir/conf
-  mkdir -p $spk_tmp_dir/WIZARD_UIFILES
   cp -r src/scripts $spk_tmp_dir
   cp -r src/PACKAGE_ICON_256.PNG $spk_tmp_dir
-  cp -r src/PACKAGE_ICON-${DSM}.PNG $spk_tmp_dir/PACKAGE_ICON.PNG
-  cp -r src/conf/resource-${DSM} $spk_tmp_dir/conf/resource
-  cp -r src/conf/privilege-${DSM} $spk_tmp_dir/conf/privilege
-  cp -r src/WIZARD_UIFILES/install_uifile-${DSM} $spk_tmp_dir/WIZARD_UIFILES/install_uifile
-  cp -r src/WIZARD_UIFILES/install_uifile_rus-${DSM} $spk_tmp_dir/WIZARD_UIFILES/install_uifile_rus
+  cp -r src/PACKAGE_ICON.PNG $spk_tmp_dir
+  cp -r src/conf/ $spk_tmp_dir
+  cp -r src/WIZARD_UIFILES $spk_tmp_dir
 
-  # Generate INFO file
-  ./src/INFO.sh ${PKG_VERSION} ${ARCH} ${pkg_size} ${DSM} >"${spk_tmp_dir}"/INFO
+  ./src/INFO.sh ${PKG_VERSION} ${ARCH} ${pkg_size} >"${spk_tmp_dir}"/INFO
 
   tar -cf "${spk_dest_dir}/${spk_filename}" -C "${spk_tmp_dir}" $(ls ${spk_tmp_dir})
 }
@@ -80,7 +73,6 @@ make_pkg() {
   make_spk ${spk_temp_dir}
   echo ">>> Done"
   echo ""
-  #rm -rf ./build spk/TorrServer-7.0-${TORRSERVER_VERSION}-arm5.spk
 }
 
 main() {

@@ -1,0 +1,220 @@
+#!/bin/sh
+
+# installer log is not writable, use for reference only.
+INST_LOG="/var/log/packages/${SYNOPKG_PKGNAME}.log"
+
+# Old files from config directory, before ver. 1.2.125.
+OLD_FWPORTS="${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.sc"
+OLD_LOG="${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.log"
+
+# Temporary directory when the package is upgrading.
+TMP_DIR="${SYNOPKG_TEMP_UPGRADE_FOLDER}"
+
+install_log ()
+{
+    local _msg_="$@"
+    if [ -z "${_msg_}" ]; then
+        # read multiline from stdin
+        while IFS=$'\n' read -r line; do
+            install_log "${line}"
+        done
+    else
+        # stderr goes to /var/log/packages/{package}.log
+        # stdout goes to dialog in package manager ui.
+        echo -e "$(date +'%Y/%m/%d %H:%M:%S')\t${_msg_}" 1>&2
+    fi
+}
+
+# Invoke shell function if available
+call_func ()
+{
+    FUNC=$1
+    if type "${FUNC}" 2>/dev/null | grep -q 'function' 2>/dev/null; then
+        install_log "Begin ${FUNC}"
+        LOG=$2
+        ARG=$3
+        if [ -z "${LOG}" ]; then
+            if [ -z "${ARG}" ]; then
+                eval ${FUNC}
+            else
+                eval ${FUNC} ${ARG}
+            fi
+        else
+            if [ -z "${ARG}" ]; then
+                eval ${FUNC} 2>&1 | ${LOG}
+            else
+                eval ${FUNC} ${ARG} 2>&1 | ${LOG}
+            fi
+        fi
+        install_log "End ${FUNC}"
+    fi
+}
+
+# Source installer variables and functions
+INST_FUNCTIONS=$(dirname $0)"/functions"
+if [ -r "${INST_FUNCTIONS}" ]; then
+    . "${INST_FUNCTIONS}"
+fi
+
+
+# Source package specific variables and functions
+SVC_SETUP=$(dirname $0)"/service-setup"
+if [ -r "${SVC_SETUP}" ]; then
+    . "${SVC_SETUP}"
+fi
+
+
+# Load (wizard) variables stored by postinst
+call_func "load_variables_from_file" install_log ${INST_VARIABLES}
+
+# init variables either from ${INST_VARIABLES}, from package or from wizard
+call_func "initialize_variables"
+
+
+### Functions library
+
+set_unix_permissions ()
+{
+    echo "Notice: set_unix_permissions() is no longer required on DSM7."
+}
+
+syno_remove_user ()
+{
+    echo "${SYNOPKG_PKGNAME} has not been updated to DSM7 yet. syno_remove_user() is no longer supported."
+}
+
+syno_group_create ()
+{
+    echo "${SYNOPKG_PKGNAME} has not been updated to DSM7 yet. syno_group_create() is no longer supported."
+}
+
+syno_group_remove ()
+{
+    echo "${SYNOPKG_PKGNAME} has not been updated to DSM7 yet. syno_group_remove() is no longer supported."
+}
+
+syno_user_add_to_group ()
+{
+    echo "${SYNOPKG_PKGNAME} has not been updated to DSM7 yet. syno_user_add_to_group() is no longer supported."
+}
+
+set_syno_permissions ()
+{
+    echo "${SYNOPKG_PKGNAME} has not been updated to DSM7 yet. set_syno_permissions() is no longer supported."
+}
+
+syno_user_add_to_legacy_group () {
+    echo "${SYNOPKG_PKGNAME} has not been updated to DSM7 yet. syno_user_add_to_legacy_group() is no longer supported."
+}
+
+
+### Generic package behaviors
+
+preinst ()
+{
+    log_step "preinst"
+    call_func "validate_preinst"
+    call_func "service_preinst" install_log
+
+    exit 0
+}
+
+postinst ()
+{
+    log_step "postinst"
+    call_func "save_wizard_variables" install_log
+
+    if [ "${wizard_enable_aut}" == "false" ]; then
+       exit 0
+    else
+       echo "{" >> ${SYNOPKG_PKGDEST}/config/accs.db
+       echo '"@user@":"@password@"' >> ${SYNOPKG_PKGDEST}/config/accs.db
+       echo "}" >> ${SYNOPKG_PKGDEST}/config/accs.db
+
+       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${SYNOPKG_PKGDEST}/config/accs.db
+       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${SYNOPKG_PKGDEST}/config/accs.db
+    fi
+
+    call_func "service_postinst" install_log
+
+    if [ -n "${LOG_FILE}" ]; then
+        echo "Installation log: ${INST_LOG}" >> ${LOG_FILE}
+    fi
+
+    exit 0
+}
+
+preuninst ()
+{
+    log_step "preuninst"
+    call_func "validate_preuninst"
+    call_func "service_preuninst" install_log
+    exit 0
+}
+
+postuninst ()
+{
+    log_step "postuninst"
+    call_func "service_postuninst" install_log
+
+    if [ "$wizard_delete_data" = "true" ]; then
+        echo "Removing files..." | install_log
+        if [ "$(ls -A ${SYNOPKG_PKGHOME})" != "" ]; then
+            find ${SYNOPKG_PKGHOME} -mindepth 1 -delete -print | install_log
+        fi
+
+        if [ "$(ls -A ${SYNOPKG_PKGVAR})" != "" ]; then
+            find ${SYNOPKG_PKGVAR} -mindepth 1 -delete -print | install_log
+        fi
+
+        if [ "$(ls -A /var/packages/${SYNOPKG_PKGNAME}/etc)" != "" ]; then
+            find /var/packages/${SYNOPKG_PKGNAME}/etc -mindepth 1 -delete -print | install_log
+        fi
+    fi
+    exit 0
+}
+
+preupgrade ()
+{
+    log_step "preupgrade"
+    call_func "validate_preupgrade"
+
+    # Copy config files
+    if [ -d ${SYNOPKG_PKGDEST}/config -a "$(ls -A ${SYNOPKG_PKGDEST}/config 2>/dev/null)" ]; then
+        #Removing old files used before ver. 1.2.125
+        if [ -r "${OLD_FWPORTS}" ]; then
+           $RM ${OLD_FWPORTS} | install_log
+        fi
+
+        if [ -r "${OLD_LOG}" ]; then
+           $RM ${OLD_LOG} | install_log
+        fi
+        # Copy config files to temporary directory
+           echo "Backup target/config folder" | install_log
+           echo "$RSYNC ${SYNOPKG_PKGDEST}/config/ ${TMP_DIR}" | install_log
+           $RSYNC ${SYNOPKG_PKGDEST}/config ${TMP_DIR} 2>&1 | install_log
+    fi
+
+    call_func "service_preupgrade" install_log
+    call_func "service_save" install_log
+    exit 0
+}
+
+postupgrade ()
+{
+    log_step "postupgrade"
+    call_func "service_restore" install_log
+
+    # Restore config files
+    if [ -d ${TMP_DIR} -a "$(ls -A ${TMP_DIR} 2>/dev/null)" ]; then
+        # Restore once at postupgrade
+        echo "Resore config folder" | install_log
+        echo "$RSYNC ${TMP_DIR}/ ${SYNOPKG_PKGVAR}" | install_log
+        $RM ${SYNOPKG_PKGDEST}/config 2>&1 | install_log
+        $RSYNC ${TMP_DIR}/ ${SYNOPKG_PKGDEST} 2>&1 | install_log
+    fi
+
+    call_func "service_postupgrade" install_log
+
+    exit 0
+}
