@@ -32,7 +32,6 @@ make_inner_pkg() {
   echo ">>> Making inner package.tgz"
 
   mkdir -p ${tmp_dir}/bin
-  mkdir -p ${tmp_dir}/config
   cp -a ${torrserver_bin} ${tmp_dir}/bin/TorrServer
   chmod +x ${tmp_dir}/bin/TorrServer
   cp -r src/ui ${tmp_dir}

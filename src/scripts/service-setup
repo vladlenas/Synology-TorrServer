@@ -10,13 +10,6 @@ fi
 USER="TorrServer"
 EFF_USER="TorrServer"
 
-#Extract to log file Synology model, processor architecture and DSM version
-SYNOMODEL=$(cat /proc/sys/kernel/syno_hw_version)
-ARCH=$(uname --machine)
-DSM=$(grep -i "productversion=" "/etc.defaults/VERSION" | cut -d"\"" -f 2)
-DSMVERSION=$(echo "$DSM"-"$(grep -i "buildnumber="    "/etc.defaults/VERSION" | cut -d"\"" -f 2)")
-MODEL_ARCH_DSM=$"Synology $SYNOMODEL ($ARCH) DSM $DSMVERSION"
-
 # start-stop-status script redirect stdout/stderr to LOG_FILE
 LOG_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.log"
 
@@ -24,7 +17,7 @@ LOG_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.log"
 PID_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.pid"
 
 # Package config files
-CONFIG_DIR="${SYNOPKG_PKGDEST}/config"
+CONFIG_DIR="${SYNOPKG_PKGVAR}"
 
 ### Package specific variables and functions
 ### ----------------------------------------
@@ -38,3 +31,35 @@ fi
 SVC_BACKGROUND=y
 SVC_WRITE_PID=y
 
+service_postinst ()
+{
+ if [ "${SYNOPKG_PKG_STATUS}" = "INSTALL" ]; then
+    if [ "${wizard_enable_aut}" = "true" ]; then
+       echo "{" >> ${SYNOPKG_PKGVAR}/accs.db
+       echo '"@user@":"@password@"' >> ${SYNOPKG_PKGVAR}/accs.db
+       echo "}" >> ${SYNOPKG_PKGVAR}/accs.db
+
+       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${SYNOPKG_PKGVAR}/accs.db
+       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${SYNOPKG_PKGVAR}/accs.db
+    fi
+ fi
+}
+
+service_preupgrade ()
+{
+    # Copy config files and removing old files.
+    if [ -d ${SYNOPKG_PKGDEST}/config -a "$(ls -A ${SYNOPKG_PKGDEST}/config 2>/dev/null)" ]; then
+        #Removing old files used before ver. 1.2.125.
+        if [ -r "${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.sc" ]; then
+           $RM ${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.sc | install_log
+        fi
+
+        if [ -r "${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.log" ]; then
+           $RM ${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.log | install_log
+        fi
+        # Copy config files to temporary directory.
+           echo "Backup target/config folder" | install_log
+           echo "$RSYNC ${SYNOPKG_PKGDEST}/config/ ${TMP_DIR}" | install_log
+           $RSYNC ${SYNOPKG_PKGDEST}/config/ ${TMP_DIR} 2>&1 | install_log
+    fi
+}
