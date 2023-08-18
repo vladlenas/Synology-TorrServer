@@ -54,9 +54,6 @@ service_preupgrade ()
            $RM ${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.sc | install_log
         fi
 
-        if [ -r "${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.log" ]; then
-           $RM ${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.log | install_log
-        fi
         # Copy config files to temporary directory.
            echo "Backup target/config folder" | install_log
            echo "$RSYNC ${SYNOPKG_PKGDEST}/config/ ${TMP_DIR}" | install_log
