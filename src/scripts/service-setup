@@ -16,16 +16,13 @@ LOG_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.log"
 # Service command has to deliver its pid into PID_FILE
 PID_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.pid"
 
-# Package config files
-CONFIG_DIR="${SYNOPKG_PKGVAR}"
-
 ### Package specific variables and functions
 ### ----------------------------------------
 
 if [ -r "${CONFIG_DIR}/accs.db" ]; then
-    SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/TorrServer -d ${CONFIG_DIR} -a -l ${LOG_FILE}"
+    SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -a -l ${LOG_FILE}"
 else
-    SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/TorrServer -d ${CONFIG_DIR} -l ${LOG_FILE}"
+    SERVICE_COMMAND="${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -l ${LOG_FILE}"
 fi
 
 SVC_BACKGROUND=y
