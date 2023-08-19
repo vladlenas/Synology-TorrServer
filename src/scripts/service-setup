@@ -45,7 +45,7 @@ service_postinst ()
 service_preupgrade ()
 {
     # Copy config files and removing old files.
-    if [ -d ${SYNOPKG_PKGDEST}/config -a "$(ls -A ${SYNOPKG_PKGDEST}/config 2>/dev/null)" ]; then
+    if [ -d ${SYNOPKG_PKGDEST}/config/ -a "$(ls -A ${SYNOPKG_PKGDEST}/config/ 2>/dev/null)" ]; then
         #Removing old files used before ver. 1.2.125.
         if [ -r "${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.sc" ]; then
            $RM ${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.sc | install_log
