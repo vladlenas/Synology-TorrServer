@@ -1,5 +1,5 @@
 # TorrServer package for Synology NAS
-Synology NAS package for DSM 7.0 based on TorrServer binaries https://github.com/YouROK/TorrServer/releases
+Synology NAS package for DSM 7.1 based on TorrServer binaries https://github.com/YouROK/TorrServer/releases
 
 You can thank the TorrServer developer here https://github.com/YouROK/TorrServer#donate
 
@@ -26,12 +26,6 @@ nano Makefile
 TORRSERVER_VERSION="MatriX.84"
 PKG_VERSION="1.2.84"
 ```
-# Building binaries from TorrServer source
-preparing the environment for compilation
-https://github.com/YouROK/TorrServer#build
-```
-make bin
-```
 # Clear working directory
 ```
 make clean
@@ -45,7 +39,7 @@ make clean
 * `Control Panel > Shared Folder > Select Shared Folder > Edit > Permissions > System internal user > TorrServer user add read/write`
 
 # Credits and References
-* YouROK https://github.com/YouROK
-* Huge thanks for https://github.com/tailscale/tailscale-synology his scripts made it easier to build packages.
-* Synology DSM 7.0 Developer Guide https://help.synology.com/developer-guide/
-* Architecture per Synology model https://github.com/SynoCommunity/spksrc/wiki/Architecture-per-Synology-model
+* YouROK: https://github.com/YouROK
+* SynoCommunity: https://github.com/SynoCommunity/spksrc
+* Synology DSM 7.0 Developer Guide: https://help.synology.com/developer-guide/
+* Architecture per Synology model: https://github.com/SynoCommunity/spksrc/wiki/Architecture-per-Synology-model
