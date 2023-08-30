@@ -9,10 +9,10 @@ TIMESTAMP=$(date -u +%Y%m%d-%H:%M:%S)
 
 case $ARCH in
 amd64)
-  PLATFORMS="apollolake avoton braswell broadwell broadwellnk broadwellnkv2 broadwellntbap bromolow cedarview denverton epyc7002 geminilake grantley kvmx64 purley r1000 v1000 x86_64"
+  PLATFORMS="x86_64 apollolake avoton braswell broadwell broadwellnk broadwellnkv2 broadwellntbap bromolow cedarview denverton epyc7002 geminilake grantley kvmx64 purley r1000 v1000"
   ;;
 386)
-  PLATFORMS="evansport x86"
+  PLATFORMS="x86 evansport"
   ;;
 arm64)
   PLATFORMS="armv8 rtd1296 rtd1296b armada37xx"
