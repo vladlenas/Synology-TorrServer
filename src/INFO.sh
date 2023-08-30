@@ -15,7 +15,7 @@ amd64)
   PLATFORMS="evansport x86"
   ;;
 arm64)
-  PLATFORMS="aarch64 armv8 rtd1296 armada37xx"
+  PLATFORMS="armv8 rtd1296 rtd1296b armada37xx"
   ;;
 arm7)
   PLATFORMS="armv7 alpine alpine4k armada370 armada375 armada38x armadaxp comcerto2k monaco"
