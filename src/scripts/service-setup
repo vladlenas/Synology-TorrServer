@@ -16,6 +16,9 @@ LOG_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.log"
 # Service command has to deliver its pid into PID_FILE
 PID_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.pid"
 
+# Package config files
+CONFIG_DIR="${SYNOPKG_PKGVAR}"
+
 ### Package specific variables and functions
 ### ----------------------------------------
 
