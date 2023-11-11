@@ -35,9 +35,12 @@ service_postinst ()
 {
  if [ "${SYNOPKG_PKG_STATUS}" = "INSTALL" ]; then
     if [ "${wizard_enable_aut}" = "true" ]; then
-       echo -e "{ \n\"@user@\":\"@password@\" \n}" >> ${SYNOPKG_PKGVAR}/accs.db
-       sed -i -e "s|@user@|${wizard_username:=admin}|g" >> ${SYNOPKG_PKGVAR}/accs.db
-       sed -i -e "s|@password@|${wizard_password:=admin}|g" >> ${SYNOPKG_PKGVAR}/accs.db
+       echo "{" >> ${SYNOPKG_PKGVAR}/accs.db | install_log
+       echo '"@user@":"@password@"' >> ${SYNOPKG_PKGVAR}/accs.db | install_log
+       echo "}" >> ${SYNOPKG_PKGVAR}/accs.db | install_log
+
+       sed -i -e "s|@user@|${wizard_username:=admin}|g" ${SYNOPKG_PKGVAR}/accs.db | install_log
+       sed -i -e "s|@password@|${wizard_password:=admin}|g" ${SYNOPKG_PKGVAR}/accs.db | install_log
     fi
  fi
 }
