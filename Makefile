@@ -1,5 +1,5 @@
 TORRSERVER_VERSION="MatriX.127"
-PKG_VERSION="1.2.127.1"
+PKG_VERSION="1.2.127"
 DSM="7.1"
 
 .PHONY: torrserver-% clean
