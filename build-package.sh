@@ -18,9 +18,24 @@ download_torrserver() {
     return
   fi
 
-  echo ">>> Downloading package:"
+  echo ">>> Downloading TorrServer-linux-${ARCH}:"
+  wget -q -P ${dest_bin} ${src_bin}
+}
+
+download_ffprobe() {
+  local tmp_download=$1
+  local ffprobe_url="https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffprobe-4.4.1-linux-32.zip"
+  local dest_bin="dest_bin"
+
+  if [[ -f dest_bin/ffprobe ]]; then
+    echo ">>> Binaries already exist: ffprobe"
+    return
+  fi
+
+  echo ">>> Downloading ffprobe:"
   mkdir -p ${dest_bin}
-  wget --no-verbose -P ${dest_bin} ${src_bin}
+  wget -q -O ${tmp_downloads}/ffprob.zip ${ffprobe_url}
+  unzip -q ${tmp_downloads}/ffprob.zip -d dest_bin
 }
 
 make_inner_pkg() {
@@ -28,12 +43,14 @@ make_inner_pkg() {
   local dest_dir=$2
   local dest_pkg="$dest_dir/package.tgz"
   local torrserver_bin="dest_bin/TorrServer-linux-${ARCH}"
+  local ffprobe_bin="dest_bin/ffprobe"
 
   echo ">>> Making inner package.tgz"
 
   mkdir -p ${tmp_dir}/bin
   cp -a ${torrserver_bin} ${tmp_dir}/bin/TorrServer
-  chmod +x ${tmp_dir}/bin/TorrServer
+  cp -a ${ffprobe_bin} ${tmp_dir}/bin
+  chmod +x ${tmp_dir}/bin/*
   cp -r src/ui ${tmp_dir}
 
   pkg_size=$(du -sk "${tmp_dir}" | awk '{print $1}')
@@ -76,6 +93,7 @@ make_pkg() {
 
 main() {
   echo ">>> Building package for DSM-${DSM} ${TORRSERVER_VERSION} ${ARCH}"
+  download_ffprobe
   download_torrserver
   make_pkg
 }

@@ -1,6 +1,6 @@
 {
     "usr-local-linker": {
-        "bin": ["bin/TorrServer"]
+        "bin": ["bin/TorrServer","bin/ffprobe"]
     },
     "port-config": {
         "protocol-file": "ui/TorrServer.sc"
