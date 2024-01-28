@@ -24,7 +24,7 @@ download_torrserver() {
 
 download_ffprobe() {
   local tmp_download=$1
-  local ffprobe_url="https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffprobe-4.4.1-linux-32.zip"
+  local ffprobe_url="https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffprobe-6.1-linux-32.zip"
   local dest_bin="dest_bin"
 
   if [[ -f dest_bin/ffprobe ]]; then
