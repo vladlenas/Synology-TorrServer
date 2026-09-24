@@ -5,7 +5,6 @@ set -e
 PKG_VERSION="${1:?Package version is required}"
 ARCH="${2:?Architecture is required}"
 PKG_SIZE="${3:?Package size is required}"
-DSM="${4:?DSM version is required}"
 
 TIMESTAMP="$(date -u +%Y%m%d-%H:%M:%S)"
 
