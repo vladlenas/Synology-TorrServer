@@ -1,4 +1,3 @@
-```bash
 #!/bin/bash
 set -e
 
@@ -137,4 +136,3 @@ main() {
 }
 
 main
-```
