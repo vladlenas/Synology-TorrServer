@@ -4,7 +4,7 @@ DSM := 7.3
 
 ARCHES := amd64 arm64 arm7
 
-.PHONY: all clean $(addprefix torrserver-,$(ARCHES))
+.PHONY: all clean
 
 all: $(addprefix torrserver-,$(ARCHES))
 
