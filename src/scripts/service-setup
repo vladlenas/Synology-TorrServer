@@ -1,3 +1,4 @@
+```sh
 ### Generic variables and functions
 ### -------------------------------
 
@@ -23,10 +24,10 @@ CONFIG_DIR="${SYNOPKG_PKGVAR}"
 ### ----------------------------------------
 
 if [ -r "${CONFIG_DIR}/accs.db" ]; then
-    SERVICE_COMMAND="${SYNOPKG_PKGDEST}/helper-start
+    SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
 ${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -a -l ${LOG_FILE}"
 else
-    SERVICE_COMMAND="${SYNOPKG_PKGDEST}/helper-start
+    SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
 ${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -l ${LOG_FILE}"
 fi
 
@@ -62,3 +63,4 @@ service_preupgrade ()
         $RSYNC ${SYNOPKG_PKGDEST}/config/ ${TMP_DIR} 2>&1 | install_log
     fi
 }
+```
