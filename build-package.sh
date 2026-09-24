@@ -79,6 +79,10 @@ make_inner_pkg() {
     chmod +x ${tmp_dir}/bin/*
 
     cp -r src/ui ${tmp_dir}
+    
+    mkdir -p ${tmp_dir}/helper
+    cp src/helper/helper.py ${tmp_dir}/helper/helper.py
+    chmod +x ${tmp_dir}/helper/helper.py
 
     pkg_size=$(du -sk "${tmp_dir}" | awk '{print $1}')
     echo "${pkg_size}" >>"$dest_dir/extractsize_tmp"
