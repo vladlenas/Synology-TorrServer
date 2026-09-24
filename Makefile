@@ -1,13 +1,15 @@
-TORRSERVER_VERSION="MatriX.145"
-PKG_VERSION="1.2.145"
-DSM="7.3"
+TORRSERVER_VERSION := MatriX.145
+PKG_VERSION := 1.2.145
+DSM := 7.3
 
-.PHONY: torrserver-% clean
+ARCHES := amd64 arm64 arm7
 
-all: torrserver-amd64 torrserver-386 torrserver-arm64 torrserver-arm7
+.PHONY: all clean
+
+all: $(addprefix torrserver-,$(ARCHES))
 
 torrserver-%:
-	@./build-package.sh ${TORRSERVER_VERSION} $* ${PKG_VERSION} ${DSM}
+	@./build-package.sh "$(TORRSERVER_VERSION)" "$*" "$(PKG_VERSION)" "$(DSM)"
 
 clean:
 	rm -rf spk dest_bin build
