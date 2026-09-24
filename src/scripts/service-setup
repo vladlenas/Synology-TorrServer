@@ -1,34 +1,36 @@
-```sh
 ### Generic variables and functions
 ### -------------------------------
 
 if [ -z "${SYNOPKG_PKGNAME}" ] || [ -z "${SYNOPKG_DSM_VERSION_MAJOR}" ]; then
-  echo "Error: Environment variables are not set." 1>&2;
-  echo "Please run me using synopkg instead. Example: \"synopkg start [packagename]\"" 1>&2;
+  echo "Error: Environment variables are not set." 1>&2
+  echo "Please run me using synopkg instead. Example: \"synopkg start [packagename]\"" 1>&2
   exit 1
 fi
 
 USER="TorrServer"
 EFF_USER="TorrServer"
 
-# start-stop-status script redirect stdout/stderr to LOG_FILE
-LOG_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.log"
+# start-stop-status script log
+LOG_FILE="/var/packages/${SYNOPKG_PKGNAME}/var/${SYNOPKG_PKGNAME}.log"
 
 # Service command has to deliver its pid into PID_FILE
-PID_FILE="${SYNOPKG_PKGVAR}/${SYNOPKG_PKGNAME}.pid"
+PID_FILE="/var/packages/${SYNOPKG_PKGNAME}/var/${SYNOPKG_PKGNAME}.pid"
 
 # Package config files
-CONFIG_DIR="${SYNOPKG_PKGVAR}"
+CONFIG_DIR="/var/packages/${SYNOPKG_PKGNAME}/var"
+
+# TorrServer log
+TORRSERVER_LOG="/var/packages/${SYNOPKG_PKGNAME}/var/TorrServer.log"
 
 ### Package specific variables and functions
 ### ----------------------------------------
 
 if [ -r "${CONFIG_DIR}/accs.db" ]; then
     SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
-${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -a -l ${LOG_FILE}"
+${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -a -l ${TORRSERVER_LOG}"
 else
     SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
-${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -l ${LOG_FILE}"
+${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -l ${TORRSERVER_LOG}"
 fi
 
 SVC_BACKGROUND=y
@@ -63,4 +65,3 @@ service_preupgrade ()
         $RSYNC ${SYNOPKG_PKGDEST}/config/ ${TMP_DIR} 2>&1 | install_log
     fi
 }
-```
