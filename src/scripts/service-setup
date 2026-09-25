@@ -25,6 +25,10 @@ TORRSERVER_LOG="/var/packages/${SYNOPKG_PKGNAME}/var/TorrServer.log"
 # Sudoers rule for Helper restart button
 SUDOERS_FILE="/etc/sudoers.d/TorrServer"
 
+# Root restart helper
+RESTART_SCRIPT="/var/packages/${SYNOPKG_PKGNAME}/scripts/restart-package"
+
+
 ### Package specific variables and functions
 ### ----------------------------------------
 
@@ -67,13 +71,15 @@ fi
 SVC_BACKGROUND=y
 SVC_WRITE_PID=y
 
+
 service_postinst ()
 {
-    # Create restricted sudoers rule for TorrServer Helper.
+    # Create restricted sudoers rule for Helper restart.
+    # Only the dedicated root restart script is allowed.
     mkdir -p /etc/sudoers.d
 
-    cat > "${SUDOERS_FILE}" <<'EOF'
-TorrServer ALL=(root) NOPASSWD: /usr/syno/bin/synopkg restart TorrServer
+    cat > "${SUDOERS_FILE}" <<EOF
+TorrServer ALL=(root) NOPASSWD: ${RESTART_SCRIPT}
 EOF
 
     chmod 0440 "${SUDOERS_FILE}"
@@ -90,21 +96,20 @@ EOF
     fi
 }
 
+
 service_preupgrade ()
 {
-    # Copy config files and removing old files.
     if [ -d ${SYNOPKG_PKGDEST}/config/ -a "$(ls -A ${SYNOPKG_PKGDEST}/config/ 2>/dev/null)" ]; then
-        # Removing old files used before ver. 1.2.125.
         if [ -r "${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.sc" ]; then
             $RM ${SYNOPKG_PKGDEST}/config/${SYNOPKG_PKGNAME}.sc | install_log
         fi
 
-        # Copy config files to temporary directory.
         echo "Backup target/config folder" | install_log
         echo "$RSYNC ${SYNOPKG_PKGDEST}/config/ ${TMP_DIR}" | install_log
         $RSYNC ${SYNOPKG_PKGDEST}/config/ ${TMP_DIR} 2>&1 | install_log
     fi
 }
+
 
 service_postuninst ()
 {
