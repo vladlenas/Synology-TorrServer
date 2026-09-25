@@ -1,9 +1,3 @@
 #!/bin/sh
 
-sleep 1
-
-/usr/syno/bin/synopkg stop TorrServer
-
-sleep 2
-
-/usr/syno/bin/synopkg start TorrServer
+exec /usr/syno/bin/synosystemctl restart --no-block pkgctl-TorrServer.service
