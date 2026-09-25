@@ -11,7 +11,7 @@ HOST = "0.0.0.0"
 PORT = 8091
 
 TORRSERVER_PORT = 8090
-TORRSERVER_URL = "http://127.0.0.1:8090/"
+TORRSERVER_LOCAL_URL = "http://127.0.0.1:8090/"
 
 
 def read_file(path):
@@ -163,7 +163,7 @@ def get_architecture():
 def get_torrserver():
     try:
         request = urllib.request.Request(
-            TORRSERVER_URL + "echo",
+            TORRSERVER_LOCAL_URL + "echo",
             method="GET"
         )
 
@@ -312,8 +312,11 @@ def make_html():
         <div class="button-row">
             <a
                 class="button primary"
-                href="__TORRSERVER_URL__"
-                target="_blank"
+                href="#"
+                onclick="window.open(
+                    'http://' + window.location.hostname + ':8090/',
+                    '_blank'
+                ); return false;"
             >
                 Open TorrServer Web UI
             </a>
@@ -330,9 +333,6 @@ def make_html():
     ).replace(
         "__PORT_ROW__",
         row("Web port", TORRSERVER_PORT)
-    ).replace(
-        "__TORRSERVER_URL__",
-        TORRSERVER_URL
     )
 
     system_card = card(
@@ -553,6 +553,7 @@ def make_html():
 class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
+
         if self.path == "/":
             content = make_html().encode("utf-8")
 
