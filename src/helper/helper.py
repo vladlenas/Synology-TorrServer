@@ -482,7 +482,7 @@ def page_footer():
 """
 
 
-def main_page():
+def main_page(host):
     status = get_status()
 
     status_class = (
@@ -529,7 +529,7 @@ def main_page():
 
 <br>
 
-<a class="button" href="http://127.0.0.1:{3}/" target="_blank">
+<a class="button" href="http://{14}:{3}/" target="_blank">
 Open Web UI
 </a>
 
@@ -596,6 +596,7 @@ Open Web UI
         html.escape(format_bytes(available_memory)),
         html.escape(get_uptime()),
         html.escape(get_load()),
+        html.escape(host),
     )
 
     body += page_footer()
@@ -730,7 +731,8 @@ class Handler(BaseHTTPRequestHandler):
         path = parsed.path
 
         if path == "/":
-            self.send_html(main_page())
+            host = self.headers.get("Host", "").split(":")[0]
+            self.send_html(main_page(host))
             return
 
         if path == "/settings":
@@ -742,7 +744,8 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if path == "/restart":
-            self.send_html(main_page())
+            host = self.headers.get("Host", "").split(":")[0]
+            self.send_html(main_page(host))
             return
 
         self.send_html("Not Found", 404)
