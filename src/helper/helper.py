@@ -770,7 +770,7 @@ class Handler(BaseHTTPRequestHandler):
 
             return
 
-            if path == "/restart":
+        if path == "/restart":
             ok, message = restart_package()
 
             if ok:
