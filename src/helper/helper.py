@@ -770,26 +770,26 @@ class Handler(BaseHTTPRequestHandler):
 
             return
 
-       if path == "/restart":
-    ok, message = restart_package()
+            if path == "/restart":
+            ok, message = restart_package()
 
-    if ok:
-        self.redirect("/")
-    else:
-        self.send_html(
-            page_header("Restart Error")
-            + """
+            if ok:
+                self.redirect("/")
+            else:
+                self.send_html(
+                    page_header("Restart Error")
+                    + """
 <div class="card">
 <h1>Restart failed</h1>
 <p>{}</p>
 </div>
 """.format(html.escape(message))
-            + page_footer(),
-            500,
-        )
+                    + page_footer(),
+                    500,
+                )
 
-    return
-
+            return
+            
         self.send_html("Not Found", 404)
 
     def log_message(self, format_string, *args):
