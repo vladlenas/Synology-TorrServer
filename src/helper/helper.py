@@ -82,29 +82,10 @@ def get_dsm_version():
 
 
 def get_nas_model():
-    paths = [
-        "/proc/sys/kernel/hostname",
-        "/etc.defaults/VERSION",
-    ]
+    model = read_file("/proc/sys/kernel/syno_hw_version", "").strip()
 
-    for path in paths:
-        if path.endswith("VERSION"):
-            try:
-                data = {}
-
-                with open(path, "r", encoding="utf-8") as f:
-                    for line in f:
-                        line = line.strip()
-
-                        if "=" in line:
-                            key, value = line.split("=", 1)
-                            data[key.strip()] = value.strip().strip('"')
-
-                model = data.get("productversion", "")
-                if model:
-                    break
-            except Exception:
-                model = ""
+    if model:
+        return model
 
     try:
         data = {}
@@ -117,11 +98,41 @@ def get_nas_model():
                     key, value = line.split("=", 1)
                     data[key.strip()] = value.strip().strip('"')
 
-        model = data.get("modelname", "")
-
+        model = data.get("modelname", "").strip()
         if model:
             return model
 
+        unique = data.get("unique", "").strip()
+        if unique:
+            return unique
+
+    except Exception:
+        pass
+
+    return "Unknown"
+
+
+def get_cpu_model():
+    try:
+        with open("/proc/cpuinfo", "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                if ":" not in line:
+                    continue
+
+                key, value = line.split(":", 1)
+                key = key.strip().lower()
+                value = value.strip()
+
+                if key in ("model name", "processor", "hardware") and value:
+                    return value
+
+    except Exception:
+        pass
+
+    try:
+        value = platform.processor().strip()
+        if value:
+            return value
     except Exception:
         pass
 
@@ -378,7 +389,13 @@ def rotate_log_if_needed():
             if os.path.exists(source):
                 os.replace(source, target)
 
-        os.replace(TORRSERVER_LOG, "{}.1".format(TORRSERVER_LOG))
+        shutil.copyfile(
+            TORRSERVER_LOG,
+            "{}.1".format(TORRSERVER_LOG),
+        )
+
+        with open(TORRSERVER_LOG, "r+", encoding="utf-8") as f:
+            f.truncate(0)
 
     except Exception:
         pass
@@ -617,7 +634,7 @@ Open Web UI
         "Enabled" if auth else "Disabled",
         html.escape(get_dsm_version()),
         html.escape(get_nas_model()),
-        html.escape(platform.processor() or "Unknown"),
+        html.escape(get_cpu_model()),
         get_cpu_cores(),
         html.escape(get_architecture()),
         html.escape(format_bytes(total_memory)),
