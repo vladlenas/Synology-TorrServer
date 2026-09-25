@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import time
+import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
@@ -20,6 +21,8 @@ PACKAGE_NAME = "TorrServer"
 PACKAGE_VAR = "/var/packages/TorrServer/var"
 TORRSERVER_BIN = "/var/packages/TorrServer/target/bin/TorrServer"
 TORRSERVER_LOG = os.path.join(PACKAGE_VAR, "TorrServer.log")
+LOG_MAX_SIZE = 2 * 1024 * 1024
+LOG_BACKUP_COUNT = 2
 
 PORT_FILE = os.path.join(PACKAGE_VAR, "torrserver.port")
 AUTH_FILE = os.path.join(PACKAGE_VAR, "torrserver.auth")
@@ -354,6 +357,31 @@ def get_log():
 
     except Exception as e:
         return "Unable to read log: {}".format(e)
+
+
+def rotate_log_if_needed():
+    try:
+        if not os.path.isfile(TORRSERVER_LOG):
+            return
+
+        if os.path.getsize(TORRSERVER_LOG) < LOG_MAX_SIZE:
+            return
+
+        oldest = "{}.{}".format(TORRSERVER_LOG, LOG_BACKUP_COUNT)
+        if os.path.exists(oldest):
+            os.remove(oldest)
+
+        for number in range(LOG_BACKUP_COUNT - 1, 0, -1):
+            source = "{}.{}".format(TORRSERVER_LOG, number)
+            target = "{}.{}".format(TORRSERVER_LOG, number + 1)
+
+            if os.path.exists(source):
+                os.replace(source, target)
+
+        os.replace(TORRSERVER_LOG, "{}.1".format(TORRSERVER_LOG))
+
+    except Exception:
+        pass
 
 
 def page_header(title="TorrServer"):
@@ -839,11 +867,23 @@ class Handler(BaseHTTPRequestHandler):
         return
 
 
+def log_rotation_loop():
+    while True:
+        rotate_log_if_needed()
+        time.sleep(10)
+
+
 def run():
     server = ThreadingHTTPServer(
         (HOST, HELPER_PORT),
         Handler,
     )
+
+    rotation_thread = threading.Thread(
+        target=log_rotation_loop,
+        daemon=True,
+    )
+    rotation_thread.start()
 
     server.serve_forever()
 
