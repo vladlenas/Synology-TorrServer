@@ -25,12 +25,40 @@ TORRSERVER_LOG="/var/packages/${SYNOPKG_PKGNAME}/var/TorrServer.log"
 ### Package specific variables and functions
 ### ----------------------------------------
 
-if [ -r "${CONFIG_DIR}/accs.db" ]; then
+# TorrServer Web port
+TORRSERVER_PORT="8090"
+
+if [ -r "${CONFIG_DIR}/torrserver.port" ]; then
+    SAVED_PORT="$(cat "${CONFIG_DIR}/torrserver.port" 2>/dev/null)"
+
+    case "${SAVED_PORT}" in
+        ''|*[!0-9]*)
+            ;;
+        *)
+            if [ "${SAVED_PORT}" -ge 1 ] 2>/dev/null &&
+               [ "${SAVED_PORT}" -le 65535 ] 2>/dev/null; then
+                TORRSERVER_PORT="${SAVED_PORT}"
+            fi
+            ;;
+    esac
+fi
+
+# TorrServer HTTP authentication
+AUTH_ENABLED="0"
+
+if [ -r "${CONFIG_DIR}/torrserver.auth" ]; then
+    if [ "$(cat "${CONFIG_DIR}/torrserver.auth" 2>/dev/null)" = "1" ] &&
+       [ -r "${CONFIG_DIR}/accs.db" ]; then
+        AUTH_ENABLED="1"
+    fi
+fi
+
+if [ "${AUTH_ENABLED}" = "1" ]; then
     SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
-${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -a -l ${TORRSERVER_LOG}"
+${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -p ${TORRSERVER_PORT} -a -l ${TORRSERVER_LOG}"
 else
     SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
-${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -l ${TORRSERVER_LOG}"
+${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -p ${TORRSERVER_PORT} -l ${TORRSERVER_LOG}"
 fi
 
 SVC_BACKGROUND=y
