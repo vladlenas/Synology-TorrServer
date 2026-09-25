@@ -123,15 +123,24 @@ def get_cpu_model():
                 key = key.strip().lower()
                 value = value.strip()
 
-                if key in ("model name", "processor", "hardware") and value:
+                if key == "model name" and value:
                     return value
 
+                if key == "hardware" and value:
+                    hardware = value
+
+    except Exception:
+        hardware = ""
+
+    try:
+        if hardware:
+            return hardware
     except Exception:
         pass
 
     try:
         value = platform.processor().strip()
-        if value:
+        if value and not value.isdigit():
             return value
     except Exception:
         pass
