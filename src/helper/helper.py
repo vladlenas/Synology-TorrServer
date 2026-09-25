@@ -5,6 +5,7 @@ import html
 import json
 import os
 import re
+import subprocess
 import urllib.parse
 import urllib.request
 
@@ -73,7 +74,9 @@ def write_file(path, content):
 def get_port():
     port = DEFAULT_TORRSERVER_PORT
 
-    value = read_file(PORT_CONFIG).strip()
+    value = read_file(
+        PORT_CONFIG
+    ).strip()
 
     if value.isdigit():
         try:
@@ -89,9 +92,14 @@ def get_port():
 
 
 def get_auth_enabled():
-    value = read_file(AUTH_CONFIG).strip()
+    value = read_file(
+        AUTH_CONFIG
+    ).strip()
 
-    return value == "1" and os.path.isfile(ACCS_DB)
+    return (
+        value == "1"
+        and os.path.isfile(ACCS_DB)
+    )
 
 
 def get_credentials():
@@ -110,12 +118,16 @@ def get_credentials():
             return "", ""
 
         username = next(iter(data))
+
         password = data.get(
             username,
             ""
         )
 
-        return str(username), str(password)
+        return (
+            str(username),
+            str(password)
+        )
 
     except Exception:
         return "", ""
@@ -137,7 +149,9 @@ def save_settings(
         AUTH_CONFIG,
         "1\n" if auth_enabled else "0\n"
     ):
-        return False, "Unable to save authorization state"
+        return False, (
+            "Unable to save authorization state"
+        )
 
     if username:
         credentials = {
@@ -150,17 +164,50 @@ def save_settings(
                 "w",
                 encoding="utf-8"
             ) as f:
+
                 json.dump(
                     credentials,
                     f,
                     ensure_ascii=False
                 )
+
                 f.write("\n")
 
         except Exception:
-            return False, "Unable to save credentials"
+            return False, (
+                "Unable to save credentials"
+            )
 
     return True, ""
+
+
+def restart_package():
+    try:
+        command = (
+            "/bin/sleep 1; "
+            "/bin/sudo -n "
+            "/usr/syno/bin/synopkg "
+            "restart TorrServer "
+            "> /dev/null 2>&1"
+        )
+
+        subprocess.Popen(
+            [
+                "/bin/sh",
+                "-c",
+                command
+            ],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+            close_fds=True
+        )
+
+        return True, ""
+
+    except Exception as e:
+        return False, str(e)
 
 
 def get_dsm_info():
@@ -177,7 +224,9 @@ def get_dsm_info():
         )
 
         if match:
-            data[match.group(1)] = match.group(2)
+            data[
+                match.group(1)
+            ] = match.group(2)
 
     synoinfo = read_file(
         "/etc.defaults/synoinfo.conf"
@@ -189,7 +238,8 @@ def get_dsm_info():
         "unique"
     ):
         match = re.search(
-            r'^' + re.escape(key) + r'="([^"]*)"',
+            r'^' + re.escape(key) +
+            r'="([^"]*)"',
             synoinfo,
             re.MULTILINE
         )
@@ -209,7 +259,10 @@ def get_cpu_info():
     cores = 0
 
     for line in cpuinfo.splitlines():
-        if line.startswith("model name"):
+
+        if line.startswith(
+            "model name"
+        ):
             parts = line.split(
                 ":",
                 1
@@ -221,7 +274,10 @@ def get_cpu_info():
             break
 
     for line in cpuinfo.splitlines():
-        if line.startswith("processor"):
+
+        if line.startswith(
+            "processor"
+        ):
             cores += 1
 
     if cores == 0:
@@ -241,10 +297,12 @@ def get_memory_info():
         parts = line.split()
 
         if len(parts) >= 2:
+
             try:
                 values[
                     parts[0].rstrip(":")
                 ] = int(parts[1])
+
             except ValueError:
                 pass
 
@@ -316,7 +374,10 @@ def get_uptime():
             minutes
         )
 
-    except (ValueError, TypeError):
+    except (
+        ValueError,
+        TypeError
+    ):
         return "Unknown"
 
 
@@ -341,8 +402,9 @@ def get_architecture():
 def get_torrserver():
     port = get_port()
 
-    url = "http://127.0.0.1:{}/".format(
-        port
+    url = (
+        "http://127.0.0.1:{}/"
+        .format(port)
     )
 
     try:
@@ -388,7 +450,10 @@ def get_log():
         )
 
     except Exception as e:
-        return "Unable to read log: {}".format(e)
+        return (
+            "Unable to read log: {}"
+            .format(e)
+        )
 
 
 def esc(value):
@@ -415,7 +480,10 @@ def row(name, value):
 def card(title, content):
     return """
         <div class="card">
-            <div class="card-title">__TITLE__</div>
+            <div class="card-title">
+                __TITLE__
+            </div>
+
             <div class="card-content">
                 __CONTENT__
             </div>
@@ -432,22 +500,29 @@ def card(title, content):
 def make_html(message=""):
     dsm = get_dsm_info()
 
-    cpu_model, cpu_cores = get_cpu_info()
+    cpu_model, cpu_cores = (
+        get_cpu_info()
+    )
 
-    mem_total, mem_available = get_memory_info()
+    mem_total, mem_available = (
+        get_memory_info()
+    )
 
     architecture = get_architecture()
     uptime = get_uptime()
     load = get_load()
 
-    torrserver_running, torrserver_version = (
-        get_torrserver()
-    )
+    (
+        torrserver_running,
+        torrserver_version
+    ) = get_torrserver()
 
     torrserver_port = get_port()
     auth_enabled = get_auth_enabled()
 
-    username, password = get_credentials()
+    username, password = (
+        get_credentials()
+    )
 
     if torrserver_running:
         ts_status = "Running"
@@ -546,6 +621,7 @@ def make_html(message=""):
         __AUTH_ROW__
 
         <div class="button-row">
+
             <a
                 class="button primary"
                 href="#"
@@ -558,6 +634,15 @@ def make_html(message=""):
             >
                 Open TorrServer Web UI
             </a>
+
+            <button
+                class="button restart"
+                type="button"
+                onclick="restartTorrServer()"
+            >
+                Restart TorrServer
+            </button>
+
         </div>
     """.replace(
         "__STATUS_CLASS__",
@@ -607,6 +692,7 @@ def make_html(message=""):
         >
 
             <div class="form-row">
+
                 <label for="port">
                     Web port
                 </label>
@@ -620,10 +706,13 @@ def make_html(message=""):
                     value="__PORT__"
                     required
                 >
+
             </div>
 
             <div class="form-row checkbox-row">
+
                 <label>
+
                     <input
                         type="checkbox"
                         name="auth_enabled"
@@ -631,11 +720,15 @@ def make_html(message=""):
                         __AUTH_CHECKED__
                         onchange="toggleAuthFields()"
                     >
+
                     Enable authorization
+
                 </label>
+
             </div>
 
             <div class="form-row">
+
                 <label for="username">
                     Username
                 </label>
@@ -648,9 +741,11 @@ def make_html(message=""):
                     __AUTH_DISABLED__
                     autocomplete="username"
                 >
+
             </div>
 
             <div class="form-row">
+
                 <label for="password">
                     Password
                 </label>
@@ -663,15 +758,18 @@ def make_html(message=""):
                     __AUTH_DISABLED__
                     autocomplete="new-password"
                 >
+
             </div>
 
             <div class="button-row">
+
                 <button
                     class="button primary"
                     type="submit"
                 >
                     Apply
                 </button>
+
             </div>
 
             <div class="settings-note">
@@ -710,12 +808,14 @@ def make_html(message=""):
 
     log_content = """
         <div class="log-toolbar">
+
             <button
                 class="button secondary"
                 onclick="location.reload();"
             >
                 Refresh
             </button>
+
         </div>
 
         <pre class="log">__LOG__</pre>
@@ -744,6 +844,7 @@ def make_html(message=""):
     page = """<!doctype html>
 <html>
 <head>
+
     <meta charset="utf-8">
 
     <meta
@@ -754,6 +855,7 @@ def make_html(message=""):
     <title>TorrServer</title>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -896,6 +998,7 @@ def make_html(message=""):
             text-decoration: none;
             font-size: 14px;
             cursor: pointer;
+            margin-right: 8px;
         }
 
         .button.primary {
@@ -913,6 +1016,15 @@ def make_html(message=""):
         }
 
         .button.secondary:hover {
+            background: #dce3ee;
+        }
+
+        .button.restart {
+            background: #e8edf5;
+            color: #333;
+        }
+
+        .button.restart:hover {
             background: #dce3ee;
         }
 
@@ -991,6 +1103,7 @@ def make_html(message=""):
         }
 
         @media (max-width: 700px) {
+
             body {
                 padding: 12px;
             }
@@ -1002,11 +1115,15 @@ def make_html(message=""):
             .log-card {
                 grid-column: auto;
             }
+
         }
+
     </style>
 
     <script>
+
         function toggleAuthFields() {
+
             var enabled =
                 document.querySelector(
                     'input[name="auth_enabled"]'
@@ -1021,25 +1138,107 @@ def make_html(message=""):
             ).disabled = !enabled;
         }
 
+
+        function restartTorrServer() {
+
+            if (!confirm(
+                'Restart TorrServer package?'
+            )) {
+                return;
+            }
+
+            var button =
+                document.querySelector(
+                    '.button.restart'
+                );
+
+            button.disabled = true;
+            button.innerText =
+                'Restarting...';
+
+            fetch(
+                '/api/restart',
+                {
+                    method: 'POST',
+                    cache: 'no-cache'
+                }
+            )
+            .then(function(response) {
+
+                return response.json();
+
+            })
+            .then(function(data) {
+
+                if (!data.success) {
+
+                    alert(
+                        data.message ||
+                        'Restart failed.'
+                    );
+
+                    button.disabled = false;
+                    button.innerText =
+                        'Restart TorrServer';
+
+                    return;
+                }
+
+                button.innerText =
+                    'Restarting...';
+
+                setTimeout(
+                    function() {
+                        location.reload();
+                    },
+                    4000
+                );
+
+            })
+            .catch(function() {
+
+                setTimeout(
+                    function() {
+                        location.reload();
+                    },
+                    4000
+                );
+
+            });
+        }
+
+
         window.addEventListener(
             'DOMContentLoaded',
             toggleAuthFields
         );
+
     </script>
+
 </head>
 
 <body>
+
     <div class="container">
 
         <div class="header">
-            <div class="icon">TS</div>
+
+            <div class="icon">
+                TS
+            </div>
 
             <div>
-                <h1>TorrServer</h1>
+
+                <h1>
+                    TorrServer
+                </h1>
+
                 <p>
                     Synology package control panel
                 </p>
+
             </div>
+
         </div>
 
         <div class="grid">
@@ -1051,6 +1250,7 @@ def make_html(message=""):
             __SETTINGS_CARD__
 
             <div class="card log-card">
+
                 <div class="card-title">
                     TorrServer Log
                 </div>
@@ -1058,11 +1258,13 @@ def make_html(message=""):
                 <div class="card-content">
                     __LOG_CONTENT__
                 </div>
+
             </div>
 
         </div>
 
     </div>
+
 </body>
 </html>
 """
@@ -1084,7 +1286,9 @@ def make_html(message=""):
     return page
 
 
-class Handler(BaseHTTPRequestHandler):
+class Handler(
+    BaseHTTPRequestHandler
+):
 
     def do_GET(self):
 
@@ -1144,9 +1348,8 @@ class Handler(BaseHTTPRequestHandler):
                 "running": running,
                 "version": version,
                 "port": get_port(),
-                "auth_enabled": (
+                "auth_enabled":
                     get_auth_enabled()
-                )
             }).encode(
                 "utf-8"
             )
@@ -1209,13 +1412,59 @@ class Handler(BaseHTTPRequestHandler):
 
         self.send_error(404)
 
+
     def do_POST(self):
 
+        if self.path == "/api/restart":
+
+            success, error = (
+                restart_package()
+            )
+
+            data = json.dumps({
+                "success": success,
+                "message":
+                    (
+                        "Restart scheduled."
+                        if success
+                        else error
+                    )
+            }).encode(
+                "utf-8"
+            )
+
+            self.send_response(200)
+
+            self.send_header(
+                "Content-Type",
+                "application/json; charset=utf-8"
+            )
+
+            self.send_header(
+                "Content-Length",
+                str(len(data))
+            )
+
+            self.send_header(
+                "Cache-Control",
+                "no-cache"
+            )
+
+            self.end_headers()
+
+            self.wfile.write(
+                data
+            )
+
+            return
+
         if self.path != "/api/settings":
+
             self.send_error(404)
             return
 
         try:
+
             content_length = int(
                 self.headers.get(
                     "Content-Length",
@@ -1362,6 +1611,7 @@ class Handler(BaseHTTPRequestHandler):
                 content
             )
 
+
     def log_message(
         self,
         format,
@@ -1371,6 +1621,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
+
     server = HTTPServer(
         (HOST, PORT),
         Handler
