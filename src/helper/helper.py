@@ -1,112 +1,123 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 import base64
+import html
 import json
 import os
 import platform
 import re
-import socket
+import shutil
 import subprocess
 import time
-import urllib.parse
-import urllib.request
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlparse
 
 
-CONFIG_DIR = "/var/packages/TorrServer/var"
-PORT_CONFIG = os.path.join(CONFIG_DIR, "torrserver.port")
-AUTH_CONFIG = os.path.join(CONFIG_DIR, "torrserver.auth")
-ACCS_DB = os.path.join(CONFIG_DIR, "accs.db")
-TORRSERVER_LOG = os.path.join(CONFIG_DIR, "TorrServer.log")
-
-DEFAULT_PORT = 8090
+HOST = "0.0.0.0"
 HELPER_PORT = 8091
 
+PACKAGE_NAME = "TorrServer"
+PACKAGE_VAR = "/var/packages/TorrServer/var"
+TORRSERVER_BIN = "/var/packages/TorrServer/target/bin/TorrServer"
+TORRSERVER_LOG = os.path.join(PACKAGE_VAR, "TorrServer.log")
 
-def get_port():
+PORT_FILE = os.path.join(PACKAGE_VAR, "torrserver.port")
+AUTH_FILE = os.path.join(PACKAGE_VAR, "torrserver.auth")
+ACCS_FILE = os.path.join(PACKAGE_VAR, "accs.db")
+
+RESTART_SCRIPT = "/var/packages/TorrServer/scripts/restart-package"
+
+
+def read_file(path, default=""):
     try:
-        with open(PORT_CONFIG, "r") as f:
-            port = int(f.read().strip())
-
-        if 1 <= port <= 65535:
-            return port
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read().strip()
     except Exception:
-        pass
-
-    return DEFAULT_PORT
+        return default
 
 
-def get_auth_enabled():
-    try:
-        with open(AUTH_CONFIG, "r") as f:
-            enabled = f.read().strip() == "1"
+def write_file(path, value):
+    tmp = path + ".tmp"
 
-        return enabled and os.path.isfile(ACCS_DB)
-    except Exception:
-        return False
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(value)
 
-
-def get_credentials():
-    try:
-        with open(ACCS_DB, "r") as f:
-            data = json.load(f)
-
-        if isinstance(data, dict) and data:
-            username = next(iter(data))
-            password = data[username]
-            return username, password
-    except Exception:
-        pass
-
-    return "", ""
-
-
-def save_settings(port, auth_enabled, username, password):
-    with open(PORT_CONFIG, "w") as f:
-        f.write(str(port))
-
-    with open(AUTH_CONFIG, "w") as f:
-        f.write("1" if auth_enabled else "0")
-
-    if username:
-        data = {
-            username: password
-        }
-
-        with open(ACCS_DB, "w") as f:
-            json.dump(data, f)
+    os.replace(tmp, path)
 
 
 def get_dsm_version():
-    try:
-        with open("/etc.defaults/VERSION", "r") as f:
-            data = f.read()
+    paths = [
+        "/etc.defaults/VERSION",
+        "/etc/VERSION",
+    ]
 
-        match = re.search(r'productversion="([^"]+)"', data)
+    for path in paths:
+        try:
+            data = {}
 
-        if match:
-            return match.group(1)
+            with open(path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
 
-    except Exception:
-        pass
+                    if "=" in line:
+                        key, value = line.split("=", 1)
+                        data[key.strip()] = value.strip().strip('"')
+
+            version = data.get("productversion", "")
+            build = data.get("buildnumber", "")
+
+            if version:
+                if build:
+                    return "{}-{}".format(version, build)
+
+                return version
+
+        except Exception:
+            pass
 
     return "Unknown"
 
 
 def get_nas_model():
+    paths = [
+        "/proc/sys/kernel/hostname",
+        "/etc.defaults/VERSION",
+    ]
+
+    for path in paths:
+        if path.endswith("VERSION"):
+            try:
+                data = {}
+
+                with open(path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+
+                        if "=" in line:
+                            key, value = line.split("=", 1)
+                            data[key.strip()] = value.strip().strip('"')
+
+                model = data.get("productversion", "")
+                if model:
+                    break
+            except Exception:
+                model = ""
+
     try:
-        with open("/etc.defaults/synoinfo.conf", "r") as f:
-            data = f.read()
+        data = {}
 
-        match = re.search(r'product="([^"]+)"', data)
+        with open("/etc.defaults/VERSION", "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
 
-        if match:
-            return match.group(1)
+                if "=" in line:
+                    key, value = line.split("=", 1)
+                    data[key.strip()] = value.strip().strip('"')
 
-        match = re.search(r'platform_name="([^"]+)"', data)
+        model = data.get("modelname", "")
 
-        if match:
-            return match.group(1)
+        if model:
+            return model
 
     except Exception:
         pass
@@ -114,25 +125,76 @@ def get_nas_model():
     return "Unknown"
 
 
-def get_cpu():
+def get_memory():
+    total = 0
+    available = 0
+
     try:
-        with open("/proc/cpuinfo", "r") as f:
-            data = f.read()
+        with open("/proc/meminfo", "r", encoding="utf-8") as f:
+            for line in f:
+                parts = line.split()
 
-        model = re.search(r'model name\s*:\s*(.+)', data)
+                if len(parts) < 2:
+                    continue
 
-        if model:
-            return model.group(1).strip()
+                value = int(parts[1]) * 1024
 
-        model = re.search(r'Processor\s*:\s*(.+)', data)
+                if line.startswith("MemTotal:"):
+                    total = value
 
-        if model:
-            return model.group(1).strip()
+                elif line.startswith("MemAvailable:"):
+                    available = value
 
     except Exception:
         pass
 
-    return platform.processor() or "Unknown"
+    return total, available
+
+
+def format_bytes(value):
+    if value <= 0:
+        return "Unknown"
+
+    units = ["B", "KB", "MB", "GB", "TB"]
+
+    size = float(value)
+
+    for unit in units:
+        if size < 1024:
+            return "{:.1f} {}".format(size, unit)
+
+        size /= 1024
+
+    return "{:.1f} PB".format(size)
+
+
+def get_uptime():
+    try:
+        seconds = float(read_file("/proc/uptime", "0").split()[0])
+
+        days = int(seconds // 86400)
+        hours = int((seconds % 86400) // 3600)
+        minutes = int((seconds % 3600) // 60)
+
+        if days:
+            return "{}d {}h {}m".format(days, hours, minutes)
+
+        if hours:
+            return "{}h {}m".format(hours, minutes)
+
+        return "{}m".format(minutes)
+
+    except Exception:
+        return "Unknown"
+
+
+def get_load():
+    try:
+        with open("/proc/loadavg", "r", encoding="utf-8") as f:
+            return f.read().split()[0]
+
+    except Exception:
+        return "Unknown"
 
 
 def get_cpu_cores():
@@ -149,800 +211,614 @@ def get_architecture():
         return "Unknown"
 
 
-def get_memory():
-    total = 0
-    available = 0
-
+def get_torrserver_version():
     try:
-        with open("/proc/meminfo", "r") as f:
-            for line in f:
-                parts = line.split()
+        result = subprocess.run(
+            [TORRSERVER_BIN, "--version"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            timeout=5,
+        )
 
-                if len(parts) < 2:
-                    continue
+        output = result.stdout.strip()
 
-                if parts[0] == "MemTotal:":
-                    total = int(parts[1]) * 1024
-
-                elif parts[0] == "MemAvailable:":
-                    available = int(parts[1]) * 1024
+        if output:
+            return output
 
     except Exception:
         pass
 
-    return total, available
+    return "Unknown"
 
 
-def format_bytes(value):
-    if value <= 0:
-        return "0 B"
+def get_port():
+    port = 8090
 
-    units = ["B", "KB", "MB", "GB", "TB"]
+    value = read_file(PORT_FILE, "")
 
-    size = float(value)
+    if value.isdigit():
+        number = int(value)
 
-    for unit in units:
-        if size < 1024:
-            return "%.1f %s" % (size, unit)
+        if 1 <= number <= 65535:
+            port = number
 
-        size /= 1024
-
-    return "%.1f PB" % size
+    return port
 
 
-def get_uptime():
+def get_auth_enabled():
+    return read_file(AUTH_FILE, "0") == "1" and os.path.isfile(ACCS_FILE)
+
+
+def is_torrserver_running():
     try:
-        with open("/proc/uptime", "r") as f:
-            seconds = int(float(f.read().split()[0]))
-
-        days = seconds // 86400
-        seconds %= 86400
-
-        hours = seconds // 3600
-        seconds %= 3600
-
-        minutes = seconds // 60
-
-        if days:
-            return "%dd %dh %dm" % (days, hours, minutes)
-
-        if hours:
-            return "%dh %dm" % (hours, minutes)
-
-        return "%dm" % minutes
-
-    except Exception:
-        return "Unknown"
-
-
-def get_load():
-    try:
-        with open("/proc/loadavg", "r") as f:
-            return f.read().split()[0]
-    except Exception:
-        return "Unknown"
-
-
-def get_local_ip():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-    except Exception:
-        return "127.0.0.1"
-
-
-def get_torrserver():
-    port = get_port()
-
-    try:
-        request = urllib.request.Request(
-            "http://127.0.0.1:%d/echo" % port
+        result = subprocess.run(
+            ["pidof", "TorrServer"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=3,
         )
 
-        username, password = get_credentials()
-
-        if get_auth_enabled() and username:
-            credentials = ("%s:%s" % (username, password)).encode("utf-8")
-            encoded = base64.b64encode(credentials).decode("ascii")
-            request.add_header(
-                "Authorization",
-                "Basic %s" % encoded
-            )
-
-        with urllib.request.urlopen(request, timeout=2) as response:
-            version = response.read().decode("utf-8").strip()
-
-        return True, version
+        return bool(result.stdout.strip())
 
     except Exception:
-        return False, ""
+        return False
 
 
-def read_log():
-    try:
-        with open(TORRSERVER_LOG, "r", errors="replace") as f:
-            lines = f.readlines()
-
-        return "".join(lines[-100:])
-
-    except Exception as e:
-        return "Unable to read log: %s" % e
+def get_status():
+    return "Running" if is_torrserver_running() else "Stopped"
 
 
 def restart_package():
-    try:
-        command = (
-            "/bin/sleep 1; "
-            "/bin/sudo -n /usr/syno/bin/synopkg stop TorrServer "
-            "> /dev/null 2>&1; "
-            "/bin/sleep 2; "
-            "/bin/sudo -n /usr/syno/bin/synopkg start TorrServer "
-            "> /dev/null 2>&1"
-        )
+    """
+    Start the dedicated root restart script through sudo.
 
-        subprocess.Popen(
+    The script itself runs as root, so it survives the package
+    stop operation initiated by synopkg.
+    """
+
+    if not os.path.isfile(RESTART_SCRIPT):
+        return False, "Restart script not found"
+
+    try:
+        process = subprocess.Popen(
             [
-                "/bin/sh",
-                "-c",
-                command
+                "/bin/sudo",
+                "-n",
+                RESTART_SCRIPT,
             ],
-            stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
             start_new_session=True,
-            close_fds=True
+            close_fds=True,
         )
 
-        return True, ""
+        if process.pid <= 0:
+            return False, "Failed to start restart script"
+
+        return True, "Restarting..."
 
     except Exception as e:
         return False, str(e)
 
 
-HTML = r"""
-<!DOCTYPE html>
+def save_settings(params):
+    port = params.get("port", [""])[0].strip()
+    auth = params.get("auth", ["0"])[0]
+    username = params.get("username", [""])[0]
+    password = params.get("password", [""])[0]
+
+    if not port.isdigit():
+        return False, "Invalid port"
+
+    port_number = int(port)
+
+    if port_number < 1 or port_number > 65535:
+        return False, "Invalid port"
+
+    write_file(PORT_FILE, str(port_number))
+
+    if auth == "1":
+        if not username:
+            return False, "Username is required"
+
+        if not password:
+            return False, "Password is required"
+
+        account = {
+            username: password
+        }
+
+        with open(ACCS_FILE, "w", encoding="utf-8") as f:
+            json.dump(account, f)
+
+        write_file(AUTH_FILE, "1")
+
+    else:
+        write_file(AUTH_FILE, "0")
+
+    return True, "Settings saved"
+
+
+def get_log():
+    try:
+        with open(TORRSERVER_LOG, "r", encoding="utf-8", errors="replace") as f:
+            data = f.read()
+
+        if len(data) > 200000:
+            data = data[-200000:]
+
+        return data
+
+    except Exception as e:
+        return "Unable to read log: {}".format(e)
+
+
+def page_header(title="TorrServer"):
+    return """<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>TorrServer</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{}</title>
 <style>
-body {
+body {{
+    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
     background: #f5f5f5;
     color: #222;
-    font-family: Arial, Helvetica, sans-serif;
-}
+}}
 
-.container {
-    max-width: 900px;
+.container {{
+    max-width: 1000px;
     margin: 30px auto;
     padding: 0 20px;
-}
+}}
 
-h1 {
-    margin-bottom: 25px;
-}
-
-.card {
-    background: white;
+.card {{
+    background: #fff;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
+    box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}}
 
-.card h2 {
+h1 {{
     margin-top: 0;
-}
+}}
 
-.row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-}
+h2 {{
+    margin-top: 0;
+}}
 
-.row:last-child {
-    border-bottom: 0;
-}
-
-.label {
-    font-weight: bold;
-}
-
-button {
-    border: 0;
-    border-radius: 6px;
-    padding: 10px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-right: 8px;
-}
-
-.primary {
-    background: #1677ff;
-    color: white;
-}
-
-.secondary {
-    background: #e9e9e9;
-    color: #222;
-}
-
-.danger {
-    background: #d9534f;
-    color: white;
-}
-
-input[type="text"],
-input[type="number"],
-input[type="password"] {
+table {{
     width: 100%;
+    border-collapse: collapse;
+}}
+
+td {{
+    padding: 8px 4px;
+    border-bottom: 1px solid #eee;
+}}
+
+td:first-child {{
+    width: 220px;
+    font-weight: bold;
+}}
+
+input[type=text],
+input[type=password],
+input[type=number] {{
+    width: 100%;
+    max-width: 400px;
     box-sizing: border-box;
     padding: 9px;
-    margin-top: 5px;
-    margin-bottom: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid #bbb;
     border-radius: 5px;
-}
+}}
 
-label {
-    display: block;
-    margin-bottom: 5px;
-}
+button,
+.button {{
+    display: inline-block;
+    border: 0;
+    border-radius: 5px;
+    padding: 9px 14px;
+    cursor: pointer;
+    text-decoration: none;
+    background: #1677ff;
+    color: white;
+}}
 
-.checkbox {
-    display: flex;
-    align-items: center;
-    margin: 12px 0;
-}
+button.secondary,
+.button.secondary {{
+    background: #666;
+}}
 
-.checkbox input {
-    margin-right: 8px;
-}
+button.danger {{
+    background: #c62828;
+}}
 
-pre {
+.nav {{
+    margin-bottom: 20px;
+}}
+
+.nav a {{
+    margin-right: 10px;
+}}
+
+.status-running {{
+    color: #16803c;
+    font-weight: bold;
+}}
+
+.status-stopped {{
+    color: #c62828;
+    font-weight: bold;
+}}
+
+pre {{
+    white-space: pre-wrap;
+    word-break: break-word;
     background: #111;
-    color: #eee;
+    color: #ddd;
     padding: 15px;
     border-radius: 6px;
     overflow-x: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-height: 500px;
-}
-
-.message {
-    background: #e8f4ff;
-    border: 1px solid #b7dcff;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-}
-
-.status-ok {
-    color: #198754;
-    font-weight: bold;
-}
-
-.status-error {
-    color: #dc3545;
-    font-weight: bold;
-}
+}}
 </style>
-
-<script>
-function openWebUI() {
-    window.open(
-        "http://" + window.location.hostname + ":" + CURRENT_PORT,
-        "_blank"
-    );
-}
-
-function restartTorrServer() {
-    if (!confirm("Restart TorrServer?")) {
-        return;
-    }
-
-    const button = document.getElementById("restartButton");
-
-    button.disabled = true;
-    button.innerText = "Restarting...";
-
-    fetch("/api/restart", {
-        method: "POST"
-    })
-    .then(function() {
-        setTimeout(function() {
-            window.location.reload();
-        }, 5000);
-    })
-    .catch(function() {
-        setTimeout(function() {
-            window.location.reload();
-        }, 5000);
-    });
-}
-</script>
-
 </head>
-
 <body>
-
 <div class="container">
+""".format(html.escape(title))
 
-<h1>TorrServer</h1>
 
-MESSAGE
-
-<div class="card">
-
-<h2>System</h2>
-
-<div class="row">
-    <span class="label">DSM</span>
-    <span>DSM_VERSION</span>
+def page_footer():
+    return """
 </div>
-
-<div class="row">
-    <span class="label">NAS</span>
-    <span>NAS_MODEL</span>
-</div>
-
-<div class="row">
-    <span class="label">CPU</span>
-    <span>CPU_MODEL</span>
-</div>
-
-<div class="row">
-    <span class="label">Cores</span>
-    <span>CPU_CORES</span>
-</div>
-
-<div class="row">
-    <span class="label">Architecture</span>
-    <span>ARCH</span>
-</div>
-
-<div class="row">
-    <span class="label">RAM</span>
-    <span>RAM_INFO</span>
-</div>
-
-<div class="row">
-    <span class="label">Uptime</span>
-    <span>UPTIME</span>
-</div>
-
-<div class="row">
-    <span class="label">Load</span>
-    <span>LOAD</span>
-</div>
-
-</div>
-
-
-<div class="card">
-
-<h2>TorrServer</h2>
-
-<div class="row">
-    <span class="label">Status</span>
-    <span>TORR_STATUS</span>
-</div>
-
-<div class="row">
-    <span class="label">Version</span>
-    <span>TORR_VERSION</span>
-</div>
-
-<div class="row">
-    <span class="label">Web port</span>
-    <span>CURRENT_PORT</span>
-</div>
-
-<div class="row">
-    <span class="label">HTTP Auth</span>
-    <span>AUTH_STATUS</span>
-</div>
-
-<br>
-
-<button class="primary" onclick="openWebUI()">
-    Open Web UI
-</button>
-
-<button
-    class="danger"
-    id="restartButton"
-    onclick="restartTorrServer()">
-    Restart TorrServer
-</button>
-
-</div>
-
-
-<div class="card">
-
-<h2>Settings</h2>
-
-<form method="POST" action="/api/settings">
-
-<label>
-    Web port
-    <input
-        type="number"
-        name="port"
-        min="1"
-        max="65535"
-        value="CURRENT_PORT"
-        required>
-</label>
-
-<div class="checkbox">
-    <input
-        type="checkbox"
-        name="auth"
-        value="1"
-        AUTH_CHECKED
-        id="auth">
-    <label for="auth">Enable HTTP authentication</label>
-</div>
-
-<label>
-    Username
-    <input
-        type="text"
-        name="username"
-        value="USERNAME"
-        autocomplete="off">
-</label>
-
-<label>
-    Password
-    <input
-        type="password"
-        name="password"
-        value="PASSWORD"
-        autocomplete="off">
-</label>
-
-<button class="primary" type="submit">
-    Apply
-</button>
-
-</form>
-
-</div>
-
-
-<div class="card">
-
-<h2>Logs</h2>
-
-<pre>LOG_CONTENT</pre>
-
-<form method="GET" action="/">
-    <button class="secondary" type="submit">
-        Refresh
-    </button>
-</form>
-
-</div>
-
-</div>
-
-<script>
-const CURRENT_PORT = PORT_NUMBER;
-</script>
-
 </body>
 </html>
 """
 
 
+def main_page():
+    status = get_status()
+
+    status_class = (
+        "status-running"
+        if status == "Running"
+        else "status-stopped"
+    )
+
+    total_memory, available_memory = get_memory()
+
+    port = get_port()
+    auth = get_auth_enabled()
+
+    web_url = "http://{}:{}".format(
+        os.environ.get("HOSTNAME", "NAS"),
+        port,
+    )
+
+    body = page_header("TorrServer")
+
+    body += """
+<div class="nav">
+    <a class="button" href="/">Status</a>
+    <a class="button secondary" href="/settings">Settings</a>
+    <a class="button secondary" href="/logs">Logs</a>
+</div>
+
+<div class="card">
+<h1>TorrServer</h1>
+
+<table>
+<tr>
+<td>Status</td>
+<td class="{}">{}</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>Web port</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>Authentication</td>
+<td>{}</td>
+</tr>
+</table>
+
+<br>
+
+<a class="button" href="http://127.0.0.1:{}/" target="_blank">
+Open Web UI
+</a>
+
+<form method="post" action="/restart" style="display:inline;margin-left:10px;">
+<button class="danger" type="submit">Restart</button>
+</form>
+
+</div>
+
+<div class="card">
+<h2>System</h2>
+
+<table>
+<tr>
+<td>DSM</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>NAS model</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>Cores</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>RAM total</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>RAM available</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>Uptime</td>
+<td>{}</td>
+</tr>
+<tr>
+<td>Load</td>
+<td>{}</td>
+</tr>
+</table>
+</div>
+""".format(
+        status_class,
+        html.escape(status),
+        html.escape(get_torrserver_version()),
+        port,
+        "Enabled" if auth else "Disabled",
+        html.escape(get_dsm_version()),
+        html.escape(get_nas_model()),
+        html.escape(platform.processor() or "Unknown"),
+        get_cpu_cores(),
+        html.escape(get_architecture()),
+        html.escape(format_bytes(total_memory)),
+        html.escape(format_bytes(available_memory)),
+        html.escape(get_uptime()),
+        html.escape(get_load()),
+    )
+
+    body += page_footer()
+
+    return body
+
+
+def settings_page(message=""):
+    port = get_port()
+    auth = get_auth_enabled()
+
+    body = page_header("TorrServer Settings")
+
+    body += """
+<div class="nav">
+    <a class="button secondary" href="/">Status</a>
+    <a class="button" href="/settings">Settings</a>
+    <a class="button secondary" href="/logs">Logs</a>
+</div>
+
+<div class="card">
+<h1>Settings</h1>
+"""
+
+    if message:
+        body += "<p>{}</p>".format(html.escape(message))
+
+    body += """
+<form method="post" action="/settings">
+
+<p>
+<label>
+Web port<br>
+<input type="number" name="port" min="1" max="65535" value="{}">
+</label>
+</p>
+
+<p>
+<label>
+<input type="checkbox" name="auth" value="1" {} onchange="toggleAuth()">
+Enable authentication
+</label>
+</p>
+
+<div id="authFields">
+
+<p>
+<label>
+Username<br>
+<input type="text" name="username" value="">
+</label>
+</p>
+
+<p>
+<label>
+Password<br>
+<input type="password" name="password" value="">
+</label>
+</p>
+
+</div>
+
+<button type="submit">Apply</button>
+
+</form>
+</div>
+
+<script>
+function toggleAuth() {{
+    var checkbox = document.querySelector('input[name="auth"]');
+    var fields = document.getElementById('authFields');
+
+    fields.style.display = checkbox.checked ? 'block' : 'none';
+}}
+
+toggleAuth();
+</script>
+""".format(
+        port,
+        "checked" if auth else "",
+    )
+
+    body += page_footer()
+
+    return body
+
+
+def logs_page():
+    log = get_log()
+
+    body = page_header("TorrServer Logs")
+
+    body += """
+<div class="nav">
+    <a class="button secondary" href="/">Status</a>
+    <a class="button secondary" href="/settings">Settings</a>
+    <a class="button" href="/logs">Logs</a>
+</div>
+
+<div class="card">
+<h1>TorrServer.log</h1>
+<pre>{}</pre>
+</div>
+""".format(
+        html.escape(log)
+    )
+
+    body += page_footer()
+
+    return body
+
+
 class Handler(BaseHTTPRequestHandler):
 
-    def log_message(self, format, *args):
-        pass
-
-    def send_json(self, data, status=200):
-        body = json.dumps(data).encode("utf-8")
+    def send_html(self, content, status=200):
+        data = content.encode("utf-8")
 
         self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
         self.end_headers()
 
-        self.wfile.write(body)
+        self.wfile.write(data)
+
+    def redirect(self, location):
+        self.send_response(302)
+        self.send_header("Location", location)
+        self.end_headers()
 
     def do_GET(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
 
-        parsed = urllib.parse.urlparse(self.path)
-
-        if parsed.path == "/api/status":
-
-            running, version = get_torrserver()
-
-            self.send_json({
-                "running": running,
-                "version": version,
-                "port": get_port(),
-                "auth": get_auth_enabled()
-            })
-
+        if path == "/":
+            self.send_html(main_page())
             return
 
-        if parsed.path == "/api/log":
-
-            self.send_json({
-                "log": read_log()
-            })
-
+        if path == "/settings":
+            self.send_html(settings_page())
             return
 
-        if parsed.path == "/":
-
-            query = urllib.parse.parse_qs(parsed.query)
-            message = query.get("message", [""])[0]
-
-            running, version = get_torrserver()
-
-            if running:
-                status = (
-                    '<span class="status-ok">Running</span>'
-                )
-            else:
-                status = (
-                    '<span class="status-error">Stopped</span>'
-                )
-
-            auth_enabled = get_auth_enabled()
-
-            if auth_enabled:
-                auth_status = (
-                    '<span class="status-ok">Enabled</span>'
-                )
-            else:
-                auth_status = "Disabled"
-
-            username, password = get_credentials()
-
-            total_memory, available_memory = get_memory()
-
-            html = HTML
-
-            html = html.replace(
-                "MESSAGE",
-                (
-                    '<div class="message">%s</div>' % message
-                    if message else ""
-                )
-            )
-
-            html = html.replace(
-                "DSM_VERSION",
-                get_dsm_version()
-            )
-
-            html = html.replace(
-                "NAS_MODEL",
-                get_nas_model()
-            )
-
-            html = html.replace(
-                "CPU_MODEL",
-                get_cpu()
-            )
-
-            html = html.replace(
-                "CPU_CORES",
-                str(get_cpu_cores())
-            )
-
-            html = html.replace(
-                "ARCH",
-                get_architecture()
-            )
-
-            html = html.replace(
-                "RAM_INFO",
-                "%s / %s available" % (
-                    format_bytes(total_memory),
-                    format_bytes(available_memory)
-                )
-            )
-
-            html = html.replace(
-                "UPTIME",
-                get_uptime()
-            )
-
-            html = html.replace(
-                "LOAD",
-                get_load()
-            )
-
-            html = html.replace(
-                "TORR_STATUS",
-                status
-            )
-
-            html = html.replace(
-                "TORR_VERSION",
-                version if version else "Unknown"
-            )
-
-            html = html.replace(
-                "CURRENT_PORT",
-                str(get_port())
-            )
-
-            html = html.replace(
-                "PORT_NUMBER",
-                str(get_port())
-            )
-
-            html = html.replace(
-                "AUTH_STATUS",
-                auth_status
-            )
-
-            html = html.replace(
-                "AUTH_CHECKED",
-                "checked" if auth_enabled else ""
-            )
-
-            html = html.replace(
-                "USERNAME",
-                username.replace('"', "&quot;")
-            )
-
-            html = html.replace(
-                "PASSWORD",
-                password.replace('"', "&quot;")
-            )
-
-            html = html.replace(
-                "LOG_CONTENT",
-                (
-                    read_log()
-                    .replace("&", "&amp;")
-                    .replace("<", "&lt;")
-                    .replace(">", "&gt;")
-                )
-            )
-
-            body = html.encode("utf-8")
-
-            self.send_response(200)
-            self.send_header(
-                "Content-Type",
-                "text/html; charset=utf-8"
-            )
-            self.send_header(
-                "Content-Length",
-                str(len(body))
-            )
-            self.end_headers()
-
-            self.wfile.write(body)
-
+        if path == "/logs":
+            self.send_html(logs_page())
             return
 
-        self.send_response(404)
-        self.end_headers()
+        if path == "/restart":
+            self.send_html(main_page())
+            return
+
+        self.send_html("Not Found", 404)
 
     def do_POST(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
 
-        parsed = urllib.parse.urlparse(self.path)
+        length = int(self.headers.get("Content-Length", "0"))
 
-        if parsed.path == "/api/restart":
+        body = self.rfile.read(length).decode(
+            "utf-8",
+            errors="replace",
+        )
 
-            success, error = restart_package()
+        params = parse_qs(body)
 
-            self.send_json({
-                "success": success,
-                "error": error
-            })
+        if path == "/settings":
+            ok, message = save_settings(params)
 
-            return
-
-        if parsed.path == "/api/settings":
-
-            try:
-                content_length = int(
-                    self.headers.get("Content-Length", "0")
-                )
-
-                body = self.rfile.read(content_length)
-
-                data = urllib.parse.parse_qs(
-                    body.decode("utf-8")
-                )
-
-                port = int(
-                    data.get("port", [DEFAULT_PORT])[0]
-                )
-
-                if port < 1 or port > 65535:
-                    raise ValueError("Invalid port")
-
-                auth_enabled = (
-                    data.get("auth", ["0"])[0] == "1"
-                )
-
-                username = data.get(
-                    "username",
-                    [""]
-                )[0].strip()
-
-                password = data.get(
-                    "password",
-                    [""]
-                )[0]
-
-                if auth_enabled and not username:
-                    raise ValueError(
-                        "Username is required when authentication is enabled"
-                    )
-
-                save_settings(
-                    port,
-                    auth_enabled,
-                    username,
-                    password
-                )
-
-                message = (
-                    "Settings saved. "
-                    "Restart TorrServer to apply changes."
-                )
-
-                location = (
-                    "/?message=" +
-                    urllib.parse.quote(message)
-                )
-
-                self.send_response(303)
-                self.send_header("Location", location)
-                self.end_headers()
-
-            except Exception as e:
-
-                message = "Error: %s" % e
-
-                location = (
-                    "/?message=" +
-                    urllib.parse.quote(message)
-                )
-
-                self.send_response(303)
-                self.send_header("Location", location)
-                self.end_headers()
+            if ok:
+                self.redirect("/settings")
+            else:
+                self.send_html(settings_page(message), 400)
 
             return
 
-        self.send_response(404)
-        self.end_headers()
+        if path == "/restart":
+            ok, message = restart_package()
+
+            if ok:
+                self.send_html(
+                    page_header("Restarting")
+                    + """
+<div class="card">
+<h1>Restarting...</h1>
+<p>TorrServer package is restarting.</p>
+<p>Please wait a few seconds and refresh the page.</p>
+</div>
+"""
+                    + page_footer()
+                )
+            else:
+                self.send_html(
+                    page_header("Restart Error")
+                    + """
+<div class="card">
+<h1>Restart failed</h1>
+<p>{}</p>
+</div>
+""".format(html.escape(message))
+                    + page_footer(),
+                    500,
+                )
+
+            return
+
+        self.send_html("Not Found", 404)
+
+    def log_message(self, format_string, *args):
+        return
 
 
-def main():
-
-    server = HTTPServer(
-        ("0.0.0.0", HELPER_PORT),
-        Handler
+def run():
+    server = ThreadingHTTPServer(
+        (HOST, HELPER_PORT),
+        Handler,
     )
 
     server.serve_forever()
 
 
 if __name__ == "__main__":
-    main()
+    run()
