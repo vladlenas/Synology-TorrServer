@@ -10,7 +10,7 @@ https://github.com/YouROK/TorrServer#donate
 
 # Supported Architecture
 
-* arm7 - armv7 alpine alpine4k armada370 armada375 armada38x armadaxp monaco
+* arm7 - alpine alpine4k armada38x monaco
 * arm64 - aarch64 armv8 rtd1296 armada37xx rtd1619b
 * amd64 - apollolake avoton braswell broadwell broadwellnk broadwellnkv2 broadwellntbap bromolow denverton epyc7002 geminilake grantley kvmx64 purley r1000 v1000 x86_64
 
