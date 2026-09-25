@@ -22,7 +22,7 @@ case "${ARCH}" in
         ;;
 
     arm7)
-        PLATFORMS="armv7 alpine alpine4k armada370 armada375 armada38x armadaxp monaco"
+        PLATFORMS="alpine alpine4k armada38x monaco"
         ;;
 
     *)
