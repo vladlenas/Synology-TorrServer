@@ -12,11 +12,12 @@ PORT = 8091
 
 TORRSERVER_PORT = 8090
 TORRSERVER_LOCAL_URL = "http://127.0.0.1:8090/"
+TORRSERVER_LOG = "/var/packages/TorrServer/var/TorrServer.log"
 
 
 def read_file(path):
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
             return f.read()
     except Exception:
         return ""
@@ -40,6 +41,7 @@ def get_dsm_info():
             synoinfo,
             re.MULTILINE
         )
+
         if match:
             data[key] = match.group(1)
 
@@ -86,6 +88,7 @@ def get_memory_info():
                 pass
 
     total = values.get("MemTotal", 0)
+
     available = values.get(
         "MemAvailable",
         values.get("MemFree", 0)
@@ -186,6 +189,23 @@ def get_torrserver():
         pass
 
     return False, "Unknown"
+
+
+def get_log():
+    try:
+        with open(
+            TORRSERVER_LOG,
+            "r",
+            encoding="utf-8",
+            errors="replace"
+        ) as f:
+
+            lines = f.readlines()
+
+        return "".join(lines[-100:])
+
+    except Exception as e:
+        return "Unable to read log: {}".format(e)
 
 
 def esc(value):
@@ -335,6 +355,22 @@ def make_html():
         row("Web port", TORRSERVER_PORT)
     )
 
+    log_content = """
+        <div class="log-toolbar">
+            <button
+                class="button secondary"
+                onclick="location.reload();"
+            >
+                Refresh
+            </button>
+        </div>
+
+        <pre class="log">__LOG__</pre>
+    """.replace(
+        "__LOG__",
+        esc(get_log())
+    )
+
     system_card = card(
         "System Information",
         system_content
@@ -345,11 +381,20 @@ def make_html():
         torrserver_content
     )
 
+    log_card = card(
+        "TorrServer Log",
+        log_content
+    )
+
     page = """<!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
     <title>TorrServer</title>
 
     <style>
@@ -418,7 +463,8 @@ def make_html():
             border: 1px solid #ddd;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            box-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.04);
         }
 
         .card-title {
@@ -487,6 +533,7 @@ def make_html():
         .button {
             display: inline-block;
             padding: 9px 16px;
+            border: 0;
             border-radius: 5px;
             text-decoration: none;
             font-size: 14px;
@@ -502,6 +549,42 @@ def make_html():
             background: #0d66dc;
         }
 
+        .button.secondary {
+            background: #e8edf5;
+            color: #333;
+        }
+
+        .button.secondary:hover {
+            background: #dce3ee;
+        }
+
+        .log-card {
+            grid-column: 1 / -1;
+        }
+
+        .log-toolbar {
+            margin-bottom: 10px;
+        }
+
+        .log {
+            margin: 0;
+            padding: 14px;
+            max-height: 420px;
+            overflow: auto;
+            background: #1f2328;
+            color: #d7dce2;
+            border-radius: 5px;
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                "Liberation Mono",
+                monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
         @media (max-width: 700px) {
             body {
                 padding: 12px;
@@ -509,6 +592,10 @@ def make_html():
 
             .grid {
                 grid-template-columns: 1fr;
+            }
+
+            .log-card {
+                grid-column: auto;
             }
         }
     </style>
@@ -532,6 +619,16 @@ def make_html():
 
             __TORRSERVER_CARD__
 
+            <div class="card log-card">
+                <div class="card-title">
+                    TorrServer Log
+                </div>
+
+                <div class="card-content">
+                    __LOG_CONTENT__
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -545,6 +642,9 @@ def make_html():
     ).replace(
         "__TORRSERVER_CARD__",
         torrserver_card
+    ).replace(
+        "__LOG_CONTENT__",
+        log_content
     )
 
     return page
@@ -609,6 +709,32 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header(
                 "Content-Length",
                 str(len(data))
+            )
+
+            self.end_headers()
+
+            self.wfile.write(data)
+
+            return
+
+        if self.path == "/api/log":
+            data = get_log().encode("utf-8")
+
+            self.send_response(200)
+
+            self.send_header(
+                "Content-Type",
+                "text/plain; charset=utf-8"
+            )
+
+            self.send_header(
+                "Content-Length",
+                str(len(data))
+            )
+
+            self.send_header(
+                "Cache-Control",
+                "no-cache"
             )
 
             self.end_headers()
