@@ -4,8 +4,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import html
 import os
 import re
-import subprocess
-import urllib.parse
+import urllib.request
 
 
 HOST = "0.0.0.0"
@@ -56,8 +55,10 @@ def get_cpu_info():
     for line in cpuinfo.splitlines():
         if line.startswith("model name"):
             parts = line.split(":", 1)
+
             if len(parts) == 2:
                 model = parts[1].strip()
+
             break
 
     for line in cpuinfo.splitlines():
@@ -85,7 +86,10 @@ def get_memory_info():
                 pass
 
     total = values.get("MemTotal", 0)
-    available = values.get("MemAvailable", values.get("MemFree", 0))
+    available = values.get(
+        "MemAvailable",
+        values.get("MemFree", 0)
+    )
 
     return total, available
 
@@ -100,6 +104,7 @@ def format_memory(kb):
         return "{:.1f} GB".format(gb)
 
     mb = kb / 1024
+
     return "{:.0f} MB".format(mb)
 
 
@@ -121,10 +126,17 @@ def get_uptime():
         minutes = seconds // 60
 
         if days:
-            return "{} d {} h {} min".format(days, hours, minutes)
+            return "{} d {} h {} min".format(
+                days,
+                hours,
+                minutes
+            )
 
         if hours:
-            return "{} h {} min".format(hours, minutes)
+            return "{} h {} min".format(
+                hours,
+                minutes
+            )
 
         return "{} min".format(minutes)
 
@@ -150,16 +162,22 @@ def get_architecture():
 
 def get_torrserver():
     try:
-        import urllib.request
-
         request = urllib.request.Request(
             TORRSERVER_URL + "echo",
             method="GET"
         )
 
-        with urllib.request.urlopen(request, timeout=2) as response:
+        with urllib.request.urlopen(
+            request,
+            timeout=2
+        ) as response:
+
             status = response.getcode()
-            version = response.read().decode("utf-8", errors="replace").strip()
+
+            version = response.read().decode(
+                "utf-8",
+                errors="replace"
+            ).strip()
 
             if status == 200:
                 return True, version
@@ -170,69 +188,47 @@ def get_torrserver():
     return False, "Unknown"
 
 
-def get_package_status():
-    """
-    Read TorrServer package status through synopkg.
-
-    This is only a read operation.
-    Start/stop/restart will be implemented separately.
-    """
-
-    try:
-        result = subprocess.run(
-            [
-                "/usr/syno/bin/synopkg",
-                "status",
-                "TorrServer"
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
-            timeout=3
-        )
-
-        output = result.stdout.strip()
-
-        if '"status":"running"' in output:
-            return "running"
-
-        if '"status":"stop"' in output:
-            return "stopped"
-
-    except Exception:
-        pass
-
-    return "unknown"
-
-
 def esc(value):
     return html.escape(str(value))
 
 
-def card(title, content):
-    return """
-    <div class="card">
-        <div class="card-title">{}</div>
-        <div class="card-content">
-            {}
-        </div>
-    </div>
-    """.format(title, content)
-
-
 def row(name, value):
     return """
-    <div class="row">
-        <div class="label">{}</div>
-        <div class="value">{}</div>
-    </div>
-    """.format(esc(name), esc(value))
+        <div class="row">
+            <div class="label">__NAME__</div>
+            <div class="value">__VALUE__</div>
+        </div>
+    """.replace(
+        "__NAME__",
+        esc(name)
+    ).replace(
+        "__VALUE__",
+        esc(value)
+    )
+
+
+def card(title, content):
+    return """
+        <div class="card">
+            <div class="card-title">__TITLE__</div>
+            <div class="card-content">
+                __CONTENT__
+            </div>
+        </div>
+    """.replace(
+        "__TITLE__",
+        esc(title)
+    ).replace(
+        "__CONTENT__",
+        content
+    )
 
 
 def make_html():
     dsm = get_dsm_info()
 
     cpu_model, cpu_cores = get_cpu_info()
+
     mem_total, mem_available = get_memory_info()
 
     architecture = get_architecture()
@@ -240,7 +236,6 @@ def make_html():
     load = get_load()
 
     torrserver_running, torrserver_version = get_torrserver()
-    package_status = get_package_status()
 
     if torrserver_running:
         ts_status = "Running"
@@ -249,55 +244,108 @@ def make_html():
         ts_status = "Stopped"
         ts_status_class = "status-stopped"
 
-    if package_status == "running":
-        package_status_text = "Running"
-    elif package_status == "stopped":
-        package_status_text = "Stopped"
-    else:
-        package_status_text = "Unknown"
+    system_content = ""
 
-    system_content = (
-        row("DSM", dsm.get("productversion", "Unknown")) +
-        row("Build", dsm.get("buildnumber", "Unknown")) +
-        row("Model", dsm.get("product", "Unknown")) +
-        row("Platform", dsm.get("platform_name", "Unknown")) +
-        row("Architecture", architecture) +
-        row("CPU", cpu_model) +
-        row("CPU cores", cpu_cores) +
-        row(
-            "RAM",
-            "{} / {}".format(
-                format_memory(mem_available),
-                format_memory(mem_total)
-            )
-        ) +
-        row("Uptime", uptime) +
-        row("Load", load)
+    system_content += row(
+        "DSM",
+        dsm.get("productversion", "Unknown")
+    )
+
+    system_content += row(
+        "Build",
+        dsm.get("buildnumber", "Unknown")
+    )
+
+    system_content += row(
+        "Model",
+        dsm.get("product", "Unknown")
+    )
+
+    system_content += row(
+        "Platform",
+        dsm.get("platform_name", "Unknown")
+    )
+
+    system_content += row(
+        "Architecture",
+        architecture
+    )
+
+    system_content += row(
+        "CPU",
+        cpu_model
+    )
+
+    system_content += row(
+        "CPU cores",
+        cpu_cores
+    )
+
+    system_content += row(
+        "RAM",
+        "{} / {}".format(
+            format_memory(mem_available),
+            format_memory(mem_total)
+        )
+    )
+
+    system_content += row(
+        "Uptime",
+        uptime
+    )
+
+    system_content += row(
+        "Load",
+        load
     )
 
     torrserver_content = """
         <div class="status-line">
-            <span class="status-dot {}"></span>
-            <span>{}</span>
+            <span class="status-dot __STATUS_CLASS__"></span>
+            <span>__STATUS__</span>
         </div>
-        {}
-        {}
-        {}
+
+        __VERSION_ROW__
+
+        __PORT_ROW__
+
         <div class="button-row">
-            <a class="button primary" href="{}" target="_blank">
+            <a
+                class="button primary"
+                href="__TORRSERVER_URL__"
+                target="_blank"
+            >
                 Open TorrServer Web UI
             </a>
         </div>
-    """.format(
-        ts_status_class,
-        esc(ts_status),
-        row("Version", torrserver_version),
-        row("Web port", TORRSERVER_PORT),
-        row("Package", package_status_text),
+    """.replace(
+        "__STATUS_CLASS__",
+        ts_status_class
+    ).replace(
+        "__STATUS__",
+        esc(ts_status)
+    ).replace(
+        "__VERSION_ROW__",
+        row("Version", torrserver_version)
+    ).replace(
+        "__PORT_ROW__",
+        row("Web port", TORRSERVER_PORT)
+    ).replace(
+        "__TORRSERVER_URL__",
         TORRSERVER_URL
     )
 
-    return """<!doctype html>
+    system_card = card(
+        "System Information",
+        system_content
+    )
+
+    torrserver_card = card(
+        "TorrServer",
+        torrserver_content
+    )
+
+    page = """<!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -344,6 +392,7 @@ def make_html():
             justify-content: center;
             margin-right: 14px;
             font-size: 24px;
+            font-weight: 600;
         }
 
         .header h1 {
@@ -470,6 +519,7 @@ def make_html():
 
         <div class="header">
             <div class="icon">TS</div>
+
             <div>
                 <h1>TorrServer</h1>
                 <p>Synology package control panel</p>
@@ -478,71 +528,92 @@ def make_html():
 
         <div class="grid">
 
-            {}
-            
-            {}
+            __SYSTEM_CARD__
+
+            __TORRSERVER_CARD__
 
         </div>
 
     </div>
 </body>
 </html>
-""".format(
-        card("System Information", system_content),
-        card("TorrServer", torrserver_content)
+"""
+
+    page = page.replace(
+        "__SYSTEM_CARD__",
+        system_card
+    ).replace(
+        "__TORRSERVER_CARD__",
+        torrserver_card
     )
+
+    return page
 
 
 class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-
-        parsed = urllib.parse.urlparse(self.path)
-
-        if parsed.path == "/":
+        if self.path == "/":
             content = make_html().encode("utf-8")
 
             self.send_response(200)
+
             self.send_header(
                 "Content-Type",
                 "text/html; charset=utf-8"
             )
+
             self.send_header(
                 "Content-Length",
                 str(len(content))
             )
+
             self.send_header(
                 "Cache-Control",
                 "no-cache"
             )
+
             self.end_headers()
 
             self.wfile.write(content)
+
             return
 
-        if parsed.path == "/api/status":
+        if self.path == "/api/status":
             running, version = get_torrserver()
+
+            version_json = (
+                str(version)
+                .replace("\\", "\\\\")
+                .replace('"', '\\"')
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+            )
 
             data = (
                 '{{"running":{},"version":"{}"}}'
                 .format(
                     "true" if running else "false",
-                    version.replace('"', '\\"')
+                    version_json
                 )
             ).encode("utf-8")
 
             self.send_response(200)
+
             self.send_header(
                 "Content-Type",
                 "application/json; charset=utf-8"
             )
+
             self.send_header(
                 "Content-Length",
                 str(len(data))
             )
+
             self.end_headers()
 
             self.wfile.write(data)
+
             return
 
         self.send_error(404)
@@ -552,7 +623,11 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    server = HTTPServer((HOST, PORT), Handler)
+    server = HTTPServer(
+        (HOST, PORT),
+        Handler
+    )
+
     server.serve_forever()
 
 
