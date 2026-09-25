@@ -496,11 +496,6 @@ def main_page():
     port = get_port()
     auth = get_auth_enabled()
 
-    web_url = "http://{}:{}".format(
-        os.environ.get("HOSTNAME", "NAS"),
-        port,
-    )
-
     body = page_header("TorrServer")
 
     body += """
@@ -516,25 +511,25 @@ def main_page():
 <table>
 <tr>
 <td>Status</td>
-<td class="{}">{}</td>
+<td class="{0}">{1}</td>
 </tr>
 <tr>
 <td>Version</td>
-<td>{}</td>
+<td>{2}</td>
 </tr>
 <tr>
 <td>Web port</td>
-<td>{}</td>
+<td>{3}</td>
 </tr>
 <tr>
 <td>Authentication</td>
-<td>{}</td>
+<td>{4}</td>
 </tr>
 </table>
 
 <br>
 
-<a class="button" href="http://127.0.0.1:{}/" target="_blank">
+<a class="button" href="http://127.0.0.1:{3}/" target="_blank">
 Open Web UI
 </a>
 
@@ -550,39 +545,39 @@ Open Web UI
 <table>
 <tr>
 <td>DSM</td>
-<td>{}</td>
+<td>{5}</td>
 </tr>
 <tr>
 <td>NAS model</td>
-<td>{}</td>
+<td>{6}</td>
 </tr>
 <tr>
 <td>CPU</td>
-<td>{}</td>
+<td>{7}</td>
 </tr>
 <tr>
 <td>Cores</td>
-<td>{}</td>
+<td>{8}</td>
 </tr>
 <tr>
 <td>Architecture</td>
-<td>{}</td>
+<td>{9}</td>
 </tr>
 <tr>
 <td>RAM total</td>
-<td>{}</td>
+<td>{10}</td>
 </tr>
 <tr>
 <td>RAM available</td>
-<td>{}</td>
+<td>{11}</td>
 </tr>
 <tr>
 <td>Uptime</td>
-<td>{}</td>
+<td>{12}</td>
 </tr>
 <tr>
 <td>Load</td>
-<td>{}</td>
+<td>{13}</td>
 </tr>
 </table>
 </div>
