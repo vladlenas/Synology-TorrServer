@@ -110,7 +110,10 @@ def get_credentials():
             return "", ""
 
         username = next(iter(data))
-        password = data.get(username, "")
+        password = data.get(
+            username,
+            ""
+        )
 
         return str(username), str(password)
 
@@ -118,7 +121,12 @@ def get_credentials():
         return "", ""
 
 
-def save_settings(port, auth_enabled, username, password):
+def save_settings(
+    port,
+    auth_enabled,
+    username,
+    password
+):
     if not write_file(
         PORT_CONFIG,
         "{}\n".format(port)
@@ -1080,8 +1088,24 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
 
-        if self.path == "/":
-            content = make_html().encode(
+        parsed = urllib.parse.urlparse(
+            self.path
+        )
+
+        if parsed.path == "/":
+
+            query = urllib.parse.parse_qs(
+                parsed.query
+            )
+
+            message = query.get(
+                "message",
+                [""]
+            )[0]
+
+            content = make_html(
+                message
+            ).encode(
                 "utf-8"
             )
 
@@ -1104,11 +1128,14 @@ class Handler(BaseHTTPRequestHandler):
 
             self.end_headers()
 
-            self.wfile.write(content)
+            self.wfile.write(
+                content
+            )
 
             return
 
-        if self.path == "/api/status":
+        if parsed.path == "/api/status":
+
             running, version = (
                 get_torrserver()
             )
@@ -1120,7 +1147,9 @@ class Handler(BaseHTTPRequestHandler):
                 "auth_enabled": (
                     get_auth_enabled()
                 )
-            }).encode("utf-8")
+            }).encode(
+                "utf-8"
+            )
 
             self.send_response(200)
 
@@ -1141,11 +1170,14 @@ class Handler(BaseHTTPRequestHandler):
 
             self.end_headers()
 
-            self.wfile.write(data)
+            self.wfile.write(
+                data
+            )
 
             return
 
-        if self.path == "/api/log":
+        if parsed.path == "/api/log":
+
             data = get_log().encode(
                 "utf-8"
             )
@@ -1169,7 +1201,9 @@ class Handler(BaseHTTPRequestHandler):
 
             self.end_headers()
 
-            self.wfile.write(data)
+            self.wfile.write(
+                data
+            )
 
             return
 
@@ -1245,6 +1279,7 @@ class Handler(BaseHTTPRequestHandler):
             username = username.strip()
 
             if auth_enabled:
+
                 if not username:
                     raise ValueError(
                         "Username is required"
@@ -1256,6 +1291,7 @@ class Handler(BaseHTTPRequestHandler):
                     )
 
             else:
+
                 old_username, old_password = (
                     get_credentials()
                 )
@@ -1289,7 +1325,9 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header(
                 "Location",
                 "/?message=" +
-                urllib.parse.quote(message)
+                urllib.parse.quote(
+                    message
+                )
             )
 
             self.end_headers()
@@ -1302,7 +1340,9 @@ class Handler(BaseHTTPRequestHandler):
 
             content = make_html(
                 message
-            ).encode("utf-8")
+            ).encode(
+                "utf-8"
+            )
 
             self.send_response(400)
 
