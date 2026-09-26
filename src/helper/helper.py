@@ -40,6 +40,7 @@ SSL_CERT_MODE_DSM = "dsm"
 SSL_CERT_MODE_MANUAL = "manual"
 
 RESTART_SCRIPT = "/var/packages/TorrServer/scripts/restart-package"
+CERTIFICATE_HELPER = "/var/packages/TorrServer/scripts/certificate-helper"
 
 
 def read_file(path, default=""):
@@ -318,32 +319,32 @@ def get_ssl_paths():
 
 
 def get_dsm_certificates():
-    result = []
-    root = "/usr/syno/etc/certificate"
-
     try:
-        for current_root, dirs, files in os.walk(root):
-            if "info" not in files:
-                continue
+        result = subprocess.run(
+            ["/bin/sudo", "-n", CERTIFICATE_HELPER],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=5,
+        )
 
-            try:
-                with open(os.path.join(current_root, "info"), "r", encoding="utf-8") as f:
-                    data = json.load(f)
-            except Exception:
-                continue
+        if result.returncode != 0:
+            return []
 
-            subscriber = str(data.get("subscriber", "") or "").strip()
-            service = str(data.get("service", "") or "").strip()
+        data = json.loads(result.stdout)
+        result_items = []
 
-            for item in data.get("certs", []):
-                cert = str(item.get("cert", "") or "").strip()
-                chain = str(item.get("chain", "") or "").strip()
-                key = str(item.get("key", "") or "").strip()
+        for item in data:
+            subscriber = str(item.get("subscriber", "") or "").strip()
+            service = str(item.get("service", "") or "").strip()
+
+            for cert_item in item.get("certs", []):
+                cert = str(cert_item.get("cert", "") or "").strip()
+                chain = str(cert_item.get("chain", "") or "").strip()
+                key = str(cert_item.get("key", "") or "").strip()
 
                 if not cert or not key:
                     continue
-
-                label = subscriber or service or os.path.relpath(current_root, root)
 
                 if "/ECC-" in cert:
                     cert_type = "ECC"
@@ -352,26 +353,28 @@ def get_dsm_certificates():
                 else:
                     cert_type = "Certificate"
 
-                result.append({
+                label = subscriber or service or "DSM"
+
+                result_items.append({
                     "label": "{} ({})".format(label, cert_type),
                     "cert": chain or cert,
                     "key": key,
                 })
+
+        unique = []
+        seen = set()
+
+        for item in result_items:
+            pair = (item["cert"], item["key"])
+            if pair in seen:
+                continue
+            seen.add(pair)
+            unique.append(item)
+
+        return sorted(unique, key=lambda item: item["label"].lower())
+
     except Exception:
-        pass
-
-    unique = []
-    seen = set()
-
-    for item in result:
-        pair = (item["cert"], item["key"])
-        if pair in seen:
-            continue
-        seen.add(pair)
-        unique.append(item)
-
-    return sorted(unique, key=lambda item: item["label"].lower())
-
+        return []
 
 def is_torrserver_running():
     try:
