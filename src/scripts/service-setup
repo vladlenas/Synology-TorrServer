@@ -16,6 +16,7 @@ CONFIG_DIR="/var/packages/${SYNOPKG_PKGNAME}/var"
 TORRSERVER_LOG="/var/packages/${SYNOPKG_PKGNAME}/var/TorrServer.log"
 SUDOERS_FILE="/etc/sudoers.d/TorrServer"
 RESTART_SCRIPT="/var/packages/${SYNOPKG_PKGNAME}/scripts/restart-package"
+CERTIFICATE_HELPER="/var/packages/${SYNOPKG_PKGNAME}/scripts/certificate-helper"
 
 TORRSERVER_PORT="8090"
 if [ -r "${CONFIG_DIR}/torrserver.port" ]; then
@@ -91,6 +92,14 @@ EOF2
 
 update_firewall_port
 
+# Synchronize the selected TLS certificate/key before TorrServer starts.
+if [ -x "${CERTIFICATE_HELPER}" ]; then
+    "${CERTIFICATE_HELPER}" sync
+    if [ "$?" -ne 0 ]; then
+        echo "Warning: TLS certificate synchronization failed." 1>&2
+    fi
+fi
+
 if [ "${AUTH_ENABLED}" = "1" ]; then
     SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
 ${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -p ${TORRSERVER_PORT} -a ${TORRSERVER_SSL_ARGS} -l ${TORRSERVER_LOG}"
@@ -106,7 +115,7 @@ service_postinst ()
 {
     mkdir -p /etc/sudoers.d
     cat > "${SUDOERS_FILE}" <<EOF2
-TorrServer ALL=(root) NOPASSWD: ${RESTART_SCRIPT}
+TorrServer ALL=(root) NOPASSWD: ${RESTART_SCRIPT}, ${CERTIFICATE_HELPER}
 EOF2
     chmod 0440 "${SUDOERS_FILE}"
 
