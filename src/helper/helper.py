@@ -28,6 +28,8 @@ PORT_FILE = os.path.join(PACKAGE_VAR, "torrserver.port")
 AUTH_FILE = os.path.join(PACKAGE_VAR, "torrserver.auth")
 ACCS_FILE = os.path.join(PACKAGE_VAR, "accs.db")
 CACHE_PATH_FILE = os.path.join(PACKAGE_VAR, "cache.path")
+HTTPS_FILE = os.path.join(PACKAGE_VAR, "torrserver.https")
+HTTPS_PORT_FILE = os.path.join(PACKAGE_VAR, "torrserver.https.port")
 
 RESTART_SCRIPT = "/var/packages/TorrServer/scripts/restart-package"
 
@@ -274,6 +276,24 @@ def get_auth_enabled():
     return read_file(AUTH_FILE, "0") == "1" and os.path.isfile(ACCS_FILE)
 
 
+def get_https_enabled():
+    return read_file(HTTPS_FILE, "0") == "1"
+
+
+def get_https_port():
+    port = 8091
+
+    value = read_file(HTTPS_PORT_FILE, "")
+
+    if value.isdigit():
+        number = int(value)
+
+        if 1 <= number <= 65535:
+            port = number
+
+    return port
+
+
 def is_torrserver_running():
     try:
         result = subprocess.run(
@@ -459,6 +479,8 @@ def save_settings(params):
     username = params.get("username", [""])[0]
     password = params.get("password", [""])[0]
     cache_path = params.get("cache_path", [""])[0].strip()
+    https = params.get("https", ["0"])[0]
+    https_port = params.get("https_port", ["8091"])[0].strip()
 
     if not port.isdigit():
         return False, "Invalid port"
@@ -468,7 +490,20 @@ def save_settings(params):
     if port_number < 1 or port_number > 65535:
         return False, "Invalid port"
 
+    if not https_port.isdigit():
+        return False, "Invalid HTTPS port"
+
+    https_port_number = int(https_port)
+
+    if https_port_number < 1 or https_port_number > 65535:
+        return False, "Invalid HTTPS port"
+
+    if https == "1" and https_port_number == port_number:
+        return False, "HTTPS port must differ from Web port"
+
     write_file(PORT_FILE, str(port_number))
+    write_file(HTTPS_PORT_FILE, str(https_port_number))
+    write_file(HTTPS_FILE, "1" if https == "1" else "0")
 
     if cache_path:
         ok, cache_message = set_cache_path(cache_path)
@@ -785,6 +820,8 @@ def settings_page(message=""):
     port = get_port()
     auth = get_auth_enabled()
     cache_path = get_cache_path()
+    https = get_https_enabled()
+    https_port = get_https_port()
 
     body = page_header("TorrServer Settings")
 
@@ -823,6 +860,24 @@ Cache directory<br>
 <input type="text" name="cache_path" value="{}" placeholder="/volume1/..." style="flex:1;">
 <button type="button" class="secondary" onclick="openCacheBrowser()">Browse</button>
 </div>
+</label>
+</p>
+
+<div style="margin-top:28px;padding-bottom:8px;border-bottom:1px solid #ddd;">
+<h2 style="margin-bottom:4px;">HTTPS</h2>
+</div>
+
+<p>
+<label>
+<input type="checkbox" name="https" value="1" {}>
+Enable HTTPS
+</label>
+</p>
+
+<p>
+<label>
+HTTPS port<br>
+<input type="number" name="https_port" min="1" max="65535" value="{}">
 </label>
 </p>
 
@@ -887,6 +942,8 @@ function openCacheBrowser() {{
 """.format(
         port,
         html.escape(cache_path),
+        "checked" if https else "",
+        https_port,
         "checked" if auth else "",
         "" if auth else "disabled",
         "" if auth else "disabled",
