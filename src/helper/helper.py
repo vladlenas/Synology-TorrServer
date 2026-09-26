@@ -723,10 +723,6 @@ def main_page(host):
 Open Web UI
 </a>
 
-<form method="post" action="/restart" style="display:inline;margin-left:10px;">
-<button class="danger" type="submit">Restart</button>
-</form>
-
 </div>
 
 <div class="card">
@@ -809,6 +805,10 @@ def settings_page(message=""):
     body += """
 <form method="post" action="/settings">
 
+<div style="margin-top:10px;padding-bottom:8px;border-bottom:1px solid #ddd;">
+<h2 style="margin-bottom:4px;">TorrServer</h2>
+</div>
+
 <p>
 <label>
 Web port<br>
@@ -826,6 +826,10 @@ Cache directory<br>
 </label>
 </p>
 
+<div style="margin-top:28px;padding-bottom:8px;border-bottom:1px solid #ddd;">
+<h2 style="margin-bottom:4px;">Authentication</h2>
+</div>
+
 <p>
 <label>
 <input type="checkbox" name="auth" value="1" {} onchange="toggleAuth()">
@@ -838,20 +842,23 @@ Enable authentication
 <p>
 <label>
 Username<br>
-<input type="text" name="username" value="">
+<input type="text" name="username" value="" {}>
 </label>
 </p>
 
 <p>
 <label>
 Password<br>
-<input type="password" name="password" value="">
+<input type="password" name="password" value="" {}>
 </label>
 </p>
 
 </div>
 
+<div style="margin-top:28px;padding-top:18px;border-top:1px solid #ddd;">
 <button type="submit">Apply</button>
+<button type="submit" formaction="/restart" class="danger" style="margin-left:8px;">Restart</button>
+</div>
 
 </form>
 </div>
@@ -860,8 +867,11 @@ Password<br>
 function toggleAuth() {{
     var checkbox = document.querySelector('input[name="auth"]');
     var fields = document.getElementById('authFields');
+    var inputs = fields.querySelectorAll('input');
 
-    fields.style.display = checkbox.checked ? 'block' : 'none';
+    for (var i = 0; i < inputs.length; i++) {{
+        inputs[i].disabled = !checkbox.checked;
+    }}
 }}
 
 toggleAuth();
@@ -878,6 +888,8 @@ function openCacheBrowser() {{
         port,
         html.escape(cache_path),
         "checked" if auth else "",
+        "" if auth else "disabled",
+        "" if auth else "disabled",
     )
 
     body += page_footer()
