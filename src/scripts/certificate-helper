@@ -1,0 +1,20 @@
+#!/bin/sh
+
+CERT_ROOT="/usr/syno/etc/certificate"
+
+printf '['
+first=1
+
+for info in $(find "$CERT_ROOT" -type f -name info); do
+    data=$(cat "$info" 2>/dev/null) || continue
+
+    if [ "$first" -eq 0 ]; then
+        printf ','
+    fi
+    first=0
+
+    printf '%s' "$data"
+done
+
+printf ']'
+printf '\n'
