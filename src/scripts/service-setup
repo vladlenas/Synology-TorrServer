@@ -80,10 +80,35 @@ fi
 
 if [ "${AUTH_ENABLED}" = "1" ]; then
     SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
-${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -p ${TORRSERVER_PORT} -a -l ${TORRSERVER_LOG}"
+${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -p ${TORRSERVER_PORT} -a ${TORRSERVER_SSL_ARGS} -l ${TORRSERVER_LOG}"
 else
     SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
-${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -p ${TORRSERVER_PORT} -l ${TORRSERVER_LOG}"
+${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -p ${TORRSERVER_PORT} ${TORRSERVER_SSL_ARGS} -l ${TORRSERVER_LOG}"
+fi
+
+HTTPS_ENABLED="0"
+if [ -r "${CONFIG_DIR}/torrserver.https" ] &&
+   [ "$(cat "${CONFIG_DIR}/torrserver.https" 2>/dev/null)" = "1" ]; then
+    HTTPS_ENABLED="1"
+fi
+
+HTTPS_PORT="8091"
+if [ -r "${CONFIG_DIR}/torrserver.https.port" ]; then
+    SAVED_HTTPS_PORT="$(cat "${CONFIG_DIR}/torrserver.https.port" 2>/dev/null)"
+    case "${SAVED_HTTPS_PORT}" in
+        ''|*[!0-9]*) ;;
+        *)
+            if [ "${SAVED_HTTPS_PORT}" -ge 1 ] 2>/dev/null &&
+               [ "${SAVED_HTTPS_PORT}" -le 65535 ] 2>/dev/null; then
+                HTTPS_PORT="${SAVED_HTTPS_PORT}"
+            fi
+            ;;
+    esac
+fi
+
+TORRSERVER_SSL_ARGS=""
+if [ "${HTTPS_ENABLED}" = "1" ]; then
+    TORRSERVER_SSL_ARGS="--ssl --sslport ${HTTPS_PORT}"
 fi
 
 SVC_BACKGROUND=y
