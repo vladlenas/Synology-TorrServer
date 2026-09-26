@@ -6,7 +6,7 @@
             "icon": "images/torrserver-{0}.png",
             "type": "url",
             "protocol": "http",
-            "port": "8090",
+            "port": "8095",
             "url": "/",
             "allUsers": true,
             "grantPrivilege": "all",
