@@ -15,7 +15,7 @@ from urllib.parse import parse_qs, urlparse
 
 
 HOST = "0.0.0.0"
-HELPER_PORT = 8091
+HELPER_PORT = 8095
 
 PACKAGE_NAME = "TorrServer"
 PACKAGE_VAR = "/var/packages/TorrServer/var"
