@@ -11,7 +11,7 @@ import subprocess
 import time
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, quote
 
 
 HOST = "0.0.0.0"
@@ -819,7 +819,10 @@ Web port<br>
 <p>
 <label>
 Cache directory<br>
-<input type="text" name="cache_path" value="{}" placeholder="/volume1/...">
+<div style="display:flex;gap:8px;max-width:520px;">
+<input type="text" name="cache_path" value="{}" placeholder="/volume1/..." style="flex:1;">
+<button type="button" class="secondary" onclick="openCacheBrowser()">Browse</button>
+</div>
 </label>
 </p>
 
@@ -862,6 +865,14 @@ function toggleAuth() {{
 }}
 
 toggleAuth();
+
+function openCacheBrowser() {{
+    var field = document.querySelector('input[name="cache_path"]');
+    var path = field.value.trim();
+    if (!path) path = '/';
+    window.open('/browse?path=' + encodeURIComponent(path), 'cacheBrowser',
+        'width=700,height=650,resizable=yes,scrollbars=yes');
+}}
 </script>
 """.format(
         port,
@@ -873,6 +884,114 @@ toggleAuth();
 
     return body
 
+
+def cache_browser_path(path):
+    """Return a safe cache-browser path under /volume* only."""
+    if not path:
+        return "/"
+
+    path = os.path.abspath(path)
+
+    if path == "/":
+        return "/"
+
+    if not re.match(r"^/volume[0-9]+(?:/.*)?$", path):
+        return "/"
+
+    real = os.path.realpath(path)
+    if not re.match(r"^/volume[0-9]+(?:/.*)?$", real):
+        return "/"
+
+    if not os.path.isdir(real):
+        return "/"
+
+    return real
+
+
+def cache_browser_page(path):
+    path = cache_browser_path(path)
+
+    if path == "/":
+        try:
+            names = sorted(
+                name for name in os.listdir("/")
+                if re.match(r"^volume[0-9]+$", name)
+                and os.path.isdir(os.path.join("/", name))
+            )
+        except OSError:
+            names = []
+        parent = None
+    else:
+        try:
+            names = sorted(
+                name for name in os.listdir(path)
+                if os.path.isdir(os.path.join(path, name))
+                and not name.startswith(".")
+            )
+        except OSError:
+            names = []
+        parent = os.path.dirname(path.rstrip("/")) or "/"
+
+    rows = []
+    for name in names:
+        child = os.path.join(path, name) if path != "/" else os.path.join("/", name)
+        label = html.escape(name)
+        rows.append(
+            '<div style="margin:6px 0;">'
+            '<a class="button secondary" style="width:100%;box-sizing:border-box;text-align:left;" '
+            'href="/browse?path={}">{}/</a>'
+            '</div>'.format(quote(child, safe=""), label)
+        )
+
+    if not rows:
+        rows.append('<p>No accessible directories.</p>')
+
+    parent_html = ""
+    if parent is not None:
+        parent_html = '<a class="button secondary" href="/browse?path={}">..</a>'.format(
+            quote(parent, safe="")
+        )
+
+    select_js_path = json.dumps(path)
+
+    body = page_header("Select cache directory")
+    body += """
+<div class="card">
+<h1>Select cache directory</h1>
+<p><b>Current:</b> <code>{}</code></p>
+<div style="margin-bottom:15px;">
+{}
+</div>
+<div style="margin-bottom:15px;">
+<button type="button" onclick='selectCache()'>Select this directory</button>
+</div>
+<div>
+{}
+</div>
+</div>
+
+<script>
+function selectCache() {{
+    var path = {};
+    if (window.opener && !window.opener.closed) {{
+        var field = window.opener.document.querySelector('input[name="cache_path"]');
+        if (field) {{
+            field.value = path;
+            field.focus();
+        }}
+    }}
+    window.close();
+}}
+</script>
+""".format(
+        html.escape(path),
+        parent_html,
+        "".join(rows),
+        select_js_path,
+    )
+
+    body += page_footer()
+    return body
 
 def logs_page():
     log = get_log()
@@ -935,6 +1054,12 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == "/settings":
             self.send_html(settings_page())
+            return
+
+        if path == "/browse":
+            query = parse_qs(parsed.query)
+            selected_path = query.get("path", ["/"])[0]
+            self.send_html(cache_browser_page(selected_path))
             return
 
         if path == "/logs":
