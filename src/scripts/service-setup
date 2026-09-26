@@ -69,6 +69,28 @@ if [ "${HTTPS_ENABLED}" = "1" ]; then
     fi
 fi
 
+update_firewall_port ()
+{
+    local SC_FILE="${SYNOPKG_PKGDEST}/ui/TorrServer.sc"
+    local FIREWALL_PORTS="${TORRSERVER_PORT}/tcp"
+
+    if [ "${HTTPS_ENABLED}" = "1" ]; then
+        FIREWALL_PORTS="${FIREWALL_PORTS},${HTTPS_PORT}/tcp"
+    fi
+
+    cat > "${SC_FILE}" <<EOF2
+[torrserver]
+title="TorrServer MatriX"
+desc="TorrServer MatriX"
+port_forward="yes"
+dst.ports="${FIREWALL_PORTS}"
+EOF2
+
+    /usr/syno/sbin/synopkghelper update "${SYNOPKG_PKGNAME}" port-config >/dev/null 2>&1
+}
+
+update_firewall_port
+
 if [ "${AUTH_ENABLED}" = "1" ]; then
     SERVICE_COMMAND="/bin/python3 ${SYNOPKG_PKGDEST}/helper/helper.py
 ${SYNOPKG_PKGDEST}/bin/TorrServer -d ${SYNOPKG_PKGVAR} -p ${TORRSERVER_PORT} -a ${TORRSERVER_SSL_ARGS} -l ${TORRSERVER_LOG}"
