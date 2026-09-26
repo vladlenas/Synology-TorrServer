@@ -1125,6 +1125,7 @@ function openCacheBrowser() {{
         "checked" if https else "",
         https_port,
         "checked" if force_https else "",
+        "disabled" if not https else "",
         "selected" if ssl_mode == SSL_CERT_MODE_SELF else "",
         "selected" if ssl_mode == SSL_CERT_MODE_DSM else "",
         "selected" if ssl_mode == SSL_CERT_MODE_MANUAL else "",
