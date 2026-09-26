@@ -27,6 +27,7 @@ LOG_BACKUP_COUNT = 2
 PORT_FILE = os.path.join(PACKAGE_VAR, "torrserver.port")
 AUTH_FILE = os.path.join(PACKAGE_VAR, "torrserver.auth")
 ACCS_FILE = os.path.join(PACKAGE_VAR, "accs.db")
+CACHE_PATH_FILE = os.path.join(PACKAGE_VAR, "cache.path")
 
 RESTART_SCRIPT = "/var/packages/TorrServer/scripts/restart-package"
 
@@ -365,11 +366,99 @@ def restart_package():
         return False, str(e)
 
 
+def get_api_auth_header():
+    if not get_auth_enabled():
+        return None
+
+    try:
+        with open(ACCS_FILE, "r", encoding="utf-8") as f:
+            accounts = json.load(f)
+
+        if not accounts:
+            return None
+
+        username, password = next(iter(accounts.items()))
+        token = base64.b64encode(
+            ("{}:{}".format(username, password)).encode("utf-8")
+        ).decode("ascii")
+        return "Basic {}".format(token)
+
+    except Exception:
+        return None
+
+
+def get_cache_path():
+    local_path = read_file(CACHE_PATH_FILE, "")
+    if local_path:
+        return local_path
+
+    try:
+        import urllib.request
+
+        url = "http://127.0.0.1:{}/settings".format(get_port())
+        request = urllib.request.Request(
+            url,
+            data=json.dumps({"action": "get"}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+
+        auth_header = get_api_auth_header()
+        if auth_header:
+            request.add_header("Authorization", auth_header)
+
+        with urllib.request.urlopen(request, timeout=3) as response:
+            data = json.loads(response.read().decode("utf-8"))
+
+        path = str(data.get("torrentsSavePath", "") or "").strip()
+        if path:
+            write_file(CACHE_PATH_FILE, path)
+        return path
+
+    except Exception:
+        return ""
+
+
+def set_cache_path(cache_path):
+    import urllib.request
+
+    url = "http://127.0.0.1:{}/settings".format(get_port())
+    payload = {
+        "action": "set",
+        "sets": {
+            "torrentsSavePath": cache_path
+        }
+    }
+
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    auth_header = get_api_auth_header()
+    if auth_header:
+        request.add_header("Authorization", auth_header)
+
+    try:
+        with urllib.request.urlopen(request, timeout=5) as response:
+            if response.status != 200:
+                return False, "Unable to apply cache directory"
+
+        write_file(CACHE_PATH_FILE, cache_path)
+        return True, ""
+
+    except Exception as e:
+        return False, "Unable to apply cache directory: {}".format(e)
+
+
 def save_settings(params):
     port = params.get("port", [""])[0].strip()
     auth = params.get("auth", ["0"])[0]
     username = params.get("username", [""])[0]
     password = params.get("password", [""])[0]
+    cache_path = params.get("cache_path", [""])[0].strip()
 
     if not port.isdigit():
         return False, "Invalid port"
@@ -380,6 +469,11 @@ def save_settings(params):
         return False, "Invalid port"
 
     write_file(PORT_FILE, str(port_number))
+
+    if cache_path:
+        ok, cache_message = set_cache_path(cache_path)
+        if not ok:
+            return False, cache_message
 
     if auth == "1":
         if not username:
@@ -694,6 +788,7 @@ Open Web UI
 def settings_page(message=""):
     port = get_port()
     auth = get_auth_enabled()
+    cache_path = get_cache_path()
 
     body = page_header("TorrServer Settings")
 
@@ -718,6 +813,13 @@ def settings_page(message=""):
 <label>
 Web port<br>
 <input type="number" name="port" min="1" max="65535" value="{}">
+</label>
+</p>
+
+<p>
+<label>
+Cache directory<br>
+<input type="text" name="cache_path" value="{}" placeholder="/volume1/...">
 </label>
 </p>
 
@@ -763,6 +865,7 @@ toggleAuth();
 </script>
 """.format(
         port,
+        html.escape(cache_path),
         "checked" if auth else "",
     )
 
