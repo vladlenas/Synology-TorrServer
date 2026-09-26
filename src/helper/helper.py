@@ -31,6 +31,13 @@ CACHE_PATH_FILE = os.path.join(PACKAGE_VAR, "cache.path")
 HTTPS_FILE = os.path.join(PACKAGE_VAR, "torrserver.https")
 HTTPS_PORT_FILE = os.path.join(PACKAGE_VAR, "torrserver.https.port")
 FORCE_HTTPS_FILE = os.path.join(PACKAGE_VAR, "torrserver.force.https")
+SSL_MODE_FILE = os.path.join(PACKAGE_VAR, "torrserver.ssl.mode")
+SSL_CERT_FILE = os.path.join(PACKAGE_VAR, "torrserver.ssl.cert")
+SSL_KEY_FILE = os.path.join(PACKAGE_VAR, "torrserver.ssl.key")
+
+SSL_CERT_MODE_SELF = "self"
+SSL_CERT_MODE_DSM = "dsm"
+SSL_CERT_MODE_MANUAL = "manual"
 
 RESTART_SCRIPT = "/var/packages/TorrServer/scripts/restart-package"
 
@@ -299,6 +306,73 @@ def get_force_https():
     return read_file(FORCE_HTTPS_FILE, "0") == "1"
 
 
+def get_ssl_mode():
+    mode = read_file(SSL_MODE_FILE, SSL_CERT_MODE_SELF).strip().lower()
+    if mode not in (SSL_CERT_MODE_SELF, SSL_CERT_MODE_DSM, SSL_CERT_MODE_MANUAL):
+        return SSL_CERT_MODE_SELF
+    return mode
+
+
+def get_ssl_paths():
+    return read_file(SSL_CERT_FILE, "").strip(), read_file(SSL_KEY_FILE, "").strip()
+
+
+def get_dsm_certificates():
+    result = []
+    root = "/usr/syno/etc/certificate"
+
+    try:
+        for current_root, dirs, files in os.walk(root):
+            if "info" not in files:
+                continue
+
+            try:
+                with open(os.path.join(current_root, "info"), "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception:
+                continue
+
+            subscriber = str(data.get("subscriber", "") or "").strip()
+            service = str(data.get("service", "") or "").strip()
+
+            for item in data.get("certs", []):
+                cert = str(item.get("cert", "") or "").strip()
+                chain = str(item.get("chain", "") or "").strip()
+                key = str(item.get("key", "") or "").strip()
+
+                if not cert or not key:
+                    continue
+
+                label = subscriber or service or os.path.relpath(current_root, root)
+
+                if "/ECC-" in cert:
+                    cert_type = "ECC"
+                elif "/RSA-" in cert:
+                    cert_type = "RSA"
+                else:
+                    cert_type = "Certificate"
+
+                result.append({
+                    "label": "{} ({})".format(label, cert_type),
+                    "cert": chain or cert,
+                    "key": key,
+                })
+    except Exception:
+        pass
+
+    unique = []
+    seen = set()
+
+    for item in result:
+        pair = (item["cert"], item["key"])
+        if pair in seen:
+            continue
+        seen.add(pair)
+        unique.append(item)
+
+    return sorted(unique, key=lambda item: item["label"].lower())
+
+
 def is_torrserver_running():
     try:
         result = subprocess.run(
@@ -487,6 +561,20 @@ def save_settings(params):
     https = params.get("https", ["0"])[0]
     https_port = params.get("https_port", ["8091"])[0].strip()
     force_https = params.get("force_https", ["0"])[0]
+    ssl_mode = params.get("ssl_mode", [SSL_CERT_MODE_SELF])[0].strip().lower()
+    ssl_cert = params.get("ssl_cert", [""])[0].strip()
+    ssl_key = params.get("ssl_key", [""])[0].strip()
+
+    if ssl_mode not in (SSL_CERT_MODE_SELF, SSL_CERT_MODE_DSM, SSL_CERT_MODE_MANUAL):
+        return False, "Invalid certificate mode"
+
+    if ssl_mode == SSL_CERT_MODE_MANUAL and (not ssl_cert or not ssl_key):
+        return False, "Certificate and key paths are required"
+
+    if ssl_mode == SSL_CERT_MODE_DSM:
+        valid = {(x["cert"], x["key"]) for x in get_dsm_certificates()}
+        if (ssl_cert, ssl_key) not in valid:
+            return False, "Invalid DSM certificate selection"
 
     if not port.isdigit():
         return False, "Invalid port"
@@ -511,6 +599,9 @@ def save_settings(params):
     write_file(HTTPS_PORT_FILE, str(https_port_number))
     write_file(HTTPS_FILE, "1" if https == "1" else "0")
     write_file(FORCE_HTTPS_FILE, "1" if force_https == "1" and https == "1" else "0")
+    write_file(SSL_MODE_FILE, ssl_mode)
+    write_file(SSL_CERT_FILE, ssl_cert)
+    write_file(SSL_KEY_FILE, ssl_key)
 
     if cache_path:
         ok, cache_message = set_cache_path(cache_path)
@@ -830,6 +921,9 @@ def settings_page(message=""):
     https = get_https_enabled()
     https_port = get_https_port()
     force_https = get_force_https()
+    ssl_mode = get_ssl_mode()
+    ssl_cert, ssl_key = get_ssl_paths()
+    dsm_certs = get_dsm_certificates()
 
     body = page_header("TorrServer Settings")
 
@@ -897,6 +991,52 @@ Force HTTPS
 </p>
 
 <div style="margin-top:28px;padding-bottom:8px;border-bottom:1px solid #ddd;">
+<h2 style="margin-bottom:4px;">SSL Certificate</h2>
+</div>
+
+<p>
+<label>
+Certificate source<br>
+<select name="ssl_mode" id="sslMode" onchange="toggleSslMode()" style="width:100%;max-width:400px;padding:9px;">
+<option value="self" {}>TorrServer self-signed</option>
+<option value="dsm" {}>DSM certificate</option>
+<option value="manual" {}>Manual paths</option>
+</select>
+</label>
+</p>
+
+<div id="dsmCertificateFields">
+<p>
+<label>
+DSM certificate<br>
+<select id="sslDsm" style="width:100%;max-width:520px;padding:9px;">
+{}
+</select>
+</label>
+</p>
+</div>
+
+<div id="manualCertificateFields">
+<p>
+<label>
+SSL Certificate path<br>
+<input type="text" name="ssl_cert" value="{}" placeholder="/volume1/.../fullchain.pem" style="width:100%;max-width:520px;">
+</label>
+</p>
+
+<p>
+<label>
+SSL Key path<br>
+<input type="text" name="ssl_key" value="{}" placeholder="/volume1/.../privkey.pem" style="width:100%;max-width:520px;">
+</label>
+</p>
+</div>
+
+<p style="color:#666;">
+The selected source will later be synchronized to TorrServer server.pem/server.key.
+</p>
+
+<div style="margin-top:28px;padding-bottom:8px;border-bottom:1px solid #ddd;">
 <h2 style="margin-bottom:4px;">Authentication</h2>
 </div>
 
@@ -934,6 +1074,28 @@ Password<br>
 </div>
 
 <script>
+function toggleSslMode() {{
+    var mode = document.getElementById('sslMode').value;
+    document.getElementById('dsmCertificateFields').style.display =
+        mode === 'dsm' ? 'block' : 'none';
+    document.getElementById('manualCertificateFields').style.display =
+        mode === 'manual' ? 'block' : 'none';
+}}
+
+function syncDsmCertificate() {{
+    var selected = document.getElementById('sslDsm');
+    if (!selected || !selected.value) return;
+
+    var value = selected.value.split('|');
+    if (value.length === 2) {{
+        document.querySelector('input[name="ssl_cert"]').value = value[0];
+        document.querySelector('input[name="ssl_key"]').value = value[1];
+    }}
+}}
+
+document.getElementById('sslDsm').addEventListener('change', syncDsmCertificate);
+toggleSslMode();
+
 function toggleAuth() {{
     var checkbox = document.querySelector('input[name="auth"]');
     var fields = document.getElementById('authFields');
@@ -960,6 +1122,20 @@ function openCacheBrowser() {{
         "checked" if https else "",
         https_port,
         "checked" if force_https else "",
+        "selected" if ssl_mode == SSL_CERT_MODE_SELF else "",
+        "selected" if ssl_mode == SSL_CERT_MODE_DSM else "",
+        "selected" if ssl_mode == SSL_CERT_MODE_MANUAL else "",
+        "".join(
+            '<option value="{}|{}" {}>{}</option>'.format(
+                html.escape(item["cert"], quote=True),
+                html.escape(item["key"], quote=True),
+                "selected" if (ssl_cert, ssl_key) == (item["cert"], item["key"]) else "",
+                html.escape(item["label"]),
+            )
+            for item in dsm_certs
+        ) or '<option value="">No DSM certificates found</option>',
+        html.escape(ssl_cert),
+        html.escape(ssl_key),
         "" if https else "disabled",
         "checked" if auth else "",
         "" if auth else "disabled",
