@@ -912,6 +912,7 @@ def cache_browser_page(path):
     path = cache_browser_path(path)
 
     if path == "/":
+        # At the top level show only DSM volumes.
         try:
             names = sorted(
                 name for name in os.listdir("/")
@@ -927,6 +928,7 @@ def cache_browser_page(path):
                 name for name in os.listdir(path)
                 if os.path.isdir(os.path.join(path, name))
                 and not name.startswith(".")
+                and not name.startswith("@")
             )
         except OSError:
             names = []
