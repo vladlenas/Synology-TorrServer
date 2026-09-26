@@ -50,6 +50,24 @@ if [ -r "${CONFIG_DIR}/torrserver.port" ]; then
     esac
 fi
 
+# Update DSM firewall port configuration for the current TorrServer port.
+update_firewall_port ()
+{
+    local SC_FILE="${SYNOPKG_PKGDEST}/ui/TorrServer.sc"
+
+    cat > "${SC_FILE}" <<EOF
+[torrserver]
+title="TorrServer MatriX"
+desc="TorrServer MatriX"
+port_forward="yes"
+dst.ports="${TORRSERVER_PORT}/tcp"
+EOF
+
+    /usr/syno/sbin/synopkghelper update "${SYNOPKG_PKGNAME}" port-config >/dev/null 2>&1
+}
+
+update_firewall_port
+
 # TorrServer HTTP authentication
 AUTH_ENABLED="0"
 
