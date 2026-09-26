@@ -617,6 +617,10 @@ def main_page(host):
 <td>Authentication</td>
 <td>{4}</td>
 </tr>
+<tr>
+<td>Uptime</td>
+<td>{12}</td>
+</tr>
 </table>
 
 <br>
@@ -662,10 +666,6 @@ Open Web UI
 <tr>
 <td>RAM available</td>
 <td>{11}</td>
-</tr>
-<tr>
-<td>TorrServer uptime</td>
-<td>{12}</td>
 </tr>
 </table>
 </div>
