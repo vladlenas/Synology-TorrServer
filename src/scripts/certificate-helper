@@ -117,6 +117,8 @@ sync_certificate()
     mv -f "$TMP_CERT" "$TARGET_CERT" || exit 1
     mv -f "$TMP_KEY" "$TARGET_KEY" || exit 1
 
+    log_message "TLS certificate synchronized successfully (mode: ${MODE})"
+
     exit 0
 }
 
