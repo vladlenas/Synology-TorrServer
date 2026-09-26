@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ !/usr/bin/env python3
 
 import base64
 import html
@@ -291,6 +291,44 @@ def is_torrserver_running():
 
 def get_status():
     return "Running" if is_torrserver_running() else "Stopped"
+
+
+def get_torrserver_uptime():
+    try:
+        result = subprocess.run(
+            ["pidof", "TorrServer"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=3,
+        )
+        pids = result.stdout.strip().split()
+        if not pids:
+            return "Stopped"
+
+        with open("/proc/{}/stat".format(pids[0]), "r", encoding="utf-8") as f:
+            stat_data = f.read().split()
+
+        start_ticks = int(stat_data[21])
+
+        with open("/proc/uptime", "r", encoding="utf-8") as f:
+            system_uptime = float(f.read().split()[0])
+
+        clock_ticks = os.sysconf(os.sysconf_names["SC_CLK_TCK"])
+        elapsed = max(0, int(system_uptime - (start_ticks / clock_ticks)))
+
+        days = elapsed // 86400
+        hours = (elapsed % 86400) // 3600
+        minutes = (elapsed % 3600) // 60
+
+        if days:
+            return "{}d {}h {}m".format(days, hours, minutes)
+        if hours:
+            return "{}h {}m".format(hours, minutes)
+        return "{}m".format(minutes)
+
+    except Exception:
+        return "Unknown"
 
 
 def restart_package():
@@ -626,12 +664,8 @@ Open Web UI
 <td>{11}</td>
 </tr>
 <tr>
-<td>Uptime</td>
+<td>TorrServer uptime</td>
 <td>{12}</td>
-</tr>
-<tr>
-<td>Load</td>
-<td>{13}</td>
 </tr>
 </table>
 </div>
@@ -648,8 +682,7 @@ Open Web UI
         html.escape(get_architecture()),
         html.escape(format_bytes(total_memory)),
         html.escape(format_bytes(available_memory)),
-        html.escape(get_uptime()),
-        html.escape(get_load()),
+        html.escape(get_torrserver_uptime()),
         html.escape(host),
     )
 
