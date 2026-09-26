@@ -94,7 +94,7 @@ update_firewall_port
 
 # Synchronize the selected TLS certificate/key before TorrServer starts.
 if [ -x "${CERTIFICATE_HELPER}" ]; then
-    "${CERTIFICATE_HELPER}" sync
+    /bin/sudo -n "${CERTIFICATE_HELPER}" sync
     if [ "$?" -ne 0 ]; then
         echo "Warning: TLS certificate synchronization failed." 1>&2
     fi
