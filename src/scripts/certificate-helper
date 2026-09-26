@@ -1,20 +1,124 @@
 #!/bin/sh
 
 CERT_ROOT="/usr/syno/etc/certificate"
+CONFIG_DIR="/var/packages/TorrServer/var"
+TARGET_CERT="${CONFIG_DIR}/server.pem"
+TARGET_KEY="${CONFIG_DIR}/server.key"
 
-printf '['
-first=1
+list_certificates()
+{
+    printf '['
+    first=1
 
-for info in $(find "$CERT_ROOT" -type f -name info); do
-    data=$(cat "$info" 2>/dev/null) || continue
+    for info in $(find "$CERT_ROOT" -type f -name info); do
+        data=$(cat "$info" 2>/dev/null) || continue
 
-    if [ "$first" -eq 0 ]; then
-        printf ','
+        if [ "$first" -eq 0 ]; then
+            printf ','
+        fi
+        first=0
+
+        printf '%s' "$data"
+    done
+
+    printf ']'
+    printf '\n'
+}
+
+sync_certificate()
+{
+    MODE="$(cat "${CONFIG_DIR}/torrserver.ssl.mode" 2>/dev/null)"
+
+    case "$MODE" in
+        self|"")
+            exit 0
+            ;;
+
+        dsm|manual)
+            ;;
+        *)
+            echo "Invalid certificate mode: ${MODE}" >&2
+            exit 1
+            ;;
+    esac
+
+    CERT="$(cat "${CONFIG_DIR}/torrserver.ssl.cert" 2>/dev/null)"
+    KEY="$(cat "${CONFIG_DIR}/torrserver.ssl.key" 2>/dev/null)"
+
+    if [ -z "$CERT" ] || [ -z "$KEY" ]; then
+        echo "Certificate or key path is empty" >&2
+        exit 1
     fi
-    first=0
 
-    printf '%s' "$data"
-done
+    if [ "$MODE" = "dsm" ]; then
+        case "$CERT" in
+            /usr/syno/etc/certificate/*) ;;
+            *)
+                echo "Invalid DSM certificate path" >&2
+                exit 1
+                ;;
+        esac
 
-printf ']'
-printf '\n'
+        case "$KEY" in
+            /usr/syno/etc/certificate/*) ;;
+            *)
+                echo "Invalid DSM key path" >&2
+                exit 1
+                ;;
+        esac
+    fi
+
+    if [ "$MODE" = "manual" ]; then
+        case "$CERT" in
+            /volume[0-9]/*) ;;
+            *)
+                echo "Manual certificate must be inside /volumeX/" >&2
+                exit 1
+                ;;
+        esac
+
+        case "$KEY" in
+            /volume[0-9]/*) ;;
+            *)
+                echo "Manual key must be inside /volumeX/" >&2
+                exit 1
+                ;;
+        esac
+    fi
+
+    if [ ! -f "$CERT" ]; then
+        echo "Certificate file not found: ${CERT}" >&2
+        exit 1
+    fi
+
+    if [ ! -f "$KEY" ]; then
+        echo "Key file not found: ${KEY}" >&2
+        exit 1
+    fi
+
+    TMP_CERT="${TARGET_CERT}.tmp"
+    TMP_KEY="${TARGET_KEY}.tmp"
+
+    rm -f "$TMP_CERT" "$TMP_KEY"
+
+    cp "$CERT" "$TMP_CERT" || exit 1
+    cp "$KEY" "$TMP_KEY" || exit 1
+
+    chown TorrServer:TorrServer "$TMP_CERT" "$TMP_KEY" || exit 1
+    chmod 0644 "$TMP_CERT"
+    chmod 0600 "$TMP_KEY"
+
+    mv -f "$TMP_CERT" "$TARGET_CERT" || exit 1
+    mv -f "$TMP_KEY" "$TARGET_KEY" || exit 1
+
+    exit 0
+}
+
+case "$1" in
+    sync)
+        sync_certificate
+        ;;
+    *)
+        list_certificates
+        ;;
+esac
