@@ -62,6 +62,11 @@ fi
 TORRSERVER_SSL_ARGS=""
 if [ "${HTTPS_ENABLED}" = "1" ]; then
     TORRSERVER_SSL_ARGS="--ssl --sslport ${HTTPS_PORT}"
+
+    if [ -r "${CONFIG_DIR}/torrserver.force.https" ] &&
+       [ "$(cat "${CONFIG_DIR}/torrserver.force.https" 2>/dev/null)" = "1" ]; then
+        TORRSERVER_SSL_ARGS="${TORRSERVER_SSL_ARGS} --force-https"
+    fi
 fi
 
 if [ "${AUTH_ENABLED}" = "1" ]; then
