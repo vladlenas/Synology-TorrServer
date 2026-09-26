@@ -30,6 +30,7 @@ ACCS_FILE = os.path.join(PACKAGE_VAR, "accs.db")
 CACHE_PATH_FILE = os.path.join(PACKAGE_VAR, "cache.path")
 HTTPS_FILE = os.path.join(PACKAGE_VAR, "torrserver.https")
 HTTPS_PORT_FILE = os.path.join(PACKAGE_VAR, "torrserver.https.port")
+FORCE_HTTPS_FILE = os.path.join(PACKAGE_VAR, "torrserver.force.https")
 
 RESTART_SCRIPT = "/var/packages/TorrServer/scripts/restart-package"
 
@@ -294,6 +295,10 @@ def get_https_port():
     return port
 
 
+def get_force_https():
+    return read_file(FORCE_HTTPS_FILE, "0") == "1"
+
+
 def is_torrserver_running():
     try:
         result = subprocess.run(
@@ -481,6 +486,7 @@ def save_settings(params):
     cache_path = params.get("cache_path", [""])[0].strip()
     https = params.get("https", ["0"])[0]
     https_port = params.get("https_port", ["8091"])[0].strip()
+    force_https = params.get("force_https", ["0"])[0]
 
     if not port.isdigit():
         return False, "Invalid port"
@@ -504,6 +510,7 @@ def save_settings(params):
     write_file(PORT_FILE, str(port_number))
     write_file(HTTPS_PORT_FILE, str(https_port_number))
     write_file(HTTPS_FILE, "1" if https == "1" else "0")
+    write_file(FORCE_HTTPS_FILE, "1" if force_https == "1" and https == "1" else "0")
 
     if cache_path:
         ok, cache_message = set_cache_path(cache_path)
@@ -822,6 +829,7 @@ def settings_page(message=""):
     cache_path = get_cache_path()
     https = get_https_enabled()
     https_port = get_https_port()
+    force_https = get_force_https()
 
     body = page_header("TorrServer Settings")
 
@@ -878,6 +886,13 @@ Enable HTTPS
 <label>
 HTTPS port<br>
 <input type="number" name="https_port" min="1" max="65535" value="{}">
+</label>
+</p>
+
+<p>
+<label>
+<input type="checkbox" name="force_https" value="1" {} {}>
+Force HTTPS
 </label>
 </p>
 
@@ -944,6 +959,8 @@ function openCacheBrowser() {{
         html.escape(cache_path),
         "checked" if https else "",
         https_port,
+        "checked" if force_https else "",
+        "" if https else "disabled",
         "checked" if auth else "",
         "" if auth else "disabled",
         "" if auth else "disabled",
