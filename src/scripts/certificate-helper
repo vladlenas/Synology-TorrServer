@@ -4,7 +4,7 @@ CERT_ROOT="/usr/syno/etc/certificate"
 CONFIG_DIR="/var/packages/TorrServer/var"
 TARGET_CERT="${CONFIG_DIR}/server.pem"
 TARGET_KEY="${CONFIG_DIR}/server.key"
-LOG_FILE="${CONFIG_DIR}/Helper.log"
+#LOG_FILE="${CONFIG_DIR}/Helper.log"
 
 log_message()
 {
