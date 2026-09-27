@@ -44,6 +44,7 @@ sync_certificate()
             ;;
         *)
             echo "Invalid certificate mode: ${MODE}" >&2
+            log_message "ERROR: invalid certificate mode: ${MODE}"
             exit 1
             ;;
     esac
@@ -52,6 +53,7 @@ sync_certificate()
     KEY="$(cat "${CONFIG_DIR}/torrserver.ssl.key" 2>/dev/null)"
 
     if [ -z "$CERT" ] || [ -z "$KEY" ]; then
+        log_message "ERROR: certificate or key path is empty"
         echo "Certificate or key path is empty" >&2
         exit 1
     fi
@@ -60,6 +62,7 @@ sync_certificate()
         case "$CERT" in
             /usr/syno/etc/certificate/*) ;;
             *)
+                log_message "ERROR: invalid DSM certificate path"
                 echo "Invalid DSM certificate path" >&2
                 exit 1
                 ;;
@@ -68,6 +71,7 @@ sync_certificate()
         case "$KEY" in
             /usr/syno/etc/certificate/*) ;;
             *)
+                log_message "ERROR: invalid DSM key path"
                 echo "Invalid DSM key path" >&2
                 exit 1
                 ;;
@@ -78,6 +82,7 @@ sync_certificate()
         case "$CERT" in
             /volume[0-9]/*) ;;
             *)
+                log_message "ERROR: manual certificate path outside /volumeX/"
                 echo "Manual certificate must be inside /volumeX/" >&2
                 exit 1
                 ;;
@@ -86,6 +91,7 @@ sync_certificate()
         case "$KEY" in
             /volume[0-9]/*) ;;
             *)
+                log_message "ERROR: manual key path outside /volumeX/"
                 echo "Manual key must be inside /volumeX/" >&2
                 exit 1
                 ;;
@@ -93,13 +99,30 @@ sync_certificate()
     fi
 
     if [ ! -f "$CERT" ]; then
+        log_message "ERROR: certificate file not found: ${CERT}"
         echo "Certificate file not found: ${CERT}" >&2
         exit 1
     fi
 
     if [ ! -f "$KEY" ]; then
+        log_message "ERROR: key file not found: ${KEY}"
         echo "Key file not found: ${KEY}" >&2
         exit 1
+    fi
+
+    NEED_CERT=1
+    NEED_KEY=1
+
+    if [ -f "$TARGET_CERT" ] && cmp -s "$CERT" "$TARGET_CERT"; then
+        NEED_CERT=0
+    fi
+
+    if [ -f "$TARGET_KEY" ] && cmp -s "$KEY" "$TARGET_KEY"; then
+        NEED_KEY=0
+    fi
+
+    if [ "$NEED_CERT" -eq 0 ] && [ "$NEED_KEY" -eq 0 ]; then
+        exit 0
     fi
 
     TMP_CERT="${TARGET_CERT}.tmp"
@@ -107,15 +130,25 @@ sync_certificate()
 
     rm -f "$TMP_CERT" "$TMP_KEY"
 
-    cp "$CERT" "$TMP_CERT" || exit 1
-    cp "$KEY" "$TMP_KEY" || exit 1
+    if [ "$NEED_CERT" -eq 1 ]; then
+        cp "$CERT" "$TMP_CERT" || exit 1
+        chown TorrServer:TorrServer "$TMP_CERT" || exit 1
+        chmod 0644 "$TMP_CERT"
+    fi
 
-    chown TorrServer:TorrServer "$TMP_CERT" "$TMP_KEY" || exit 1
-    chmod 0644 "$TMP_CERT"
-    chmod 0600 "$TMP_KEY"
+    if [ "$NEED_KEY" -eq 1 ]; then
+        cp "$KEY" "$TMP_KEY" || exit 1
+        chown TorrServer:TorrServer "$TMP_KEY" || exit 1
+        chmod 0600 "$TMP_KEY"
+    fi
 
-    mv -f "$TMP_CERT" "$TARGET_CERT" || exit 1
-    mv -f "$TMP_KEY" "$TARGET_KEY" || exit 1
+    if [ "$NEED_CERT" -eq 1 ]; then
+        mv -f "$TMP_CERT" "$TARGET_CERT" || exit 1
+    fi
+
+    if [ "$NEED_KEY" -eq 1 ]; then
+        mv -f "$TMP_KEY" "$TARGET_KEY" || exit 1
+    fi
 
     log_message "TLS certificate synchronized successfully (mode: ${MODE})"
 
