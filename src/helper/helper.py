@@ -1262,8 +1262,6 @@ function selectCache() {{
     return body
 
 def logs_page():
-    log = get_log()
-
     body = page_header("TorrServer Logs")
 
     body += """
@@ -1274,23 +1272,53 @@ def logs_page():
 </div>
 
 <div class="card">
-<h1>TorrServer.log</h1>
+<h1>Logs</h1>
 
 <div style="margin-bottom:15px;">
-    <a class="button" href="/logs">Refresh</a>
-    <a class="button secondary" href="/download-log" style="margin-left:10px;">
+    <select id="logSelect" style="padding:9px;min-width:220px;">
+        <option value="TorrServer.log">TorrServer.log</option>
+        <option value="TorrServer.log.1">TorrServer.log.1</option>
+        <option value="Helper.log">Helper.log</option>
+        <option value="Helper.log.1">Helper.log.1</option>
+    </select>
+
+    <button type="button" class="button" onclick="openLog()">
+        Open
+    </button>
+
+    <a class="button secondary"
+       id="downloadButton"
+       href="/download-log?name=TorrServer.log"
+       style="margin-left:8px;">
         Download
     </a>
 </div>
 
-<pre>{}</pre>
+<pre id="logContent">Select a log and press Open.</pre>
 </div>
-""".format(
-        html.escape(log)
-    )
+
+<script>
+function openLog() {
+    var name = document.getElementById("logSelect").value;
+
+    fetch("/read-log?name=" + encodeURIComponent(name))
+        .then(function(response) {
+            return response.text();
+        })
+        .then(function(data) {
+            document.getElementById("logContent").textContent = data;
+            document.getElementById("downloadButton").href =
+                "/download-log?name=" + encodeURIComponent(name);
+        })
+        .catch(function(error) {
+            document.getElementById("logContent").textContent =
+                "Unable to read log: " + error;
+        });
+}
+</script>
+"""
 
     body += page_footer()
-
     return body
 
 
