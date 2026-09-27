@@ -8,16 +8,5 @@
 
     "port-config": {
         "protocol-file": "ui/TorrServer.sc"
-    },
-
-    "web-config": {
-        "nginx-static-config": {
-            "enable": [
-                {
-                    "type": "dsm",
-                    "relpath": "nginx/TorrServer.conf"
-                }
-            ]
-        }
     }
 }
