@@ -37,7 +37,7 @@ cat <<EOF
 package="TorrServer"
 version="${PKG_VERSION}"
 displayname="TorrServer"
-dsmappname="SYNO.SDS.TorrServer"
+dsmappname="SYNO.SDS.TorrServer.Application"
 arch="${PLATFORMS}"
 os_min_ver="${OS_MIN_VER}"
 dsmuidir="ui"
