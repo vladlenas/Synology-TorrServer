@@ -8,6 +8,10 @@ LOG_FILE="${CONFIG_DIR}/Helper.log"
 
 log_message()
 {
+    if [ -f "$LOG_FILE" ] && [ "$(wc -c < "$LOG_FILE")" -ge 2097152 ]; then
+        mv -f "$LOG_FILE" "${LOG_FILE}.1" 2>/dev/null
+    fi
+
     printf '%s certificate-helper: %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" >> "$LOG_FILE" 2>/dev/null
 }
 
