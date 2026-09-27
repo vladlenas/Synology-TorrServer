@@ -8,5 +8,15 @@
             "bin/TorrServer",
             "bin/ffprobe"
         ]
+    },
+    "web-config": {
+        "nginx-static-config": {
+            "enable": [
+                {
+                    "type": "dsm",
+                    "relpath": "nginx/TorrServer.conf"
+                }
+            ]
+        }
     }
 }
