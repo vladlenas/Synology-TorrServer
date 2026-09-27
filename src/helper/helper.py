@@ -2177,7 +2177,7 @@ def logs_page():
 
     <a class="button secondary"
        id="downloadButton"
-       href="/download-log?name=TorrServer.log">
+       href="download-log?name=TorrServer.log">
         ↓ Download
     </a>
 </div>
@@ -2193,14 +2193,14 @@ function openLog() {{
     var name = document.getElementById("logSelect").value;
     document.getElementById("logContent").textContent = "Loading " + name + "...";
 
-    fetch("/read-log?name=" + encodeURIComponent(name))
+    fetch("read-log?name=" + encodeURIComponent(name))
         .then(function(response) {{
             return response.text();
         }})
         .then(function(data) {{
             document.getElementById("logContent").textContent = data;
             document.getElementById("downloadButton").href =
-                "/download-log?name=" + encodeURIComponent(name);
+                "download-log?name=" + encodeURIComponent(name);
         }})
         .catch(function(error) {{
             document.getElementById("logContent").textContent =
