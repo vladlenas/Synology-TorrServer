@@ -35,6 +35,48 @@ list_certificates()
     printf '\n'
 }
 
+sync_helper_certificate()
+{
+    # The DSM Desktop runs over HTTPS. Keep a copy of the DSM system
+    # certificate for the helper HTTPS listener on port 8096.
+    SRC_CERT="${CERT_ROOT}/system/default/cert.pem"
+    SRC_KEY="${CERT_ROOT}/system/default/privkey.pem"
+    HELPER_CERT="${CONFIG_DIR}/server.pem"
+    HELPER_KEY="${CONFIG_DIR}/server.key"
+
+    [ -f "$SRC_CERT" ] || return 0
+    [ -f "$SRC_KEY" ] || return 0
+
+    NEED_CERT=1
+    NEED_KEY=1
+
+    if [ -f "$HELPER_CERT" ] && cmp -s "$SRC_CERT" "$HELPER_CERT"; then
+        NEED_CERT=0
+    fi
+    if [ -f "$HELPER_KEY" ] && cmp -s "$SRC_KEY" "$HELPER_KEY"; then
+        NEED_KEY=0
+    fi
+
+    if [ "$NEED_CERT" -eq 0 ] && [ "$NEED_KEY" -eq 0 ]; then
+        chown TorrServer:TorrServer "$HELPER_CERT" "$HELPER_KEY" 2>/dev/null || true
+        chmod 0644 "$HELPER_CERT" 2>/dev/null || true
+        chmod 0600 "$HELPER_KEY" 2>/dev/null || true
+        return 0
+    fi
+
+    TMP_CERT="${HELPER_CERT}.tmp"
+    TMP_KEY="${HELPER_KEY}.tmp"
+    rm -f "$TMP_CERT" "$TMP_KEY"
+
+    cp "$SRC_CERT" "$TMP_CERT" || return 1
+    cp "$SRC_KEY" "$TMP_KEY" || { rm -f "$TMP_CERT"; return 1; }
+    chown TorrServer:TorrServer "$TMP_CERT" "$TMP_KEY" || return 1
+    chmod 0644 "$TMP_CERT"
+    chmod 0600 "$TMP_KEY"
+    mv -f "$TMP_CERT" "$HELPER_CERT" || return 1
+    mv -f "$TMP_KEY" "$HELPER_KEY" || return 1
+}
+
 sync_certificate()
 {
     MODE="$(cat "${CONFIG_DIR}/torrserver.ssl.mode" 2>/dev/null)"
@@ -161,6 +203,7 @@ sync_certificate()
 
 case "$1" in
     sync)
+        sync_helper_certificate || exit 1
         sync_certificate
         ;;
     *)
