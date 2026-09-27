@@ -1266,6 +1266,113 @@ pre {{
         380px -14px 0 0 #27a94d;
 }}
 
+.settings-layout {{
+    max-width: 980px;
+}}
+
+.settings-card {{
+    background: #fff;
+    border: 1px solid #d9e1eb;
+    border-radius: 7px;
+    box-shadow: 0 1px 3px rgba(30,50,80,.06);
+    margin-bottom: 16px;
+    overflow: hidden;
+}}
+
+.settings-card-title {{
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 15px 18px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #17233b;
+}}
+
+.settings-card-body {{
+    padding: 18px 20px;
+}}
+
+.settings-card .form-row {{
+    display: grid;
+    grid-template-columns: 190px minmax(0, 1fr);
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 14px;
+}}
+
+.settings-card .form-row label {{
+    margin: 0;
+    color: #30415e;
+}}
+
+.settings-card input[type=text],
+.settings-card input[type=password],
+.settings-card input[type=number],
+.settings-card select {{
+    max-width: 620px;
+}}
+
+.settings-card .checkbox-row {{
+    margin: 0 0 14px;
+}}
+
+.settings-card .checkbox-row label {{
+    color: #30415e;
+}}
+
+.settings-card .help {{
+    margin: 4px 0 0;
+    color: #64748b;
+}}
+
+.settings-card .actions {{
+    margin: 0;
+    padding: 16px 20px;
+    background: #f8fafc;
+}}
+
+.logs-card {{
+    background: #fff;
+    border: 1px solid #d9e1eb;
+    border-radius: 7px;
+    box-shadow: 0 1px 3px rgba(30,50,80,.06);
+    padding: 18px;
+}}
+
+.logs-toolbar {{
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 14px;
+}}
+
+.logs-toolbar select {{
+    width: 220px;
+}}
+
+.logs-toolbar button,
+.logs-toolbar .button {{
+    min-height: 36px;
+}}
+
+.logs-output {{
+    min-height: 520px;
+    max-height: calc(100vh - 250px);
+    overflow: auto;
+    background: #101820;
+    border: 1px solid #0b1117;
+    color: #d8dee7;
+    padding: 16px;
+    border-radius: 5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.42;
+}}
+
 @media (max-width: 800px) {{
     .container {{
         padding: 10px;
@@ -1286,6 +1393,27 @@ pre {{
 
     .dashboard-grid {{
         grid-template-columns: 1fr;
+    }}
+
+    .settings-card .form-row {{
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }}
+
+    .settings-card input[type=text],
+    .settings-card input[type=password],
+    .settings-card input[type=number],
+    .settings-card select {{
+        max-width: 100%;
+    }}
+
+    .logs-toolbar {{
+        align-items: stretch;
+        flex-direction: column;
+    }}
+
+    .logs-toolbar select {{
+        width: 100%;
     }}
 
     .network-card {{
@@ -1314,6 +1442,31 @@ def page_footer():
 </body>
 </html>
 """
+
+
+def app_sidebar(active):
+    items = [
+        ("/", "▥", "Status", "status"),
+        ("/settings", "⚙", "Settings", "settings"),
+        ("/logs", "▤", "Logs", "logs"),
+    ]
+
+    parts = ['<div class="app-sidebar">']
+    parts.append("""
+    <div class="app-brand">
+        <div class="app-icon">TS</div>
+        <div class="app-name">TorrServer</div>
+    </div>
+    """)
+    for href, icon, label, key in items:
+        cls = "side-item active" if key == active else "side-item"
+        parts.append(
+            '<a class="{}" href="{}"><span class="side-icon">{}</span><span>{}</span></a>'.format(
+                cls, href, icon, label
+            )
+        )
+    parts.append("</div>")
+    return "".join(parts)
 
 
 
@@ -1639,123 +1792,155 @@ def settings_page(message=""):
     body = page_header("TorrServer Settings")
 
     body += """
-<div class="nav">
-    <a class="button secondary" href="/">Status</a>
-    <a class="button active" href="/settings">Settings</a>
-    <a class="button secondary" href="/logs">Logs</a>
-</div>
+<div class="app-shell">
 
-<div class="card">
-<div class="toolbar" style="justify-content:space-between;">
-    <h1 style="margin:0;">Settings</h1>
-</div>
+{sidebar}
+
+<div class="app-content">
+
+<div class="app-title">Settings</div>
 
 <div class="notice">
-<strong>Important:</strong> after changing settings, click <b>Save</b> first.
-Then click <b>Restart</b> to apply the changes to TorrServer.
+<strong>After changing settings:</strong> first click <b>Save</b>, then click <b>Restart</b>.
+<br>
+Some changes require a restart of the TorrServer service to take effect.
 </div>
-"""
+""".format(sidebar=app_sidebar("settings"))
 
     if message:
         body += '<div class="notice">{}</div>'.format(html.escape(message))
 
     body += """
+<div class="settings-layout">
+
 <form method="post" action="/settings">
 
-<div class="section-title">TorrServer</div>
+<div class="settings-card">
+    <div class="settings-card-title">
+        <span class="metric-icon">TS</span>
+        <span>TorrServer</span>
+    </div>
+    <div class="settings-card-body">
 
-<div class="form-row">
-<label for="webPort">Web port</label>
-<input id="webPort" type="number" name="port" min="1" max="65535" value="{}">
+        <div class="form-row">
+            <label for="webPort">Web port (HTTP)</label>
+            <input id="webPort" type="number" name="port" min="1" max="65535" value="{}">
+        </div>
+
+        <div class="form-row">
+            <label for="cachePath">Cache directory</label>
+            <div style="display:flex;gap:8px;max-width:620px;">
+                <input id="cachePath" type="text" name="cache_path" value="{}" placeholder="/volume1/...">
+                <button type="button" class="secondary" onclick="openCacheBrowser()">Browse</button>
+            </div>
+        </div>
+
+    </div>
 </div>
 
-<div class="form-row">
-<label for="cachePath">Cache directory</label>
-<div style="display:flex;gap:8px;max-width:620px;">
-<input id="cachePath" type="text" name="cache_path" value="{}" placeholder="/volume1/...">
-<button type="button" class="secondary" onclick="openCacheBrowser()">Browse</button>
-</div>
-</div>
+<div class="settings-card">
+    <div class="settings-card-title">
+        <span class="metric-icon">🔒</span>
+        <span>HTTPS</span>
+    </div>
+    <div class="settings-card-body">
 
-<div class="section-title">HTTPS</div>
+        <div class="checkbox-row">
+            <label>
+                <input type="checkbox" name="https" value="1" {} onchange="toggleHttps()">
+                Enable HTTPS
+            </label>
+        </div>
 
-<div class="checkbox-row">
-<label>
-<input type="checkbox" name="https" value="1" {} onchange="toggleHttps()">
-Enable HTTPS
-</label>
-</div>
+        <div class="form-row">
+            <label for="httpsPort">HTTPS port</label>
+            <input id="httpsPort" type="number" name="https_port" min="1" max="65535" value="{}">
+        </div>
 
-<div class="form-row">
-<label for="httpsPort">HTTPS port</label>
-<input id="httpsPort" type="number" name="https_port" min="1" max="65535" value="{}">
-</div>
+        <div class="checkbox-row">
+            <label>
+                <input type="checkbox" name="force_https" value="1" {} {}>
+                Force HTTPS (redirect HTTP to HTTPS)
+            </label>
+        </div>
 
-<div class="checkbox-row">
-<label>
-<input type="checkbox" name="force_https" value="1" {} {}>
-Force HTTPS
-</label>
-</div>
-
-<div class="section-title">SSL Certificate</div>
-
-<div class="form-row">
-<label for="sslMode">Certificate source</label>
-<select name="ssl_mode" id="sslMode" onchange="toggleSslMode()">
-<option value="self" {}>TorrServer self-signed</option>
-<option value="dsm" {}>DSM certificate</option>
-<option value="manual" {}>Manual paths</option>
-</select>
+    </div>
 </div>
 
-<div id="dsmCertificateFields" class="form-row">
-<label for="sslDsm">DSM certificate</label>
-<select id="sslDsm">
-{}
-</select>
+<div class="settings-card">
+    <div class="settings-card-title">
+        <span class="metric-icon">▣</span>
+        <span>SSL Certificate</span>
+    </div>
+    <div class="settings-card-body">
+
+        <div class="form-row">
+            <label for="sslMode">Certificate source</label>
+            <select name="ssl_mode" id="sslMode" onchange="toggleSslMode()">
+                <option value="self" {}>TorrServer self-signed</option>
+                <option value="dsm" {}>DSM certificate</option>
+                <option value="manual" {}>Manual paths</option>
+            </select>
+        </div>
+
+        <div id="dsmCertificateFields" class="form-row">
+            <label for="sslDsm">DSM certificate</label>
+            <select id="sslDsm">
+                {}
+            </select>
+        </div>
+
+        <div id="manualCertificateFields">
+            <div class="form-row">
+                <label for="sslCert">SSL Certificate path</label>
+                <input id="sslCert" type="text" name="ssl_cert" value="{}" placeholder="/volume1/.../fullchain.pem">
+            </div>
+
+            <div class="form-row">
+                <label for="sslKey">SSL Key path</label>
+                <input id="sslKey" type="text" name="ssl_key" value="{}" placeholder="/volume1/.../privkey.pem">
+            </div>
+        </div>
+
+        <div class="help">
+            The selected source will be synchronized to TorrServer server.pem/server.key.
+        </div>
+
+    </div>
 </div>
 
-<div id="manualCertificateFields">
-<div class="form-row">
-<label for="sslCert">SSL Certificate path</label>
-<input id="sslCert" type="text" name="ssl_cert" value="{}" placeholder="/volume1/.../fullchain.pem">
-</div>
+<div class="settings-card">
+    <div class="settings-card-title">
+        <span class="metric-icon">●</span>
+        <span>Authentication</span>
+    </div>
+    <div class="settings-card-body">
 
-<div class="form-row">
-<label for="sslKey">SSL Key path</label>
-<input id="sslKey" type="text" name="ssl_key" value="{}" placeholder="/volume1/.../privkey.pem">
-</div>
-</div>
+        <div class="checkbox-row">
+            <label>
+                <input type="checkbox" name="auth" value="1" {} onchange="toggleAuth()">
+                Enable authentication
+            </label>
+        </div>
 
-<div class="help">
-The selected source is synchronized to TorrServer server.pem/server.key.
-</div>
+        <div id="authFields">
+            <div class="form-row">
+                <label for="username">Username</label>
+                <input id="username" type="text" name="username" value="" {}>
+            </div>
 
-<div class="section-title">Authentication</div>
+            <div class="form-row">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" value="" {}>
+            </div>
+        </div>
 
-<div class="checkbox-row">
-<label>
-<input type="checkbox" name="auth" value="1" {} onchange="toggleAuth()">
-Enable authentication
-</label>
-</div>
+    </div>
 
-<div id="authFields">
-<div class="form-row">
-<label for="username">Username</label>
-<input id="username" type="text" name="username" value="" {}>
-</div>
-
-<div class="form-row">
-<label for="password">Password</label>
-<input id="password" type="password" name="password" value="" {}>
-</div>
-</div>
-
-<div class="actions">
-<button type="submit">Save</button>
-<button type="submit" formaction="/restart" class="danger">Restart</button>
+    <div class="actions">
+        <button type="submit">Save</button>
+        <button type="submit" formaction="/restart" class="danger">Restart</button>
+    </div>
 </div>
 
 </form>
@@ -1772,7 +1957,7 @@ function toggleHttps() {{
 function toggleSslMode() {{
     var mode = document.getElementById('sslMode').value;
     document.getElementById('dsmCertificateFields').style.display =
-        mode === 'dsm' ? 'block' : 'none';
+        mode === 'dsm' ? 'grid' : 'none';
     document.getElementById('manualCertificateFields').style.display =
         mode === 'manual' ? 'block' : 'none';
 }}
@@ -1812,36 +1997,10 @@ toggleHttps();
 toggleSslMode();
 toggleAuth();
 </script>
-""".format(
-        port,
-        html.escape(cache_path),
-        "checked" if https else "",
-        https_port,
-        "checked" if force_https else "",
-        "disabled" if not https else "",
-        "selected" if ssl_mode == SSL_CERT_MODE_SELF else "",
-        "selected" if ssl_mode == SSL_CERT_MODE_DSM else "",
-        "selected" if ssl_mode == SSL_CERT_MODE_MANUAL else "",
-        "".join(
-            '<option value="{}|{}" {}>{}</option>'.format(
-                html.escape(item["cert"], quote=True),
-                html.escape(item["key"], quote=True),
-                "selected" if (ssl_cert, ssl_key) == (item["cert"], item["key"]) else "",
-                html.escape(item["label"]),
-            )
-            for item in dsm_certs
-        ) or '<option value="">No DSM certificates found</option>',
-        html.escape(ssl_cert),
-        html.escape(ssl_key),
-        "" if auth else "disabled",
-        "checked" if auth else "",
-        "" if auth else "disabled",
-        "" if auth else "disabled",
-    )
+"""
 
     body += page_footer()
     return body
-
 
 def cache_browser_path(path):
     """Return a safe cache-browser path under /volume* only."""
@@ -1957,34 +2116,35 @@ def logs_page():
     body = page_header("TorrServer Logs")
 
     body += """
-<div class="nav">
-    <a class="button secondary" href="/">Status</a>
-    <a class="button secondary" href="/settings">Settings</a>
-    <a class="button active" href="/logs">Logs</a>
-</div>
+<div class="app-shell">
 
-<div class="card">
-<div class="toolbar" style="justify-content:space-between;">
-    <h1 style="margin:0;">Logs</h1>
-    <button type="button" class="secondary" onclick="openLog()">Refresh</button>
-</div>
+{sidebar}
 
-<div class="toolbar">
+<div class="app-content">
+
+<div class="app-title">Logs</div>
+
+<div class="logs-card">
+
+<div class="logs-toolbar">
     <select id="logSelect">
         <option value="TorrServer.log">TorrServer.log</option>
         <option value="TorrServer.log.1">TorrServer.log.1</option>
     </select>
 
-    <button type="button" onclick="openLog()">Open</button>
+    <button type="button" onclick="openLog()">↻ Refresh</button>
 
     <a class="button secondary"
        id="downloadButton"
        href="/download-log?name=TorrServer.log">
-        Download
+        ↓ Download
     </a>
 </div>
 
-<pre id="logContent">Loading TorrServer.log...</pre>
+<pre id="logContent" class="logs-output">Loading TorrServer.log...</pre>
+
+</div>
+</div>
 </div>
 
 <script>
@@ -2010,7 +2170,7 @@ function openLog() {{
 document.getElementById("logSelect").addEventListener("change", openLog);
 window.addEventListener("load", openLog);
 </script>
-"""
+""".format(sidebar=app_sidebar("logs"))
 
     body += page_footer()
     return body
