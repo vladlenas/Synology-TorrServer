@@ -1476,39 +1476,6 @@ def app_sidebar(active):
 
 
 
-def get_cpu_usage():
-    try:
-        def read_cpu():
-            with open("/proc/stat", "r", encoding="utf-8") as f:
-                line = f.readline()
-
-            values = line.split()[1:8]
-            numbers = [int(value) for value in values]
-
-            idle = numbers[3] + numbers[4]
-            total = sum(numbers)
-            return total, idle
-
-        total1, idle1 = read_cpu()
-        time.sleep(0.15)
-        total2, idle2 = read_cpu()
-
-        total_delta = total2 - total1
-        idle_delta = idle2 - idle1
-
-        if total_delta <= 0:
-            return 0
-
-        usage = int(round(
-            (total_delta - idle_delta) * 100.0 / total_delta
-        ))
-
-        return max(0, min(100, usage))
-
-    except Exception:
-        return 0
-
-
 def get_network_usage():
     try:
         rx = 0
@@ -1564,13 +1531,11 @@ def get_network_rates():
 
 def main_page(host):
     status = get_status()
-    total_memory, available_memory = get_memory()
 
     port = get_port()
     auth = get_auth_enabled()
     https = get_https_enabled()
 
-    cpu_usage = get_cpu_usage()
     download_rate, upload_rate = get_network_rates()
 
     if total_memory > 0:
@@ -1694,39 +1659,8 @@ def main_page(host):
 </div>
 
 <div class="dashboard-card metric-card">
-    <div class="dashboard-card-title">
-        <span class="metric-icon cpu-icon">CPU</span>
-        <span>CPU Usage</span>
-    </div>
-
-    <div class="usage-layout">
-        <div class="usage-value">{14}%</div>
-        <div class="usage-chart">
-            <div class="chart-grid"></div>
-            <div class="chart-line cpu-line"></div>
-        </div>
-    </div>
-</div>
-
-<div class="dashboard-card metric-card">
-    <div class="dashboard-card-title">
-        <span class="metric-icon memory-icon">RAM</span>
-        <span>Memory Usage</span>
-    </div>
-
-    <div class="memory-layout">
-        <div class="memory-value">{15}%</div>
-        <div class="memory-bar">
-            <div class="memory-fill" style="width:{15}%;"></div>
-        </div>
-        <div class="memory-details">
-            {16} total<br>
-            {17} available
-        </div>
-    </div>
-</div>
-
-<div class="dashboard-card network-card">
+    <div class="dashboard-card metric-card">
+    <div class="dashboard-card network-card">
     <div class="dashboard-card-title">
         <span class="metric-icon network-icon">◆</span>
         <span>Network Usage</span>
@@ -1772,10 +1706,6 @@ def main_page(host):
         html.escape(get_cpu_model()),
         get_cpu_cores(),
         html.escape(get_architecture()),
-        cpu_usage,
-        memory_percent,
-        html.escape(format_bytes(total_memory)),
-        html.escape(format_bytes(available_memory)),
         html.escape(format_rate(upload_rate)),
         html.escape(format_rate(download_rate)),
     )
