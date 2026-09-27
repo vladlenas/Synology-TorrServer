@@ -1,16 +1,25 @@
 {
-    ".url": {
-        "SYNO.SDS.TorrServer": {
+    "TorrServer.js": {
+        "SYNO.SDS.TorrServer.Application": {
+            "type": "app",
             "title": "TorrServer MatriX",
+            "appWindow": "SYNO.SDS.TorrServer.MainWindow",
             "desc": "TorrServer MatriX",
             "icon": "images/torrserver-{0}.png",
-            "type": "url",
-            "protocol": "http",
-            "port": "8095",
-            "url": "/",
+            "allowMultiInstance": false,
+            "allowStandalone": true,
+            "allowSharing": true,
             "allUsers": true,
             "grantPrivilege": "all",
-            "advanceGrantPrivilege": true
-        }
+            "advanceGrantPrivilege": true,
+            "depend": ["SYNO.SDS.TorrServer.MainWindow"]
+        },
+        "SYNO.SDS.TorrServer.MainWindow": {
+            "type": "lib",
+            "title": "TorrServer MatriX",
+            "icon": "images/torrserver-{0}.png",
+            "depend": ["SYNO.SDS.TorrServer.Utils"]
+        },
+        "SYNO.SDS.TorrServer.Utils": []
     }
 }
