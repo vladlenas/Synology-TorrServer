@@ -10,15 +10,19 @@ import shutil
 import subprocess
 import time
 import threading
+import ssl
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse, quote
 
 
 HOST = "0.0.0.0"
 HELPER_PORT = 8095
+HELPER_HTTPS_PORT = 8096
 
 PACKAGE_NAME = "TorrServer"
 PACKAGE_VAR = "/var/packages/TorrServer/var"
+HELPER_TLS_CERT_FILE = os.path.join(PACKAGE_VAR, "server.pem")
+HELPER_TLS_KEY_FILE = os.path.join(PACKAGE_VAR, "server.key")
 TORRSERVER_BIN = "/var/packages/TorrServer/target/bin/TorrServer"
 TORRSERVER_LOG = os.path.join(PACKAGE_VAR, "TorrServer.log")
 
@@ -2378,10 +2382,32 @@ def log_rotation_loop():
 
 
 def run():
-    server = ThreadingHTTPServer(
+    http_server = ThreadingHTTPServer(
         (HOST, HELPER_PORT),
         Handler,
     )
+
+    servers = [http_server]
+
+    # DSM Desktop is normally served over HTTPS.  An HTTP iframe would be
+    # blocked by the browser as mixed content, so expose the same helper over
+    # HTTPS as well. The package certificate-helper keeps server.pem/server.key
+    # synchronized with the selected DSM/TorrServer certificate.
+    if os.path.isfile(HELPER_TLS_CERT_FILE) and os.path.isfile(HELPER_TLS_KEY_FILE):
+        try:
+            https_server = ThreadingHTTPServer(
+                (HOST, HELPER_HTTPS_PORT),
+                Handler,
+            )
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.load_cert_chain(HELPER_TLS_CERT_FILE, HELPER_TLS_KEY_FILE)
+            https_server.socket = context.wrap_socket(
+                https_server.socket,
+                server_side=True,
+            )
+            servers.append(https_server)
+        except Exception as exc:
+            print("Helper HTTPS disabled: {}".format(exc), flush=True)
 
     rotation_thread = threading.Thread(
         target=log_rotation_loop,
@@ -2389,7 +2415,14 @@ def run():
     )
     rotation_thread.start()
 
-    server.serve_forever()
+    threads = []
+    for server in servers:
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
 
 
 if __name__ == "__main__":
