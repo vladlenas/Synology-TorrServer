@@ -12,14 +12,20 @@
             "allUsers": true,
             "grantPrivilege": "all",
             "advanceGrantPrivilege": true,
-            "depend": ["SYNO.SDS.TorrServer.MainWindow"]
+            "depend": [
+                "SYNO.SDS.TorrServer.MainWindow"
+            ]
         },
+
         "SYNO.SDS.TorrServer.MainWindow": {
             "type": "lib",
             "title": "TorrServer MatriX",
             "icon": "images/torrserver-{0}.png",
-            "depend": ["SYNO.SDS.TorrServer.Utils"]
+            "depend": [
+                "SYNO.SDS.TorrServer.Utils"
+            ]
         },
+
         "SYNO.SDS.TorrServer.Utils": []
     }
 }
