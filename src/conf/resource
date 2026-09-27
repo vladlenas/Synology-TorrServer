@@ -1,12 +1,22 @@
 {
+    "port-config": {
+        "protocol-file": "ui/TorrServer.sc"
+    },
+    "systemd-unit": {},
     "usr-local-linker": {
         "bin": [
             "bin/TorrServer",
             "bin/ffprobe"
         ]
     },
-
-    "port-config": {
-        "protocol-file": "ui/TorrServer.sc"
+    "web-config": {
+        "nginx-static-config": {
+            "enable": [
+                {
+                    "type": "dsm",
+                    "relpath": "nginx/TorrServer.conf"
+                }
+            ]
+        }
     }
 }
