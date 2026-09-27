@@ -73,7 +73,7 @@ fi
 update_firewall_port ()
 {
     local SC_FILE="${SYNOPKG_PKGDEST}/ui/TorrServer.sc"
-    local FIREWALL_PORTS="${TORRSERVER_PORT},8095,8096"
+    local FIREWALL_PORTS="${TORRSERVER_PORT},8095"
 
 if [ "${HTTPS_ENABLED}" = "1" ]; then
     FIREWALL_PORTS="${FIREWALL_PORTS},${HTTPS_PORT}"
@@ -121,15 +121,6 @@ TorrServer ALL=(root) NOPASSWD: ${RESTART_SCRIPT}, ${CERTIFICATE_HELPER}
 EOF2
     chmod 0440 "${SUDOERS_FILE}"
 
-    if [ "${SYNOPKG_PKG_STATUS}" = "INSTALL" ]; then
-        if [ "${wizard_enable_aut}" = "true" ]; then
-            echo "{" >> ${SYNOPKG_PKGVAR}/accs.db | install_log
-            echo '"@user@":"@password@"' >> ${SYNOPKG_PKGVAR}/accs.db | install_log
-            echo "}" >> ${SYNOPKG_PKGVAR}/accs.db | install_log
-            sed -i -e "s|@user@|${wizard_username:=admin}|g" ${SYNOPKG_PKGVAR}/accs.db | install_log
-            sed -i -e "s|@password@|${wizard_password:=admin}|g" ${SYNOPKG_PKGVAR}/accs.db | install_log
-        fi
-    fi
 }
 
 service_preupgrade ()
