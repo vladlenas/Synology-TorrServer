@@ -979,7 +979,6 @@ def main_page(host):
 <div class="card">
 <div class="toolbar" style="justify-content:space-between;">
     <h1 style="margin:0;">TorrServer</h1>
-    <a class="button secondary" href="/">Refresh</a>
 </div>
 
 <table>
@@ -1092,7 +1091,6 @@ def settings_page(message=""):
 <div class="card">
 <div class="toolbar" style="justify-content:space-between;">
     <h1 style="margin:0;">Settings</h1>
-    <a class="button secondary" href="/settings">Refresh</a>
 </div>
 
 <div class="notice">
