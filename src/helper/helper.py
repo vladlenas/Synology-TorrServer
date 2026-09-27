@@ -1603,12 +1603,12 @@ def main_page(host):
         <span>Status</span>
     </a>
 
-    <a class="side-item" href="/settings">
+    <a class="side-item" href="settings">
         <span class="side-icon">⚙</span>
         <span>Settings</span>
     </a>
 
-    <a class="side-item" href="/logs">
+    <a class="side-item" href="logs">
         <span class="side-icon">▤</span>
         <span>Logs</span>
     </a>
