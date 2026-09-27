@@ -1,20 +1,37 @@
 {
     "usr-local-linker": {
-        "bin": ["bin/TorrServer","bin/ffprobe"]
+        "bin": [
+            "bin/TorrServer",
+            "bin/ffprobe"
+        ]
     },
+
     "port-config": {
         "protocol-file": "ui/TorrServer.sc"
     },
-"data-share": {
-    "shares": [
-      {
-        "name": "{{wizard_volume}}",
-        "permission": {
-          "rw": [
-            "TorrServer"
-          ]
-        }
-      }],
+
+    "data-share": {
+        "shares": [
+            {
+                "name": "{{wizard_volume}}",
+                "permission": {
+                    "rw": [
+                        "TorrServer"
+                    ]
+                }
+            }
+        ],
         "once": "false"
-  }
+    },
+
+    "web-config": {
+        "nginx-static-config": {
+            "enable": [
+                {
+                    "type": "dsm",
+                    "relpath": "nginx/TorrServer.conf"
+                }
+            ]
+        }
+    }
 }
