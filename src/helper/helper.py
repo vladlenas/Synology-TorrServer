@@ -1984,9 +1984,9 @@ function syncDsmCertificate() {{
 
 document.getElementById('sslDsm').addEventListener('change', syncDsmCertificate);
 
-if (document.getElementById('sslDsm').value) {
+if (document.getElementById('sslDsm').value) {{
     syncDsmCertificate();
-}
+}}
 
 function toggleAuth() {{
     var checkbox = document.querySelector('input[name="auth"]');
