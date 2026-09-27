@@ -21,6 +21,13 @@ PACKAGE_NAME = "TorrServer"
 PACKAGE_VAR = "/var/packages/TorrServer/var"
 TORRSERVER_BIN = "/var/packages/TorrServer/target/bin/TorrServer"
 TORRSERVER_LOG = os.path.join(PACKAGE_VAR, "TorrServer.log")
+
+LOG_FILES = {
+    "TorrServer.log": os.path.join(PACKAGE_VAR, "TorrServer.log"),
+    "TorrServer.log.1": os.path.join(PACKAGE_VAR, "TorrServer.log.1"),
+    "Helper.log": os.path.join(PACKAGE_VAR, "Helper.log"),
+    "Helper.log.1": os.path.join(PACKAGE_VAR, "Helper.log.1"),
+}
 LOG_MAX_SIZE = 2 * 1024 * 1024
 LOG_BACKUP_COUNT = 2
 
@@ -634,8 +641,20 @@ def save_settings(params):
 
 
 def get_log():
+    return get_log_by_name("TorrServer.log")
+
+
+def get_log_path(name):
+    return LOG_FILES.get(name)
+
+
+def get_log_by_name(name):
+    log_path = get_log_path(name)
+    if not log_path:
+        return "Invalid log file"
+
     try:
-        with open(TORRSERVER_LOG, "r", encoding="utf-8", errors="replace") as f:
+        with open(log_path, "r", encoding="utf-8", errors="replace") as f:
             data = f.read()
 
         if len(data) > 200000:
@@ -643,6 +662,8 @@ def get_log():
 
         return data
 
+    except FileNotFoundError:
+        return "Log file not found: {}".format(name)
     except Exception as e:
         return "Unable to read log: {}".format(e)
 
@@ -1334,6 +1355,16 @@ class Handler(BaseHTTPRequestHandler):
 
         self.wfile.write(data)
 
+    def send_text(self, content, status=200):
+        data = content.encode("utf-8")
+
+        self.send_response(status)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+
+        self.wfile.write(data)
+
     def redirect(self, location):
         self.send_response(302)
         self.send_header("Location", location)
@@ -1362,9 +1393,29 @@ class Handler(BaseHTTPRequestHandler):
             self.send_html(logs_page())
             return
 
+        if path == "/read-log":
+            query = parse_qs(parsed.query)
+            name = query.get("name", [""])[0]
+            log_path = get_log_path(name)
+
+            if not log_path:
+                self.send_text("Invalid log file", 400)
+                return
+
+            self.send_text(get_log_by_name(name))
+            return
+
         if path == "/download-log":
+            query = parse_qs(parsed.query)
+            name = query.get("name", [""])[0]
+            log_path = get_log_path(name)
+
+            if not log_path:
+                self.send_text("Invalid log file", 400)
+                return
+
             try:
-                with open(TORRSERVER_LOG, "rb") as f:
+                with open(log_path, "rb") as f:
                     data = f.read()
 
                 self.send_response(200)
@@ -1374,7 +1425,7 @@ class Handler(BaseHTTPRequestHandler):
                 )
                 self.send_header(
                     "Content-Disposition",
-                    'attachment; filename="TorrServer.log"'
+                    'attachment; filename="{}"'.format(name)
                 )
                 self.send_header(
                     "Content-Length",
@@ -1384,11 +1435,11 @@ class Handler(BaseHTTPRequestHandler):
 
                 self.wfile.write(data)
 
+            except FileNotFoundError:
+                self.send_text("Log file not found: {}".format(name), 404)
             except Exception as e:
-                self.send_html(
-                    "Unable to download log: {}".format(
-                        html.escape(str(e))
-                    ),
+                self.send_text(
+                    "Unable to download log: {}".format(str(e)),
                     500,
                 )
 
