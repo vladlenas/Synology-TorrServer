@@ -520,10 +520,12 @@ def get_cache_path():
         path = str(data.get("torrentsSavePath", "") or "").strip()
         if path:
             write_file(CACHE_PATH_FILE, path)
-        return path
+            return path
 
     except Exception:
-        return ""
+        pass
+
+    return "/volume1/downloads"
 
 
 def set_cache_path(cache_path):
@@ -1789,6 +1791,13 @@ def settings_page(message=""):
     ssl_cert, ssl_key = get_ssl_paths()
     dsm_certs = get_dsm_certificates()
 
+    if not dsm_certs:
+        dsm_certs = [{
+            "label": "system (Certificate)",
+            "cert": "/usr/syno/etc/certificate/system/default/fullchain.pem",
+            "key": "/usr/syno/etc/certificate/system/default/privkey.pem",
+        }]
+
     body = page_header("TorrServer Settings")
 
     body += """
@@ -1975,6 +1984,10 @@ function syncDsmCertificate() {{
 
 document.getElementById('sslDsm').addEventListener('change', syncDsmCertificate);
 
+if (document.getElementById('sslDsm').value) {
+    syncDsmCertificate();
+}
+
 function toggleAuth() {{
     var checkbox = document.querySelector('input[name="auth"]');
     var fields = document.getElementById('authFields');
@@ -1997,7 +2010,31 @@ toggleHttps();
 toggleSslMode();
 toggleAuth();
 </script>
-"""
+""".format(
+        port,
+        html.escape(cache_path or "/volume1/downloads"),
+        "checked" if https else "",
+        https_port,
+        "checked" if force_https else "",
+        "" if https else "disabled",
+        "selected" if ssl_mode == SSL_CERT_MODE_SELF else "",
+        "selected" if ssl_mode == SSL_CERT_MODE_DSM else "",
+        "selected" if ssl_mode == SSL_CERT_MODE_MANUAL else "",
+        "".join(
+            '<option value="{}|{}" {}>{}</option>'.format(
+                html.escape(item["cert"], quote=True),
+                html.escape(item["key"], quote=True),
+                "selected" if (item["cert"], item["key"]) == (ssl_cert, ssl_key) else "",
+                html.escape(item["label"])
+            )
+            for item in dsm_certs
+        ),
+        html.escape(ssl_cert, quote=True),
+        html.escape(ssl_key, quote=True),
+        "checked" if auth else "",
+        "" if auth else "disabled",
+        "" if auth else "disabled",
+    )
 
     body += page_footer()
     return body
