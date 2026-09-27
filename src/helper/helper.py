@@ -925,17 +925,380 @@ pre {{
     margin: 8px 0;
 }}
 
-@media (max-width: 700px) {{
+
+.app-shell {{
+    display: flex;
+    min-height: calc(100vh - 28px);
+    margin: -14px -18px -30px;
+    background: #f1f5f9;
+}}
+
+.app-sidebar {{
+    width: 220px;
+    flex: 0 0 220px;
+    background: #ffffff;
+    border-right: 1px solid #d6dee8;
+    padding: 18px 10px;
+}}
+
+.app-brand {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 12px;
+}}
+
+.app-icon {{
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1d7ff2, #4b9cff);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 2px 5px rgba(0,0,0,.16);
+}}
+
+.app-name {{
+    font-size: 17px;
+    font-weight: 600;
+    color: #17233b;
+}}
+
+.side-item {{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 44px;
+    margin: 3px 0;
+    padding: 0 13px;
+    border-radius: 5px;
+    color: #30415e;
+    text-decoration: none;
+    font-size: 14px;
+}}
+
+.side-item:hover {{
+    background: #edf5ff;
+}}
+
+.side-item.active {{
+    background: #e5f1ff;
+    color: #1167c9;
+    box-shadow: inset 3px 0 0 #1677ff;
+}}
+
+.side-icon {{
+    width: 22px;
+    text-align: center;
+    font-size: 18px;
+}}
+
+.app-content {{
+    flex: 1;
+    min-width: 0;
+    padding: 28px 28px 36px;
+}}
+
+.app-title {{
+    font-size: 28px;
+    font-weight: 600;
+    color: #17233b;
+    margin-bottom: 16px;
+}}
+
+.status-banner {{
+    min-height: 104px;
+    background: #fff;
+    border: 1px solid #d9e1eb;
+    border-radius: 7px;
+    box-shadow: 0 1px 3px rgba(30,50,80,.06);
+    display: flex;
+    align-items: center;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+}}
+
+.status-symbol {{
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #24b34b;
+    color: #fff;
+    font-size: 38px;
+    line-height: 58px;
+    text-align: center;
+    margin-right: 18px;
+}}
+
+.status-text {{
+    flex: 1;
+}}
+
+.status-text .status-running,
+.status-text .status-stopped {{
+    font-size: 23px;
+}}
+
+.status-subtitle {{
+    color: #627089;
+    margin-top: 5px;
+    font-size: 14px;
+}}
+
+.light-button {{
+    background: #eaf3ff !important;
+    color: #1a3f70 !important;
+    border-color: #d4e5f8 !important;
+}}
+
+.dashboard-grid {{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}}
+
+.dashboard-card {{
+    background: #fff;
+    border: 1px solid #d9e1eb;
+    border-radius: 7px;
+    box-shadow: 0 1px 3px rgba(30,50,80,.06);
+    padding: 20px 22px;
+    min-width: 0;
+}}
+
+.dashboard-card-title {{
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 19px;
+    font-weight: 600;
+    color: #17233b;
+    padding-bottom: 13px;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 4px;
+}}
+
+.metric-icon {{
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #edf3fa;
+    color: #354b68;
+    font-size: 11px;
+    font-weight: 700;
+}}
+
+.metric-table td {{
+    padding: 9px 2px;
+    border-bottom: 1px solid #e4e9ef;
+}}
+
+.metric-table td:first-child {{
+    width: 46%;
+    font-weight: 400;
+    color: #40536f;
+}}
+
+.metric-table td:last-child {{
+    color: #1d2e49;
+}}
+
+.metric-card {{
+    min-height: 190px;
+}}
+
+.usage-layout {{
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-top: 12px;
+}}
+
+.usage-value {{
+    width: 72px;
+    flex: 0 0 72px;
+    font-size: 30px;
+    font-weight: 600;
+    color: #1c2f4e;
+}}
+
+.usage-chart,
+.network-chart {{
+    position: relative;
+    height: 105px;
+    flex: 1;
+    overflow: hidden;
+    border-left: 1px solid #e4eaf1;
+    border-bottom: 1px solid #e4eaf1;
+}}
+
+.chart-grid {{
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(to bottom, #edf1f6 1px, transparent 1px),
+        linear-gradient(to right, #f2f5f8 1px, transparent 1px);
+    background-size: 100% 25%, 20% 100%;
+}}
+
+.chart-line {{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10%;
+    height: 3px;
+    background: #2e91f7;
+    transform: skewY(-2deg);
+    box-shadow:
+        35px -3px 0 -1px #2e91f7,
+        70px 2px 0 -1px #2e91f7,
+        105px -5px 0 -1px #2e91f7,
+        140px 1px 0 -1px #2e91f7,
+        175px -7px 0 -1px #2e91f7,
+        210px 0 0 -1px #2e91f7,
+        245px -3px 0 -1px #2e91f7;
+}}
+
+.memory-layout {{
+    padding-top: 12px;
+}}
+
+.memory-value {{
+    font-size: 30px;
+    font-weight: 600;
+    color: #1c2f4e;
+    margin-bottom: 12px;
+}}
+
+.memory-bar {{
+    height: 14px;
+    background: #e4ebf3;
+    border-radius: 7px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}}
+
+.memory-fill {{
+    height: 100%;
+    background: #3298f5;
+    border-radius: 7px;
+}}
+
+.memory-details {{
+    color: #64748b;
+    line-height: 1.55;
+}}
+
+.network-card {{
+    grid-column: 1 / -1;
+}}
+
+.network-layout {{
+    display: flex;
+    gap: 26px;
+    align-items: center;
+    padding-top: 12px;
+}}
+
+.network-values {{
+    display: flex;
+    gap: 38px;
+    min-width: 290px;
+}}
+
+.network-rate {{
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 8px;
+    align-items: center;
+}}
+
+.network-rate .network-arrow {{
+    grid-row: 1 / 3;
+    font-size: 32px;
+    font-weight: 600;
+}}
+
+.network-rate strong {{
+    font-size: 22px;
+}}
+
+.network-rate small {{
+    color: #64748b;
+    font-size: 13px;
+}}
+
+.upload {{
+    color: #1677ff;
+}}
+
+.download {{
+    color: #20a04b;
+}}
+
+.network-chart {{
+    height: 115px;
+}}
+
+.network-line {{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 18%;
+    height: 3px;
+    background: #2e91f7;
+    box-shadow:
+        55px -4px 0 0 #27a94d,
+        95px 1px 0 0 #2e91f7,
+        145px -7px 0 0 #27a94d,
+        205px 3px 0 0 #2e91f7,
+        260px -10px 0 0 #27a94d,
+        320px 1px 0 0 #2e91f7,
+        380px -14px 0 0 #27a94d;
+}}
+
+@media (max-width: 800px) {{
     .container {{
         padding: 10px;
     }}
 
-    td:first-child {{
-        width: 40%;
+    .app-shell {{
+        margin: -10px -10px -30px;
     }}
 
-    .toolbar select {{
-        width: 100%;
+    .app-sidebar {{
+        width: 170px;
+        flex-basis: 170px;
+    }}
+
+    .app-content {{
+        padding: 18px 14px 28px;
+    }}
+
+    .dashboard-grid {{
+        grid-template-columns: 1fr;
+    }}
+
+    .network-card {{
+        grid-column: auto;
+    }}
+
+    .network-layout {{
+        flex-direction: column;
+        align-items: stretch;
+    }}
+
+    .network-values {{
+        min-width: 0;
     }}
 }}
 </style>
@@ -953,8 +1316,111 @@ def page_footer():
 """
 
 
+
+def get_cpu_usage():
+    try:
+        def read_cpu():
+            with open("/proc/stat", "r", encoding="utf-8") as f:
+                line = f.readline()
+
+            values = line.split()[1:8]
+            numbers = [int(value) for value in values]
+
+            idle = numbers[3] + numbers[4]
+            total = sum(numbers)
+            return total, idle
+
+        total1, idle1 = read_cpu()
+        time.sleep(0.15)
+        total2, idle2 = read_cpu()
+
+        total_delta = total2 - total1
+        idle_delta = idle2 - idle1
+
+        if total_delta <= 0:
+            return 0
+
+        usage = int(round(
+            (total_delta - idle_delta) * 100.0 / total_delta
+        ))
+
+        return max(0, min(100, usage))
+
+    except Exception:
+        return 0
+
+
+def get_network_usage():
+    try:
+        rx = 0
+        tx = 0
+
+        with open("/proc/net/dev", "r", encoding="utf-8") as f:
+            for line in f:
+                if ":" not in line:
+                    continue
+
+                interface, data = line.split(":", 1)
+                interface = interface.strip()
+
+                if interface == "lo":
+                    continue
+
+                values = data.split()
+
+                if len(values) >= 9:
+                    rx += int(values[0])
+                    tx += int(values[8])
+
+        return rx, tx
+
+    except Exception:
+        return 0, 0
+
+
+def format_rate(bytes_per_second):
+    if bytes_per_second < 1024:
+        return "{} B/s".format(int(bytes_per_second))
+
+    if bytes_per_second < 1024 * 1024:
+        return "{:.1f} KB/s".format(bytes_per_second / 1024.0)
+
+    return "{:.1f} MB/s".format(
+        bytes_per_second / (1024.0 * 1024.0)
+    )
+
+
+def get_network_rates():
+    rx1, tx1 = get_network_usage()
+    time.sleep(0.15)
+    rx2, tx2 = get_network_usage()
+
+    interval = 0.15
+
+    return (
+        max(0, (rx2 - rx1) / interval),
+        max(0, (tx2 - tx1) / interval),
+    )
+
+
 def main_page(host):
     status = get_status()
+    total_memory, available_memory = get_memory()
+
+    port = get_port()
+    auth = get_auth_enabled()
+    https = get_https_enabled()
+
+    cpu_usage = get_cpu_usage()
+    download_rate, upload_rate = get_network_rates()
+
+    if total_memory > 0:
+        memory_used = max(0, total_memory - available_memory)
+        memory_percent = int(round(
+            memory_used * 100.0 / total_memory
+        ))
+    else:
+        memory_percent = 0
 
     status_class = (
         "status-running"
@@ -962,105 +1428,200 @@ def main_page(host):
         else "status-stopped"
     )
 
-    total_memory, available_memory = get_memory()
-
-    port = get_port()
-    auth = get_auth_enabled()
-
     body = page_header("TorrServer")
 
     body += """
-<div class="nav">
-    <a class="button active" href="/">Status</a>
-    <a class="button secondary" href="/settings">Settings</a>
-    <a class="button secondary" href="/logs">Logs</a>
+<div class="app-shell">
+
+<div class="app-sidebar">
+    <div class="app-brand">
+        <div class="app-icon">TS</div>
+        <div class="app-name">TorrServer</div>
+    </div>
+
+    <a class="side-item active" href="/">
+        <span class="side-icon">▥</span>
+        <span>Status</span>
+    </a>
+
+    <a class="side-item" href="/settings">
+        <span class="side-icon">⚙</span>
+        <span>Settings</span>
+    </a>
+
+    <a class="side-item" href="/logs">
+        <span class="side-icon">▤</span>
+        <span>Logs</span>
+    </a>
 </div>
 
-<div class="card">
-<div class="toolbar" style="justify-content:space-between;">
-    <h1 style="margin:0;">TorrServer</h1>
+<div class="app-content">
+
+<div class="app-title">Status</div>
+
+<div class="status-banner">
+    <div class="status-symbol">✓</div>
+    <div class="status-text">
+        <div class="{0}">{1}</div>
+        <div class="status-subtitle">TorrServer is running normally.</div>
+    </div>
+    <a class="button light-button"
+       href="http://{2}:{3}/"
+       target="_blank">
+        Open Web UI ↗
+    </a>
 </div>
 
-<table>
-<tr>
-<td>Version</td>
-<td>{2}</td>
-</tr>
-<tr>
-<td>Web port</td>
-<td>{3}</td>
-</tr>
-<tr>
-<td>Authentication</td>
-<td>{4}</td>
-</tr>
-<tr>
-<td>Uptime</td>
-<td>{12}</td>
-</tr>
-</table>
+<div class="dashboard-grid">
 
-<br>
+<div class="dashboard-card">
+    <div class="dashboard-card-title">
+        <span class="metric-icon server-icon">TS</span>
+        <span>TorrServer</span>
+    </div>
 
-<a class="button" href="http://{13}:{3}/" target="_blank">
-Open Web UI
-</a>
-
+    <table class="metric-table">
+        <tr>
+            <td>Version</td>
+            <td>{4}</td>
+        </tr>
+        <tr>
+            <td>Web port</td>
+            <td>{5}</td>
+        </tr>
+        <tr>
+            <td>HTTPS</td>
+            <td>{6}</td>
+        </tr>
+        <tr>
+            <td>Authentication</td>
+            <td>{7}</td>
+        </tr>
+        <tr>
+            <td>Uptime</td>
+            <td>{8}</td>
+        </tr>
+    </table>
 </div>
 
-<div class="card">
-<h2>System</h2>
+<div class="dashboard-card">
+    <div class="dashboard-card-title">
+        <span class="metric-icon system-icon">▣</span>
+        <span>System</span>
+    </div>
 
-<table>
-<tr>
-<td>DSM</td>
-<td>{5}</td>
-</tr>
-<tr>
-<td>NAS model</td>
-<td>{6}</td>
-</tr>
-<tr>
-<td>CPU</td>
-<td>{7}</td>
-</tr>
-<tr>
-<td>Cores</td>
-<td>{8}</td>
-</tr>
-<tr>
-<td>Architecture</td>
-<td>{9}</td>
-</tr>
-<tr>
-<td>RAM total</td>
-<td>{10}</td>
-</tr>
-<tr>
-<td>RAM available</td>
-<td>{11}</td>
-</tr>
-</table>
+    <table class="metric-table">
+        <tr>
+            <td>DSM</td>
+            <td>{9}</td>
+        </tr>
+        <tr>
+            <td>NAS model</td>
+            <td>{10}</td>
+        </tr>
+        <tr>
+            <td>CPU</td>
+            <td>{11}</td>
+        </tr>
+        <tr>
+            <td>Cores</td>
+            <td>{12}</td>
+        </tr>
+        <tr>
+            <td>Architecture</td>
+            <td>{13}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="dashboard-card metric-card">
+    <div class="dashboard-card-title">
+        <span class="metric-icon cpu-icon">CPU</span>
+        <span>CPU Usage</span>
+    </div>
+
+    <div class="usage-layout">
+        <div class="usage-value">{14}%</div>
+        <div class="usage-chart">
+            <div class="chart-grid"></div>
+            <div class="chart-line cpu-line"></div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-card metric-card">
+    <div class="dashboard-card-title">
+        <span class="metric-icon memory-icon">RAM</span>
+        <span>Memory Usage</span>
+    </div>
+
+    <div class="memory-layout">
+        <div class="memory-value">{15}%</div>
+        <div class="memory-bar">
+            <div class="memory-fill" style="width:{15}%;"></div>
+        </div>
+        <div class="memory-details">
+            {16} total<br>
+            {17} available
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-card network-card">
+    <div class="dashboard-card-title">
+        <span class="metric-icon network-icon">◆</span>
+        <span>Network Usage</span>
+    </div>
+
+    <div class="network-layout">
+        <div class="network-values">
+            <div class="network-rate upload">
+                <span class="network-arrow">↑</span>
+                <strong>{18}</strong>
+                <small>Upload</small>
+            </div>
+
+            <div class="network-rate download">
+                <span class="network-arrow">↓</span>
+                <strong>{19}</strong>
+                <small>Download</small>
+            </div>
+        </div>
+
+        <div class="network-chart">
+            <div class="chart-grid"></div>
+            <div class="network-line"></div>
+        </div>
+    </div>
+</div>
+
+</div>
+</div>
 </div>
 """.format(
         status_class,
         html.escape(status),
+        html.escape(host),
+        port,
         html.escape(get_torrserver_version()),
         port,
+        "Enabled" if https else "Disabled",
         "Enabled" if auth else "Disabled",
+        html.escape(get_torrserver_uptime()),
         html.escape(get_dsm_version()),
         html.escape(get_nas_model()),
         html.escape(get_cpu_model()),
         get_cpu_cores(),
         html.escape(get_architecture()),
+        cpu_usage,
+        memory_percent,
         html.escape(format_bytes(total_memory)),
         html.escape(format_bytes(available_memory)),
-        html.escape(get_torrserver_uptime()),
-        html.escape(host),
+        html.escape(format_rate(upload_rate)),
+        html.escape(format_rate(download_rate)),
     )
 
     body += page_footer()
-
     return body
 
 
