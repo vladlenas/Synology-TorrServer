@@ -25,8 +25,6 @@ TORRSERVER_LOG = os.path.join(PACKAGE_VAR, "TorrServer.log")
 LOG_FILES = {
     "TorrServer.log": os.path.join(PACKAGE_VAR, "TorrServer.log"),
     "TorrServer.log.1": os.path.join(PACKAGE_VAR, "TorrServer.log.1"),
-    "Helper.log": os.path.join(PACKAGE_VAR, "Helper.log"),
-    "Helper.log.1": os.path.join(PACKAGE_VAR, "Helper.log.1"),
 }
 LOG_MAX_SIZE = 2 * 1024 * 1024
 LOG_BACKUP_COUNT = 2
@@ -1299,8 +1297,6 @@ def logs_page():
     <select id="logSelect" style="padding:9px;min-width:220px;">
         <option value="TorrServer.log">TorrServer.log</option>
         <option value="TorrServer.log.1">TorrServer.log.1</option>
-        <option value="Helper.log">Helper.log</option>
-        <option value="Helper.log.1">Helper.log.1</option>
     </select>
 
     <button type="button" class="button" onclick="openLog()">
