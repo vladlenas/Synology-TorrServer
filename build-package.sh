@@ -80,10 +80,6 @@ make_inner_pkg() {
 
     cp -r src/ui ${tmp_dir}
 
-    mkdir -p ${tmp_dir}/helper
-    cp src/helper/helper.py ${tmp_dir}/helper/helper.py
-    chmod +x ${tmp_dir}/helper/helper.py
-
     pkg_size=$(du -sk "${tmp_dir}" | awk '{print $1}')
     echo "${pkg_size}" >>"$dest_dir/extractsize_tmp"
 
@@ -102,7 +98,6 @@ make_spk() {
     rm "${spk_tmp_dir}/extractsize_tmp"
 
     cp -r src/scripts $spk_tmp_dir
-    cp -r src/nginx $spk_tmp_dir
     cp -r src/PACKAGE_ICON_256.PNG $spk_tmp_dir
     cp -r src/PACKAGE_ICON.PNG $spk_tmp_dir
     cp -r src/conf/ $spk_tmp_dir
@@ -132,8 +127,6 @@ main() {
     download_ffprobe
     download_torrserver
     make_pkg
-
-    echo ">>> Done"
 }
 
 main
