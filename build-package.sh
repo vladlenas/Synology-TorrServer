@@ -79,7 +79,7 @@ make_inner_pkg() {
     chmod +x ${tmp_dir}/bin/*
 
     cp -r src/ui ${tmp_dir}
-    cp -r src/ui ${tmp_dir}
+    cp -r src/nginx ${tmp_dir}
     mkdir -p ${tmp_dir}/helper
     cp src/helper/helper.py ${tmp_dir}/helper/helper.py
     chmod +x ${tmp_dir}/helper/helper.py
