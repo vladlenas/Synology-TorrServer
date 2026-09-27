@@ -52,5 +52,4 @@ package_icon="PACKAGE_ICON.PNG"
 package_icon_256="PACKAGE_ICON_256.PNG"
 create_time="${TIMESTAMP}"
 extractsize=${PKG_SIZE}
-instuninst_restart_services="nginx.service"
 EOF
