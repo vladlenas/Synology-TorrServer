@@ -2193,14 +2193,22 @@ function openLog() {{
     var name = document.getElementById("logSelect").value;
     document.getElementById("logContent").textContent = "Loading " + name + "...";
 
-    fetch("./read-log?name=" + encodeURIComponent(name))
+    var basePath = window.location.pathname.substring(
+        0,
+        window.location.pathname.lastIndexOf("/") + 1
+    );
+
+    fetch(basePath + "read-log?name=" + encodeURIComponent(name))
         .then(function(response) {{
+            if (!response.ok) {{
+                throw new Error("HTTP " + response.status);
+            }}
             return response.text();
         }})
         .then(function(data) {{
             document.getElementById("logContent").textContent = data;
             document.getElementById("downloadButton").href =
-                "./download-log?name=" + encodeURIComponent(name);
+                basePath + "download-log?name=" + encodeURIComponent(name);
         }})
         .catch(function(error) {{
             document.getElementById("logContent").textContent =
