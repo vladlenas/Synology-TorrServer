@@ -3,11 +3,13 @@ Ext.namespace("SYNO.SDS.TorrServer.Utils");
 Ext.apply(SYNO.SDS.TorrServer.Utils, function () {
     return {
         getMainHtml: function () {
-            // The helper GUI listens on port 8095.
-            // Use the DSM host name/IP instead of localhost: the iframe runs in the user's browser.
+            // DSM Desktop is normally HTTPS. An HTTP iframe would be blocked
+            // as mixed content, so use the helper HTTPS endpoint when DSM is
+            // opened over HTTPS. Port 8095 remains available for direct HTTP.
             var protocol = window.location.protocol;
             var host = window.location.hostname;
-            var url = protocol + "//" + host + ":8095/";
+            var port = (protocol === "https:") ? "8096" : "8095";
+            var url = protocol + "//" + host + ":" + port + "/";
 
             // Timestamp prevents the helper page from being cached by the browser.
             return '<iframe src="' + url + '?_ts=' + new Date().getTime() + '" ' +
