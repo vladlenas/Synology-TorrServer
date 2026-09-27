@@ -73,11 +73,13 @@ fi
 update_firewall_port ()
 {
     local SC_FILE="${SYNOPKG_PKGDEST}/ui/TorrServer.sc"
-    local FIREWALL_PORTS="${TORRSERVER_PORT}/tcp"
+    local FIREWALL_PORTS="${TORRSERVER_PORT}"
 
-    if [ "${HTTPS_ENABLED}" = "1" ]; then
-        FIREWALL_PORTS="${FIREWALL_PORTS},${HTTPS_PORT}/tcp"
-    fi
+if [ "${HTTPS_ENABLED}" = "1" ]; then
+    FIREWALL_PORTS="${FIREWALL_PORTS},${HTTPS_PORT}"
+fi
+
+FIREWALL_PORTS="${FIREWALL_PORTS}/tcp"
 
     cat > "${SC_FILE}" <<EOF2
 [torrserver]
