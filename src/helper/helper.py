@@ -1452,9 +1452,9 @@ def page_footer():
 
 def app_sidebar(active):
     items = [
-        ("/", "▥", "Status", "status"),
-        ("/settings", "⚙", "Settings", "settings"),
-        ("/logs", "▤", "Logs", "logs"),
+        ("./", "▥", "Status", "status"),
+        ("./settings", "⚙", "Settings", "settings"),
+        ("./logs", "▤", "Logs", "logs"),
     ]
 
     parts = ['<div class="app-sidebar">']
@@ -1598,17 +1598,17 @@ def main_page(host):
         <div class="app-name">TorrServer</div>
     </div>
 
-    <a class="side-item active" href="/">
+    <a class="side-item active" href="./">
         <span class="side-icon">▥</span>
         <span>Status</span>
     </a>
 
-    <a class="side-item" href="settings">
+    <a class="side-item" href="./settings">
         <span class="side-icon">⚙</span>
         <span>Settings</span>
     </a>
 
-    <a class="side-item" href="logs">
+    <a class="side-item" href="./logs">
         <span class="side-icon">▤</span>
         <span>Logs</span>
     </a>
@@ -1826,7 +1826,7 @@ Some changes require a restart of the TorrServer service to take effect.
     body += """
 <div class="settings-layout">
 
-<form method="post" action="/settings">
+<form method="post" action="./settings">
 
 <div class="settings-card">
     <div class="settings-card-title">
@@ -1952,7 +1952,7 @@ Some changes require a restart of the TorrServer service to take effect.
 
     <div class="actions">
         <button type="submit">Save</button>
-        <button type="submit" formaction="/restart" class="danger">Restart</button>
+        <button type="submit" formaction="./restart" class="danger">Restart</button>
     </div>
 </div>
 
@@ -2099,7 +2099,7 @@ def cache_browser_page(path):
         rows.append(
             '<div style="margin:6px 0;">'
             '<a class="button secondary" style="width:100%;box-sizing:border-box;text-align:left;" '
-            'href="/browse?path={}">{}/</a>'
+            'href="./browse?path={}">{}/</a>'
             '</div>'.format(quote(child, safe=""), label)
         )
 
@@ -2108,7 +2108,7 @@ def cache_browser_page(path):
 
     parent_html = ""
     if parent is not None:
-        parent_html = '<a class="button secondary" href="/browse?path={}">..</a>'.format(
+        parent_html = '<a class="button secondary" href="./browse?path={}">..</a>'.format(
             quote(parent, safe="")
         )
 
@@ -2177,7 +2177,7 @@ def logs_page():
 
     <a class="button secondary"
        id="downloadButton"
-       href="download-log?name=TorrServer.log">
+       href="./download-log?name=TorrServer.log">
         ↓ Download
     </a>
 </div>
@@ -2193,14 +2193,14 @@ function openLog() {{
     var name = document.getElementById("logSelect").value;
     document.getElementById("logContent").textContent = "Loading " + name + "...";
 
-    fetch("read-log?name=" + encodeURIComponent(name))
+    fetch("./read-log?name=" + encodeURIComponent(name))
         .then(function(response) {{
             return response.text();
         }})
         .then(function(data) {{
             document.getElementById("logContent").textContent = data;
             document.getElementById("downloadButton").href =
-                "download-log?name=" + encodeURIComponent(name);
+                "./download-log?name=" + encodeURIComponent(name);
         }})
         .catch(function(error) {{
             document.getElementById("logContent").textContent =
