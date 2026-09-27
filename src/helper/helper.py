@@ -983,10 +983,6 @@ def main_page(host):
 
 <table>
 <tr>
-<td>Status</td>
-<td class="{0}">{1}</td>
-</tr>
-<tr>
 <td>Version</td>
 <td>{2}</td>
 </tr>
