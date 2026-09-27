@@ -102,6 +102,7 @@ make_spk() {
     rm "${spk_tmp_dir}/extractsize_tmp"
 
     cp -r src/scripts $spk_tmp_dir
+    cp -r src/nginx $spk_tmp_dir
     cp -r src/PACKAGE_ICON_256.PNG $spk_tmp_dir
     cp -r src/PACKAGE_ICON.PNG $spk_tmp_dir
     cp -r src/conf/ $spk_tmp_dir
