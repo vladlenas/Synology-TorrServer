@@ -10,20 +10,6 @@
         "protocol-file": "ui/TorrServer.sc"
     },
 
-    "data-share": {
-        "shares": [
-            {
-                "name": "{{wizard_volume}}",
-                "permission": {
-                    "rw": [
-                        "TorrServer"
-                    ]
-                }
-            }
-        ],
-        "once": "false"
-    },
-
     "web-config": {
         "nginx-static-config": {
             "enable": [
