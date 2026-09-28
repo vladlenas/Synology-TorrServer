@@ -1458,12 +1458,6 @@ def app_sidebar(active):
     ]
 
     parts = ['<div class="app-sidebar">']
-    parts.append("""
-    <div class="app-brand">
-        <div class="app-icon">TS</div>
-        <div class="app-name">TorrServer</div>
-    </div>
-    """)
     for href, icon, label, key in items:
         cls = "side-item active" if key == active else "side-item"
         parts.append(
@@ -1536,8 +1530,6 @@ def main_page(host):
     auth = get_auth_enabled()
     https = get_https_enabled()
 
-    download_rate, upload_rate = get_network_rates()
-
     status_class = (
         "status-running"
         if status == "Running"
@@ -1550,11 +1542,6 @@ def main_page(host):
 <div class="app-shell">
 
 <div class="app-sidebar">
-    <div class="app-brand">
-        <div class="app-icon">TS</div>
-        <div class="app-name">TorrServer</div>
-    </div>
-
     <a class="side-item active" href="./">
         <span class="side-icon">▥</span>
         <span>Status</span>
@@ -1650,34 +1637,6 @@ def main_page(host):
     </table>
 </div>
 
-<div class="dashboard-card network-card">
-    <div class="dashboard-card-title">
-        <span class="metric-icon network-icon">◆</span>
-        <span>Network Usage</span>
-    </div>
-
-    <div class="network-layout">
-        <div class="network-values">
-            <div class="network-rate upload">
-                <span class="network-arrow">↑</span>
-                <strong>{14}</strong>
-                <small>Upload</small>
-            </div>
-
-            <div class="network-rate download">
-                <span class="network-arrow">↓</span>
-                <strong>{15}</strong>
-                <small>Download</small>
-            </div>
-        </div>
-
-        <div class="network-chart">
-            <div class="chart-grid"></div>
-            <div class="network-line"></div>
-        </div>
-    </div>
-</div>
-
 </div>
 </div>
 </div>
@@ -1696,8 +1655,6 @@ def main_page(host):
         html.escape(get_cpu_model()),
         get_cpu_cores(),
         html.escape(get_architecture()),
-        html.escape(format_rate(upload_rate)),
-        html.escape(format_rate(download_rate)),
     )
 
     body += page_footer()
