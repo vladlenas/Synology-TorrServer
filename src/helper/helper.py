@@ -1538,14 +1538,6 @@ def main_page(host):
 
     download_rate, upload_rate = get_network_rates()
 
-    if total_memory > 0:
-        memory_used = max(0, total_memory - available_memory)
-        memory_percent = int(round(
-            memory_used * 100.0 / total_memory
-        ))
-    else:
-        memory_percent = 0
-
     status_class = (
         "status-running"
         if status == "Running"
@@ -1670,13 +1662,13 @@ def main_page(host):
         <div class="network-values">
             <div class="network-rate upload">
                 <span class="network-arrow">↑</span>
-                <strong>{18}</strong>
+                <strong>{14}</strong>
                 <small>Upload</small>
             </div>
 
             <div class="network-rate download">
                 <span class="network-arrow">↓</span>
-                <strong>{19}</strong>
+                <strong>{15}</strong>
                 <small>Download</small>
             </div>
         </div>
