@@ -2402,7 +2402,7 @@ class Handler(BaseHTTPRequestHandler):
             ok, message = save_settings(params)
 
             if ok:
-                self.redirect("/settings")
+                self.redirect("./settings")
             else:
                 self.send_html(settings_page(message), 400)
 
@@ -2412,7 +2412,7 @@ class Handler(BaseHTTPRequestHandler):
             ok, message = restart_package()
 
             if ok:
-                self.redirect("/")
+                self.redirect("./")
             else:
                 self.send_html(
                     page_header("Restart Error")
