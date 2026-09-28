@@ -1,0 +1,7 @@
+[Unit]
+Description=Restart TorrServer package
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/syno/bin/synopkg restart TorrServer

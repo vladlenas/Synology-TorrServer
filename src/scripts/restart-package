@@ -1,3 +1,28 @@
 #!/bin/sh
 
+UNIT="/usr/local/lib/systemd/system/TorrServer-restart.service"
+
+case "$1" in
+    cleanup)
+        rm -f "${UNIT}"
+        /usr/bin/systemctl daemon-reload
+        exit 0
+        ;;
+esac
+
+if [ ! -f "${UNIT}" ]; then
+    cat > "${UNIT}" <<'EOF'
+[Unit]
+Description=Restart TorrServer package
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/syno/bin/synopkg restart TorrServer
+EOF
+
+    chmod 0644 "${UNIT}"
+    /usr/bin/systemctl daemon-reload
+fi
+
 exec /usr/bin/systemctl start TorrServer-restart.service

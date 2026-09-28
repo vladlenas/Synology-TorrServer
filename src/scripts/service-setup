@@ -115,12 +115,23 @@ SVC_WRITE_PID=y
 
 service_postinst ()
 {
-    mkdir -p /etc/sudoers.d
-    cat > "${SUDOERS_FILE}" <<EOF2
-TorrServer ALL=(root) NOPASSWD: ${RESTART_SCRIPT}, ${CERTIFICATE_HELPER}
-EOF2
-    chmod 0440 "${SUDOERS_FILE}"
+    /bin/sudo -n /bin/mkdir -p /usr/local/lib/systemd/system
 
+    /bin/sudo -n /bin/cp \
+        "${SYNOPKG_PKGDEST}/systemd/TorrServer-restart.service" \
+        /usr/local/lib/systemd/system/TorrServer-restart.service
+
+    /bin/sudo -n /bin/chmod 0644 \
+        /usr/local/lib/systemd/system/TorrServer-restart.service
+
+    /bin/sudo -n /usr/bin/systemctl daemon-reload
+
+    /bin/sudo -n /bin/mkdir -p /etc/sudoers.d
+
+    /bin/sudo -n /bin/sh -c \
+        "printf '%s\n' 'TorrServer ALL=(root) NOPASSWD: ${RESTART_SCRIPT}, ${CERTIFICATE_HELPER}' > '${SUDOERS_FILE}'"
+
+    /bin/sudo -n /bin/chmod 0440 "${SUDOERS_FILE}"
 }
 
 service_preupgrade ()
@@ -137,6 +148,8 @@ service_preupgrade ()
 
 service_postuninst ()
 {
+    /bin/sudo -n "${RESTART_SCRIPT}" cleanup
+
     if [ -f "${SUDOERS_FILE}" ]; then
         rm -f "${SUDOERS_FILE}"
     fi

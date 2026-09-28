@@ -79,6 +79,8 @@ make_inner_pkg() {
     chmod +x ${tmp_dir}/bin/*
 
     cp -r src/ui ${tmp_dir}
+    mkdir -p ${tmp_dir}/systemd
+    cp src/systemd/TorrServer-restart.service ${tmp_dir}/systemd/
     cp -r src/nginx ${tmp_dir}
     mkdir -p ${tmp_dir}/helper
     cp src/helper/helper.py ${tmp_dir}/helper/helper.py
