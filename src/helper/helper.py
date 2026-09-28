@@ -1747,6 +1747,7 @@ def main_page(host):
         <div class="info-links">
             <a class="info-link" href="https://github.com/YouROK/TorrServer" target="_blank" rel="noopener noreferrer">Project ↗</a>
             <a class="info-link" href="https://grigi.lt/" target="_blank" rel="noopener noreferrer">SPK Repository ↗</a>
+            <a class="info-link" href="https://github.com/vladlenas/Synology-TorrServer" target="_blank" rel="noopener noreferrer">SPK Project ↗</a>
             <a class="info-link" href="https://github.com/vladlenas/Synology-TorrServer/issues" target="_blank" rel="noopener noreferrer">SPK Issues ↗</a>
             <a class="info-link info-donate" href="https://github.com/YouROK/TorrServer#donate" target="_blank" rel="noopener noreferrer">♥ Donate ↗</a>
         </div>
