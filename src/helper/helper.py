@@ -506,13 +506,7 @@ def get_cache_path():
     try:
         import urllib.request
 
-        if get_https_enabled():
-            url = "https://127.0.0.1:{}/settings".format(get_https_port())
-            context = ssl._create_unverified_context()
-        else:
-            url = "http://127.0.0.1:{}/settings".format(get_port())
-            context = None
-
+        url = "http://127.0.0.1:{}/settings".format(get_port())
         request = urllib.request.Request(
             url,
             data=json.dumps({"action": "get"}).encode("utf-8"),
@@ -524,19 +518,7 @@ def get_cache_path():
         if auth_header:
             request.add_header("Authorization", auth_header)
 
-        if context:
-            response = urllib.request.urlopen(
-                request,
-                timeout=3,
-                context=context,
-            )
-        else:
-            response = urllib.request.urlopen(
-                request,
-                timeout=3,
-            )
-
-        with response:
+        with urllib.request.urlopen(request, timeout=3) as response:
             data = json.loads(response.read().decode("utf-8"))
 
         path = str(data.get("torrentsSavePath", "") or "").strip()
@@ -553,13 +535,7 @@ def get_cache_path():
 def set_cache_path(cache_path):
     import urllib.request
 
-    if get_https_enabled():
-        url = "https://127.0.0.1:{}/settings".format(get_https_port())
-        context = ssl._create_unverified_context()
-    else:
-        url = "http://127.0.0.1:{}/settings".format(get_port())
-        context = None
-
+    url = "http://127.0.0.1:{}/settings".format(get_port())
     payload = {
         "action": "set",
         "sets": {
@@ -579,19 +555,7 @@ def set_cache_path(cache_path):
         request.add_header("Authorization", auth_header)
 
     try:
-        if context:
-            response = urllib.request.urlopen(
-                request,
-                timeout=5,
-                context=context,
-            )
-        else:
-            response = urllib.request.urlopen(
-                request,
-                timeout=5,
-            )
-
-        with response:
+        with urllib.request.urlopen(request, timeout=5) as response:
             if response.status != 200:
                 return False, "Unable to apply cache directory"
 
@@ -2093,7 +2057,7 @@ function openCacheBrowser() {{
     var field = document.querySelector('input[name="cache_path"]');
     var path = field.value.trim();
     if (!path) path = '/';
-    window.open('/browse?path=' + encodeURIComponent(path), 'cacheBrowser',
+    window.open('./browse?path=' + encodeURIComponent(path), 'cacheBrowser',
         'width=700,height=650,resizable=yes,scrollbars=yes');
 }}
 
@@ -2438,7 +2402,7 @@ class Handler(BaseHTTPRequestHandler):
             ok, message = save_settings(params)
 
             if ok:
-                self.redirect("./settings")
+                self.redirect("/settings")
             else:
                 self.send_html(settings_page(message), 400)
 
@@ -2448,7 +2412,7 @@ class Handler(BaseHTTPRequestHandler):
             ok, message = restart_package()
 
             if ok:
-                self.redirect("./")
+                self.redirect("/")
             else:
                 self.send_html(
                     page_header("Restart Error")
