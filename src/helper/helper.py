@@ -506,7 +506,13 @@ def get_cache_path():
     try:
         import urllib.request
 
-        url = "http://127.0.0.1:{}/settings".format(get_port())
+        if get_https_enabled():
+            url = "https://127.0.0.1:{}/settings".format(get_https_port())
+            context = ssl._create_unverified_context()
+        else:
+            url = "http://127.0.0.1:{}/settings".format(get_port())
+            context = None
+
         request = urllib.request.Request(
             url,
             data=json.dumps({"action": "get"}).encode("utf-8"),
@@ -518,7 +524,19 @@ def get_cache_path():
         if auth_header:
             request.add_header("Authorization", auth_header)
 
-        with urllib.request.urlopen(request, timeout=3) as response:
+        if context:
+            response = urllib.request.urlopen(
+                request,
+                timeout=3,
+                context=context,
+            )
+        else:
+            response = urllib.request.urlopen(
+                request,
+                timeout=3,
+            )
+
+        with response:
             data = json.loads(response.read().decode("utf-8"))
 
         path = str(data.get("torrentsSavePath", "") or "").strip()
@@ -535,7 +553,13 @@ def get_cache_path():
 def set_cache_path(cache_path):
     import urllib.request
 
-    url = "http://127.0.0.1:{}/settings".format(get_port())
+    if get_https_enabled():
+        url = "https://127.0.0.1:{}/settings".format(get_https_port())
+        context = ssl._create_unverified_context()
+    else:
+        url = "http://127.0.0.1:{}/settings".format(get_port())
+        context = None
+
     payload = {
         "action": "set",
         "sets": {
@@ -555,7 +579,19 @@ def set_cache_path(cache_path):
         request.add_header("Authorization", auth_header)
 
     try:
-        with urllib.request.urlopen(request, timeout=5) as response:
+        if context:
+            response = urllib.request.urlopen(
+                request,
+                timeout=5,
+                context=context,
+            )
+        else:
+            response = urllib.request.urlopen(
+                request,
+                timeout=5,
+            )
+
+        with response:
             if response.status != 200:
                 return False, "Unable to apply cache directory"
 
