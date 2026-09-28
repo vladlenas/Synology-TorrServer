@@ -1379,11 +1379,75 @@ pre {{
     line-height: 1.42;
 }}
 
+@media (max-width: 800px) {{
+    .container {{
+        padding: 10px;
+    }}
 
-.info-card { position:relative; }
-.info-maintainer-top { position:absolute; top:18px; right:20px; font-size:11px; color:#64748b; white-space:nowrap; }
-{
+    .app-shell {{
+        margin: -10px -10px -30px;
+    }}
+
+    .app-sidebar {{
+        width: 170px;
+        flex-basis: 170px;
+    }}
+
+    .app-content {{
+        padding: 18px 14px 28px;
+    }}
+
+    .dashboard-grid {{
+        grid-template-columns: 1fr;
+    }}
+
+    .settings-card .form-row {{
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }}
+
+    .settings-card input[type=text],
+    .settings-card input[type=password],
+    .settings-card input[type=number],
+    .settings-card select {{
+        max-width: 100%;
+    }}
+
+    .logs-toolbar {{
+        align-items: stretch;
+        flex-direction: column;
+    }}
+
+    .logs-toolbar select {{
+        width: 100%;
+    }}
+
+    .network-card {{
+        grid-column: auto;
+    }}
+
+    .network-layout {{
+        flex-direction: column;
+        align-items: stretch;
+    }}
+
+    .network-values {{
+        min-width: 0;
+    }}
+}}
+
+.info-card {{
+    position: relative;
     grid-column: 1 / -1;
+}}
+
+.info-maintainer-top {{
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
 }}
 
 .info-layout {{
@@ -1410,7 +1474,6 @@ pre {{
     font-size: 14px;
 }}
 
-.info-maintainer { color:#64748b; font-size:12px; white-space:nowrap; }
 .info-links {{
     display: flex;
     flex-wrap: wrap;
@@ -1449,27 +1512,6 @@ pre {{
 }}
 
 @media (max-width: 800px) {{
-    .container {{
-        padding: 10px;
-    }}
-
-    .app-shell {{
-        margin: -10px -10px -30px;
-    }}
-
-    .app-sidebar {{
-        width: 170px;
-        flex-basis: 170px;
-    }}
-
-    .app-content {{
-        padding: 18px 14px 28px;
-    }}
-
-    .dashboard-grid {{
-        grid-template-columns: 1fr;
-    }}
-
     .info-layout {{
         flex-direction: column;
         align-items: stretch;
@@ -1479,40 +1521,12 @@ pre {{
         justify-content: flex-start;
     }}
 
-    .settings-card .form-row {{
-        grid-template-columns: 1fr;
-        gap: 6px;
-    }}
-
-    .settings-card input[type=text],
-    .settings-card input[type=password],
-    .settings-card input[type=number],
-    .settings-card select {{
-        max-width: 100%;
-    }}
-
-    .logs-toolbar {{
-        align-items: stretch;
-        flex-direction: column;
-    }}
-
-    .logs-toolbar select {{
-        width: 100%;
-    }}
-
-    .network-card {{
-        grid-column: auto;
-    }}
-
-    .network-layout {{
-        flex-direction: column;
-        align-items: stretch;
-    }}
-
-    .network-values {{
-        min-width: 0;
+    .info-maintainer-top {{
+        position: static;
+        margin-bottom: 8px;
     }}
 }}
+
 </style>
 </head>
 <body>
@@ -1715,8 +1729,10 @@ def main_page(host):
     </table>
 </div>
 
+
 <div class="dashboard-card info-card">
-      <div class="info-maintainer-top">synology package maintained by vladlenas</div>
+    <div class="info-maintainer-top">synology package maintained by vladlenas</div>
+
     <div class="dashboard-card-title">
         <span class="metric-icon">i</span>
         <span>Information</span>
@@ -1725,17 +1741,18 @@ def main_page(host):
     <div class="info-layout">
         <div class="info-text">
             <div class="info-title">TorrServer MatriX</div>
-            <div class="info-subtitle">Project, SPK package and support · Maintainer: Vladlenas</div>
+            <div class="info-subtitle">Project, SPK package and support</div>
         </div>
 
         <div class="info-links">
             <a class="info-link" href="https://github.com/YouROK/TorrServer" target="_blank" rel="noopener noreferrer">Project ↗</a>
             <a class="info-link" href="https://grigi.lt/" target="_blank" rel="noopener noreferrer">SPK Repository ↗</a>
-            <a class="info-link" href="https://github.com/vladlenas/Synology-TorrServer/issues" target="_blank" rel="noopener noreferrer">Issues ↗</a>
+            <a class="info-link" href="https://github.com/vladlenas/Synology-TorrServer/issues" target="_blank" rel="noopener noreferrer">SPK Issues ↗</a>
             <a class="info-link info-donate" href="https://github.com/YouROK/TorrServer#donate" target="_blank" rel="noopener noreferrer">♥ Donate ↗</a>
         </div>
     </div>
 </div>
+
 
 </div>
 </div>
