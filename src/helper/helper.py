@@ -2057,8 +2057,7 @@ function openCacheBrowser() {{
     var field = document.querySelector('input[name="cache_path"]');
     var path = field.value.trim();
     if (!path) path = '/';
-    window.open('/browse?path=' + encodeURIComponent(path), 'cacheBrowser',
-        'width=700,height=650,resizable=yes,scrollbars=yes');
+    window.location.href = './browse?path=' + encodeURIComponent(path);
 }}
 
 toggleHttps();
@@ -2285,6 +2284,11 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def redirect(self, location):
+        prefix = self.headers.get("X-Forwarded-Prefix", "").rstrip("/")
+        if prefix and location.startswith("./"):
+            location = prefix + "/" + location[2:]
+        elif prefix and location.startswith("/"):
+            location = prefix + location
         self.send_response(302)
         self.send_header("Location", location)
         self.end_headers()
