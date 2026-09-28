@@ -1835,10 +1835,10 @@ def main_page(host):
     return body
 
 
-def settings_page(message=""):
+def settings_page(message="", cache_path_override=""):
     port = get_port()
     auth = get_auth_enabled()
-    cache_path = get_cache_path()
+    cache_path = cache_path_override or get_cache_path()
     https = get_https_enabled()
     https_port = get_https_port()
     force_https = get_force_https()
@@ -2057,7 +2057,7 @@ function openCacheBrowser() {{
     var field = document.querySelector('input[name="cache_path"]');
     var path = field.value.trim();
     if (!path) path = '/';
-    window.open('./browse?path=' + encodeURIComponent(path), 'cacheBrowser',
+    window.open('/browse?path=' + encodeURIComponent(path), 'cacheBrowser',
         'width=700,height=650,resizable=yes,scrollbars=yes');
 }}
 
@@ -2163,7 +2163,7 @@ def cache_browser_page(path):
             quote(parent, safe="")
         )
 
-    select_js_path = json.dumps(path)
+    select_href = "./settings?cache_path={}".format(quote(path, safe=""))
 
     body = page_header("Select cache directory")
     body += """
@@ -2174,31 +2174,17 @@ def cache_browser_page(path):
 {}
 </div>
 <div style="margin-bottom:15px;">
-<button type="button" onclick='selectCache()'>Select this directory</button>
+<a class="button" href="{}">Select this directory</a>
 </div>
 <div>
 {}
 </div>
 </div>
-
-<script>
-function selectCache() {{
-    var path = {};
-    if (window.opener && !window.opener.closed) {{
-        var field = window.opener.document.querySelector('input[name="cache_path"]');
-        if (field) {{
-            field.value = path;
-            field.focus();
-        }}
-    }}
-    window.close();
-}}
-</script>
 """.format(
         html.escape(path),
         parent_html,
+        select_href,
         "".join(rows),
-        select_js_path,
     )
 
     body += page_footer()
@@ -2313,7 +2299,9 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if path == "/settings":
-            self.send_html(settings_page())
+            query = parse_qs(parsed.query)
+            cache_path = query.get("cache_path", [""])[0]
+            self.send_html(settings_page(cache_path_override=cache_path))
             return
 
         if path == "/browse":
@@ -2402,7 +2390,7 @@ class Handler(BaseHTTPRequestHandler):
             ok, message = save_settings(params)
 
             if ok:
-                self.redirect("/settings")
+                self.redirect("./settings")
             else:
                 self.send_html(settings_page(message), 400)
 
@@ -2412,7 +2400,7 @@ class Handler(BaseHTTPRequestHandler):
             ok, message = restart_package()
 
             if ok:
-                self.redirect("/")
+                self.redirect("./")
             else:
                 self.send_html(
                     page_header("Restart Error")
