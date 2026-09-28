@@ -445,21 +445,20 @@ def get_torrserver_uptime():
 
 def restart_package():
     """
-    Start the dedicated root restart script through sudo.
+    Start the external systemd restart helper.
 
-    The script itself runs as root, so it survives the package
-    stop operation initiated by synopkg.
+    The systemd unit is outside TorrServer.slice, so it survives
+    the package stop and can execute synopkg restart TorrServer.
     """
-
-    if not os.path.isfile(RESTART_SCRIPT):
-        return False, "Restart script not found"
 
     try:
         process = subprocess.Popen(
             [
                 "/bin/sudo",
                 "-n",
-                RESTART_SCRIPT,
+                "/usr/bin/systemctl",
+                "start",
+                "TorrServer-restart.service",
             ],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -469,7 +468,7 @@ def restart_package():
         )
 
         if process.pid <= 0:
-            return False, "Failed to start restart script"
+            return False, "Failed to start restart service"
 
         return True, "Restarting..."
 
@@ -2284,11 +2283,6 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def redirect(self, location):
-        prefix = self.headers.get("X-Forwarded-Prefix", "").rstrip("/")
-        if prefix and location.startswith("./"):
-            location = prefix + "/" + location[2:]
-        elif prefix and location.startswith("/"):
-            location = prefix + location
         self.send_response(302)
         self.send_header("Location", location)
         self.end_headers()
