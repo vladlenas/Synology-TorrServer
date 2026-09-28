@@ -445,20 +445,22 @@ def get_torrserver_uptime():
 
 def restart_package():
     """
-    Start the external systemd restart helper.
+    Start the package restart script through sudo.
 
-    The systemd unit is outside TorrServer.slice, so it survives
-    the package stop and can execute synopkg restart TorrServer.
+    The restart-package script starts the external
+    TorrServer-restart.service, which is outside TorrServer.slice.
+    This keeps the restart operation alive after the package stops.
     """
+
+    if not os.path.isfile(RESTART_SCRIPT):
+        return False, "Restart script not found"
 
     try:
         process = subprocess.Popen(
             [
                 "/bin/sudo",
                 "-n",
-                "/usr/bin/systemctl",
-                "start",
-                "TorrServer-restart.service",
+                RESTART_SCRIPT,
             ],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -468,7 +470,7 @@ def restart_package():
         )
 
         if process.pid <= 0:
-            return False, "Failed to start restart service"
+            return False, "Failed to start restart script"
 
         return True, "Restarting..."
 
