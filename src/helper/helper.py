@@ -1379,6 +1379,75 @@ pre {{
     line-height: 1.42;
 }}
 
+
+.info-card { position:relative; }
+.info-maintainer-top { position:absolute; top:18px; right:20px; font-size:11px; color:#64748b; white-space:nowrap; }
+{
+    grid-column: 1 / -1;
+}}
+
+.info-layout {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-top: 12px;
+}}
+
+.info-text {{
+    min-width: 180px;
+}}
+
+.info-title {{
+    font-size: 18px;
+    font-weight: 600;
+    color: #1d2e49;
+}}
+
+.info-subtitle {{
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 14px;
+}}
+
+.info-maintainer { color:#64748b; font-size:12px; white-space:nowrap; }
+.info-links {{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+}}
+
+.info-link {{
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid #d6e0ec;
+    border-radius: 6px;
+    background: #f7f9fc;
+    color: #294766;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+}}
+
+.info-link:hover {{
+    background: #edf3fa;
+    border-color: #c7d5e5;
+}}
+
+.info-donate {{
+    background: #fff5e9;
+    border-color: #f3d5b1;
+    color: #a85c13;
+}}
+
+.info-donate:hover {{
+    background: #ffecd6;
+    border-color: #e8bf8e;
+}}
+
 @media (max-width: 800px) {{
     .container {{
         padding: 10px;
@@ -1399,6 +1468,15 @@ pre {{
 
     .dashboard-grid {{
         grid-template-columns: 1fr;
+    }}
+
+    .info-layout {{
+        flex-direction: column;
+        align-items: stretch;
+    }}
+
+    .info-links {{
+        justify-content: flex-start;
     }}
 
     .settings-card .form-row {{
@@ -1635,6 +1713,28 @@ def main_page(host):
             <td>{13}</td>
         </tr>
     </table>
+</div>
+
+<div class="dashboard-card info-card">
+      <div class="info-maintainer-top">synology package maintained by vladlenas</div>
+    <div class="dashboard-card-title">
+        <span class="metric-icon">i</span>
+        <span>Information</span>
+    </div>
+
+    <div class="info-layout">
+        <div class="info-text">
+            <div class="info-title">TorrServer MatriX</div>
+            <div class="info-subtitle">Project, SPK package and support · Maintainer: Vladlenas</div>
+        </div>
+
+        <div class="info-links">
+            <a class="info-link" href="https://github.com/YouROK/TorrServer" target="_blank" rel="noopener noreferrer">Project ↗</a>
+            <a class="info-link" href="https://grigi.lt/" target="_blank" rel="noopener noreferrer">SPK Repository ↗</a>
+            <a class="info-link" href="https://github.com/vladlenas/Synology-TorrServer/issues" target="_blank" rel="noopener noreferrer">Issues ↗</a>
+            <a class="info-link info-donate" href="https://github.com/YouROK/TorrServer#donate" target="_blank" rel="noopener noreferrer">♥ Donate ↗</a>
+        </div>
+    </div>
 </div>
 
 </div>
