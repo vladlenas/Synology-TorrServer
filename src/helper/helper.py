@@ -1650,9 +1650,7 @@ def main_page(host):
     </table>
 </div>
 
-<div class="dashboard-card metric-card">
-    <div class="dashboard-card metric-card">
-    <div class="dashboard-card network-card">
+<div class="dashboard-card network-card">
     <div class="dashboard-card-title">
         <span class="metric-icon network-icon">◆</span>
         <span>Network Usage</span>
