@@ -1436,6 +1436,36 @@ pre {{
     }}
 }}
 
+
+.web-ui-actions {{
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}}
+
+.web-ui-action {{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}}
+
+.web-ui-address {{
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+}}
+
+.button.disabled {{
+    opacity: 0.42;
+    cursor: default;
+    pointer-events: none;
+}}
+
+.web-ui-address.disabled {{
+    color: #94a3b8;
+}}
+
 .info-card {{
     position: relative;
     grid-column: 1 / -1;
@@ -1621,6 +1651,11 @@ def main_page(host):
     port = get_port()
     auth = get_auth_enabled()
     https = get_https_enabled()
+    https_port = get_https_port()
+
+    https_button_class = "" if https else " disabled"
+    https_href = "https://{}:{}/".format(host, https_port) if https else "#"
+    https_disabled_attr = "" if https else ' aria-disabled="true" tabindex="-1"'
 
     status_class = (
         "status-running"
@@ -1660,11 +1695,26 @@ def main_page(host):
         <div class="{0}">{1}</div>
         <div class="status-subtitle">TorrServer is running normally.</div>
     </div>
-    <a class="button light-button"
-       href="http://{2}:{3}/"
-       target="_blank">
-        Open Web UI ↗
-    </a>
+    <div class="web-ui-actions">
+        <div class="web-ui-action">
+            <a class="button light-button"
+               href="http://{2}:{3}/"
+               target="_blank">
+                🌐 Open HTTP ↗
+            </a>
+            <div class="web-ui-address">http://{2}:{3}</div>
+        </div>
+
+        <div class="web-ui-action">
+            <a class="button light-button{14}"
+               href="{15}"
+               target="_blank"{16}
+               onclick="{17}">
+                🔒 Open HTTPS ↗
+            </a>
+            <div class="web-ui-address{18}">https://{2}:{19}</div>
+        </div>
+    </div>
 </div>
 
 <div class="dashboard-grid">
@@ -1773,6 +1823,12 @@ def main_page(host):
         html.escape(get_cpu_model()),
         get_cpu_cores(),
         html.escape(get_architecture()),
+         https_button_class,
+         https_href,
+         https_disabled_attr,
+         "return false;" if not https else "",
+         " disabled" if not https else "",
+         https_port,
     )
 
     body += page_footer()
