@@ -535,9 +535,20 @@ def get_cache_path():
 
 def set_cache_path(cache_path, port=None):
     import urllib.request
+    import ssl
 
     api_port = get_port() if port is None else int(port)
-    url = "http://127.0.0.1:{}/settings".format(api_port)
+
+    # If TorrServer currently has HTTPS enabled, its HTTP endpoint may
+    # redirect API POST requests with 307. Use the current HTTPS endpoint
+    # directly so settings can also be changed from HTTPS back to HTTP.
+    if get_https_enabled():
+        api_port = get_https_port()
+        url = "https://127.0.0.1:{}/settings".format(api_port)
+        ssl_context = ssl._create_unverified_context()
+    else:
+        url = "http://127.0.0.1:{}/settings".format(api_port)
+        ssl_context = None
     payload = {
         "action": "set",
         "sets": {
@@ -557,7 +568,17 @@ def set_cache_path(cache_path, port=None):
         request.add_header("Authorization", auth_header)
 
     try:
-        with urllib.request.urlopen(request, timeout=5) as response:
+        if ssl_context is not None:
+            response_context = ssl_context
+        else:
+            response_context = None
+
+        if response_context is not None:
+            response = urllib.request.urlopen(request, timeout=5, context=response_context)
+        else:
+            response = urllib.request.urlopen(request, timeout=5)
+
+        with response:
             if response.status != 200:
                 return False, "Unable to apply cache directory"
 
