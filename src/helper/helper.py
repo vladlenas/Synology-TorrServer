@@ -1727,6 +1727,17 @@ def main_page(host):
     auth = get_auth_enabled()
     https = get_https_enabled()
     https_port = get_https_port()
+    force_https = get_force_https() and https
+
+    http_action = "" if force_https else '''        <div class="web-ui-action">
+            <a class="button light-button"
+               href="http://{0}:{1}/"
+               target="_blank">
+                🌐 Open HTTP ↗
+            </a>
+            <div class="web-ui-address">http://{0}:{1}</div>
+        </div>
+'''.format(host, port)
 
     https_button_class = "" if https else " disabled"
     https_href = "https://{}:{}/".format(host, https_port) if https else "#"
@@ -1771,15 +1782,7 @@ def main_page(host):
         <div class="status-subtitle">TorrServer is running normally.</div>
     </div>
     <div class="web-ui-actions">
-        <div class="web-ui-action">
-            <a class="button light-button"
-               href="http://{2}:{3}/"
-               target="_blank">
-                🌐 Open HTTP ↗
-            </a>
-            <div class="web-ui-address">http://{2}:{3}</div>
-        </div>
-
+        {13}
         <div class="web-ui-action">
             <a class="button light-button{14}"
                href="{15}"
@@ -1898,6 +1901,7 @@ def main_page(host):
         html.escape(get_cpu_model()),
         get_cpu_cores(),
         html.escape(get_architecture()),
+         http_action,
          https_button_class,
          https_href,
          https_disabled_attr,
