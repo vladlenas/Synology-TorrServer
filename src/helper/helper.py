@@ -1782,15 +1782,15 @@ def main_page(host):
         <div class="status-subtitle">TorrServer is running normally.</div>
     </div>
     <div class="web-ui-actions">
-        {13}
+        {14}
         <div class="web-ui-action">
-            <a class="button light-button{14}"
-               href="{15}"
-               target="_blank"{16}
-               onclick="{17}">
+            <a class="button light-button{15}"
+               href="{16}"
+               target="_blank"{17}
+               onclick="{18}">
                 🔒 Open HTTPS ↗
             </a>
-            <div class="web-ui-address{18}">https://{2}:{19}</div>
+            <div class="web-ui-address{19}">https://{2}:{20}</div>
         </div>
     </div>
 </div>
