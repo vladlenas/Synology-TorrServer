@@ -533,10 +533,11 @@ def get_cache_path():
     return "/volume1/downloads"
 
 
-def set_cache_path(cache_path):
+def set_cache_path(cache_path, port=None):
     import urllib.request
 
-    url = "http://127.0.0.1:{}/settings".format(get_port())
+    api_port = get_port() if port is None else int(port)
+    url = "http://127.0.0.1:{}/settings".format(api_port)
     payload = {
         "action": "set",
         "sets": {
@@ -567,10 +568,56 @@ def set_cache_path(cache_path):
         return False, "Unable to apply cache directory: {}".format(e)
 
 
+PASSWORD_PLACEHOLDER = "••••••••"
+
+
+def get_saved_account():
+    try:
+        with open(ACCS_FILE, "r", encoding="utf-8") as f:
+            accounts = json.load(f)
+
+        if not isinstance(accounts, dict) or not accounts:
+            return "", ""
+
+        username, password = next(iter(accounts.items()))
+        return str(username), str(password)
+    except Exception:
+        return "", ""
+
+
+def get_listening_tcp_ports():
+    ports = set()
+
+    for path in ("/proc/net/tcp", "/proc/net/tcp6"):
+        try:
+            with open(path, "r", encoding="ascii") as f:
+                next(f, None)
+                for line in f:
+                    parts = line.split()
+                    if len(parts) < 4 or parts[3] != "0A":
+                        continue
+
+                    local_address = parts[1]
+                    try:
+                        _, port_hex = local_address.rsplit(":", 1)
+                        ports.add(int(port_hex, 16))
+                    except (ValueError, TypeError):
+                        continue
+        except (OSError, IOError):
+            continue
+
+    return ports
+
+
+def is_port_in_use(port_number, allowed_ports=None):
+    allowed_ports = set(allowed_ports or ())
+    return port_number in (get_listening_tcp_ports() - allowed_ports)
+
+
 def save_settings(params):
     port = params.get("port", [""])[0].strip()
     auth = params.get("auth", ["0"])[0]
-    username = params.get("username", [""])[0]
+    username = params.get("username", [""])[0].strip()
     password = params.get("password", [""])[0]
     cache_path = params.get("cache_path", [""])[0].strip()
     https = params.get("https", ["0"])[0]
@@ -579,6 +626,10 @@ def save_settings(params):
     ssl_mode = params.get("ssl_mode", [SSL_CERT_MODE_SELF])[0].strip().lower()
     ssl_cert = params.get("ssl_cert", [""])[0].strip()
     ssl_key = params.get("ssl_key", [""])[0].strip()
+
+    old_port = get_port()
+    old_https_port = get_https_port()
+    saved_username, saved_password = get_saved_account()
 
     if ssl_mode not in (SSL_CERT_MODE_SELF, SSL_CERT_MODE_DSM, SSL_CERT_MODE_MANUAL):
         return False, "Invalid certificate mode"
@@ -596,40 +647,56 @@ def save_settings(params):
 
     port_number = int(port)
 
-    if port_number < 1 or port_number > 65535:
-        return False, "Invalid port"
+    if port_number < 1024 or port_number > 65535:
+        return False, "Web port must be between 1024 and 65535"
 
     if not https_port.isdigit():
         return False, "Invalid HTTPS port"
 
     https_port_number = int(https_port)
 
-    if https_port_number < 1 or https_port_number > 65535:
-        return False, "Invalid HTTPS port"
+    if https_port_number < 1024 or https_port_number > 65535:
+        return False, "HTTPS port must be between 1024 and 65535"
+
+    if port_number in (HELPER_PORT, HELPER_HTTPS_PORT):
+        return False, "Web port {} is reserved for TorrServer Helper".format(port_number)
+
+    if https_port_number in (HELPER_PORT, HELPER_HTTPS_PORT):
+        return False, "HTTPS port {} is reserved for TorrServer Helper".format(https_port_number)
 
     if https == "1" and https_port_number == port_number:
         return False, "HTTPS port must differ from Web port"
 
-    write_file(PORT_FILE, str(port_number))
-    write_file(HTTPS_PORT_FILE, str(https_port_number))
-    write_file(HTTPS_FILE, "1" if https == "1" else "0")
-    write_file(FORCE_HTTPS_FILE, "1" if force_https == "1" and https == "1" else "0")
-    write_file(SSL_MODE_FILE, ssl_mode)
-    write_file(SSL_CERT_FILE, ssl_cert)
-    write_file(SSL_KEY_FILE, ssl_key)
+    if port_number == old_https_port and port_number != old_port:
+        return False, "Web port {} is currently used by TorrServer HTTPS".format(port_number)
 
-    if cache_path:
-        ok, cache_message = set_cache_path(cache_path)
-        if not ok:
-            return False, cache_message
+    if https_port_number == old_port and https_port_number != old_https_port:
+        return False, "HTTPS port {} is currently used by TorrServer HTTP".format(https_port_number)
+
+    if is_port_in_use(port_number, allowed_ports={old_port}):
+        return False, "Web port {} is already in use".format(port_number)
+
+    if is_port_in_use(https_port_number, allowed_ports={old_https_port}):
+        return False, "HTTPS port {} is already in use".format(https_port_number)
 
     if auth == "1":
         if not username:
             return False, "Username is required"
 
-        if not password:
-            return False, "Password is required"
+        if password == PASSWORD_PLACEHOLDER or not password:
+            if saved_password:
+                password = saved_password
+            else:
+                return False, "Password is required"
 
+    # TorrServer is still listening on old_port at this point.
+    # Apply API-backed settings before changing its configured port.
+    if cache_path:
+        ok, cache_message = set_cache_path(cache_path, old_port)
+        if not ok:
+            return False, cache_message
+
+    if auth == "1":
         account = {
             username: password
         }
@@ -638,9 +705,16 @@ def save_settings(params):
             json.dump(account, f)
 
         write_file(AUTH_FILE, "1")
-
     else:
         write_file(AUTH_FILE, "0")
+
+    write_file(PORT_FILE, str(port_number))
+    write_file(HTTPS_PORT_FILE, str(https_port_number))
+    write_file(HTTPS_FILE, "1" if https == "1" else "0")
+    write_file(FORCE_HTTPS_FILE, "1" if force_https == "1" and https == "1" else "0")
+    write_file(SSL_MODE_FILE, ssl_mode)
+    write_file(SSL_CERT_FILE, ssl_cert)
+    write_file(SSL_KEY_FILE, ssl_key)
 
     return True, "Settings saved"
 
@@ -1845,6 +1919,7 @@ def settings_page(message="", cache_path_override=""):
     force_https = get_force_https()
     ssl_mode = get_ssl_mode()
     ssl_cert, ssl_key = get_ssl_paths()
+    saved_username, saved_password = get_saved_account()
     dsm_certs = get_dsm_certificates()
 
     if not dsm_certs:
@@ -1889,7 +1964,7 @@ Some changes require a restart of the TorrServer service to take effect.
 
         <div class="form-row">
             <label for="webPort">Web port (HTTP)</label>
-            <input id="webPort" type="number" name="port" min="1" max="65535" value="{}">
+            <input id="webPort" type="number" name="port" min="1024" max="65535" value="{}">
         </div>
 
         <div class="form-row">
@@ -1919,7 +1994,7 @@ Some changes require a restart of the TorrServer service to take effect.
 
         <div class="form-row">
             <label for="httpsPort">HTTPS port</label>
-            <input id="httpsPort" type="number" name="https_port" min="1" max="65535" value="{}">
+            <input id="httpsPort" type="number" name="https_port" min="1024" max="65535" value="{}">
         </div>
 
         <div class="checkbox-row">
@@ -1991,12 +2066,12 @@ Some changes require a restart of the TorrServer service to take effect.
         <div id="authFields">
             <div class="form-row">
                 <label for="username">Username</label>
-                <input id="username" type="text" name="username" value="" {}>
+                <input id="username" type="text" name="username" value="{}" {}>
             </div>
 
             <div class="form-row">
                 <label for="password">Password</label>
-                <input id="password" type="password" name="password" value="" {}>
+                <input id="password" type="password" name="password" value="{}" data-password-placeholder="{}" {}>
             </div>
         </div>
 
@@ -2061,6 +2136,23 @@ function openCacheBrowser() {{
     window.location.href = './browse?path=' + encodeURIComponent(path);
 }}
 
+var passwordField = document.getElementById('password');
+if (passwordField) {{
+    var passwordPlaceholder = passwordField.getAttribute('data-password-placeholder') || '';
+
+    passwordField.addEventListener('focus', function() {{
+        if (this.value === passwordPlaceholder) {{
+            this.value = '';
+        }}
+    }});
+
+    passwordField.addEventListener('blur', function() {{
+        if (!this.value && passwordPlaceholder) {{
+            this.value = passwordPlaceholder;
+        }}
+    }});
+}}
+
 toggleHttps();
 toggleSslMode();
 toggleAuth();
@@ -2087,7 +2179,10 @@ toggleAuth();
         html.escape(ssl_cert, quote=True),
         html.escape(ssl_key, quote=True),
         "checked" if auth else "",
+        html.escape(saved_username, quote=True),
         "" if auth else "disabled",
+        html.escape(PASSWORD_PLACEHOLDER if saved_password else "", quote=True),
+        html.escape(PASSWORD_PLACEHOLDER if saved_password else "", quote=True),
         "" if auth else "disabled",
     )
 
