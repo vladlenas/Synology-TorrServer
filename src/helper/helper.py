@@ -535,20 +535,16 @@ def get_cache_path():
 
 def set_cache_path(cache_path, port=None):
     import urllib.request
+    import urllib.error
     import ssl
 
-    api_port = get_port() if port is None else int(port)
+    # IMPORTANT: use the port/protocol that TorrServer is actually running on.
+    # The saved HTTPS/Force-HTTPS flags may describe the NEW configuration
+    # which has not been applied until Restart. Therefore we must not select
+    # HTTPS solely from get_https_enabled().
+    http_port = get_port() if port is None else int(port)
+    https_port = get_https_port()
 
-    # If TorrServer currently has HTTPS enabled, its HTTP endpoint may
-    # redirect API POST requests with 307. Use the current HTTPS endpoint
-    # directly so settings can also be changed from HTTPS back to HTTP.
-    if get_https_enabled():
-        api_port = get_https_port()
-        url = "https://127.0.0.1:{}/settings".format(api_port)
-        ssl_context = ssl._create_unverified_context()
-    else:
-        url = "http://127.0.0.1:{}/settings".format(api_port)
-        ssl_context = None
     payload = {
         "action": "set",
         "sets": {
@@ -556,37 +552,63 @@ def set_cache_path(cache_path, port=None):
         }
     }
 
-    request = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-
     auth_header = get_api_auth_header()
-    if auth_header:
-        request.add_header("Authorization", auth_header)
+    last_error = None
 
-    try:
-        if ssl_context is not None:
-            response_context = ssl_context
-        else:
-            response_context = None
+    # Try the current HTTP endpoint first. This is important immediately
+    # after saving "Enable HTTPS" but before the user presses Restart: the
+    # running TorrServer is still HTTP even though the config file now says
+    # HTTPS=1.
+    endpoints = [
+        ("http://127.0.0.1:{}/settings".format(http_port), None),
+    ]
 
-        if response_context is not None:
-            response = urllib.request.urlopen(request, timeout=5, context=response_context)
-        else:
-            response = urllib.request.urlopen(request, timeout=5)
+    # If the running instance is already HTTPS-only, HTTP may return a 3xx
+    # redirect or refuse the connection. In that case fall back to HTTPS.
+    if https_port != http_port:
+        endpoints.append(
+            ("https://127.0.0.1:{}/settings".format(https_port),
+             ssl._create_unverified_context())
+        )
 
-        with response:
-            if response.status != 200:
-                return False, "Unable to apply cache directory"
+    for url, ssl_context in endpoints:
+        request = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
 
-        write_file(CACHE_PATH_FILE, cache_path)
-        return True, ""
+        if auth_header:
+            request.add_header("Authorization", auth_header)
 
-    except Exception as e:
-        return False, "Unable to apply cache directory: {}".format(e)
+        try:
+            if ssl_context is None:
+                response = urllib.request.urlopen(request, timeout=5)
+            else:
+                response = urllib.request.urlopen(
+                    request, timeout=5, context=ssl_context
+                )
+
+            with response:
+                if response.status == 200:
+                    write_file(CACHE_PATH_FILE, cache_path)
+                    return True, ""
+
+                last_error = "HTTP Error {}".format(response.status)
+
+        except urllib.error.HTTPError as e:
+            last_error = "HTTP Error {}: {}".format(e.code, e.reason)
+            # A redirect is expected when the running instance forces HTTPS.
+            # Continue to the HTTPS endpoint below.
+            continue
+        except Exception as e:
+            last_error = str(e)
+            # Connection refused is expected when the running instance is
+            # HTTPS-only. Continue to the HTTPS endpoint below.
+            continue
+
+    return False, "Unable to apply cache directory: {}".format(last_error or "request failed")
 
 
 PASSWORD_PLACEHOLDER = "••••••••"
