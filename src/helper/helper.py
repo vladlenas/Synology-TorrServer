@@ -1760,9 +1760,19 @@ def main_page(host):
         </div>
 '''.format(host, port)
 
-    https_button_class = "" if https else " disabled"
-    https_href = "https://{}:{}/".format(host, https_port) if https else "#"
-    https_disabled_attr = "" if https else ' aria-disabled="true" tabindex="-1"'
+    https_action = ""
+    if https:
+        https_action = '''        <div class="web-ui-action">
+            <a class="button light-button"
+               href="https://{0}:{1}/"
+               target="_blank">
+                🔒 Open HTTPS ↗
+            </a>
+            <div class="web-ui-address">https://{0}:{1}</div>
+        </div>
+'''.format(host, https_port)
+
+    web_ui_actions = http_action + https_action
 
     status_class = (
         "status-running"
@@ -1802,18 +1812,7 @@ def main_page(host):
         <div class="{0}">{1}</div>
         <div class="status-subtitle">TorrServer is running normally.</div>
     </div>
-    <div class="web-ui-actions">
-        {14}
-        <div class="web-ui-action">
-            <a class="button light-button{15}"
-               href="{16}"
-               target="_blank"{17}
-               onclick="{18}">
-                🔒 Open HTTPS ↗
-            </a>
-            <div class="web-ui-address{19}">https://{2}:{20}</div>
-        </div>
-    </div>
+    {14}
 </div>
 
 <div class="dashboard-grid">
@@ -1922,13 +1921,7 @@ def main_page(host):
         html.escape(get_cpu_model()),
         get_cpu_cores(),
         html.escape(get_architecture()),
-         http_action,
-         https_button_class,
-         https_href,
-         https_disabled_attr,
-         "return false;" if not https else "",
-         " disabled" if not https else "",
-         https_port,
+         '<div class="web-ui-actions">{}</div>'.format(web_ui_actions) if web_ui_actions else '',
     )
 
     body += page_footer()
