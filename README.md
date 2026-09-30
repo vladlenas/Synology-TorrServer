@@ -1,3 +1,15 @@
+# ⚠️ ARCHIVED — THIS REPOSITORY IS NO LONGER MAINTAINED
+
+This branch is archived and will not receive further updates.
+
+The project has moved to **TorrServer DSM**. Please use the new repository:
+
+**https://github.com/vladlenas/TorrServer-DSM**
+
+All further development, releases and updates are published there.
+
+---
+
 # TorrServer package for Synology NAS
 
 Synology NAS package for DSM 7.3 and newer, based on TorrServer binaries:
